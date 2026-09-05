@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://evergreenresources.org/sitemap.xml 
+Sitemap: https://everixaworkforce.com/sitemap.xml 

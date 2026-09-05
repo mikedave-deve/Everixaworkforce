@@ -1,21 +1,17 @@
 import { industries } from '../data'
 import { useScrollReveal } from '../hooks/useScrollReveal'
+import PageHeaderImage from '../components/PageHeaderImage'
+import industriesHero from '../assets/stock/industries-team.jpg'
 
 function PageHeader() {
   return (
-    <div className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
-        <p className="section-label text-forest-400 mb-3">Sector Focus</p>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl mb-6">
-          Deep Expertise Across{' '}
-          <span className="text-forest-400">Every Industrial Discipline</span>
-        </h1>
-        <p className="font-body text-base md:text-lg text-cream-200/60 max-w-xl leading-relaxed">
-           We're devoted to bringing you thee best. Our practice spans
-          every major discipline within the sector.
-        </p>
-      </div>
-    </div>
+    <PageHeaderImage
+      image={industriesHero}
+      label="Sector Focus"
+      title="Deep Expertise Across"
+      highlight="Every Industrial Discipline"
+      subtitle="We're devoted to bringing you the best. Our practice spans every major discipline within the sector."
+    />
   )
 }
 

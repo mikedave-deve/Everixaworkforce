@@ -30,7 +30,7 @@ export default function Footer() {
         <div className="container-main flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <p className="label-tag">Ready to grow?</p>
-            <h3 className="font-display text-2xl text-cream-100">Partner with Evergreen Resources today.</h3>
+            <h3 className="font-display text-2xl text-cream-100">Partner with Everixa Workforce today.</h3>
           </div>
           <div className="flex gap-3">
             <Link to="/jobs" className="btn-gold text-sm">Browse Jobs</Link>
@@ -49,7 +49,7 @@ export default function Footer() {
                 <Leaf size={16} className="text-forest-950" />
               </div>
               <span className="font-display text-xl text-cream-100">
-                Evergreen <span className="text-gold-400 font-300 italic">Resources</span>
+                Everixa <span className="text-gold-400 font-300 italic">Workforce</span>
               </span>
             </Link>
             <p className="text-sm text-cream-300 leading-relaxed max-w-xs mb-6">
@@ -59,7 +59,7 @@ export default function Footer() {
             <div className="space-y-2 text-sm text-cream-300">
               <div className="flex items-center gap-2"><MapPin size={14} className="text-gold-500 shrink-0" /><span>1200 Forest Way, Suite 400, Austin TX 78701</span></div>
               <div className="flex items-center gap-2"><Phone size={14} className="text-gold-500 shrink-0" /><span>(863) 243-3789 </span></div>
-              <div className="flex items-center gap-2"><Mail size={14} className="text-gold-500 shrink-0" /><span>info@evergreenresources.org</span></div>
+              <div className="flex items-center gap-2"><Mail size={14} className="text-gold-500 shrink-0" /><span>info@everixaworkforce.com</span></div>
             </div>
           </div>
 
@@ -84,7 +84,7 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-forest-800">
         <div className="container-main py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-cream-300">© {new Date().getFullYear()} Evergreen Resources LLC. All rights reserved.</p>
+          <p className="text-xs text-cream-300">© {new Date().getFullYear()} Everixa Workforce LLC. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <a href="#" className="text-cream-300 hover:text-gold-400 transition-colors"><Linkedin size={16} /></a>
             <a href="#" className="text-cream-300 hover:text-gold-400 transition-colors"><Twitter size={16} /></a>

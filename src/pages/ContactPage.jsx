@@ -1,6 +1,8 @@
 import { useState }                                 from 'react'
 import { Mail, Phone, MapPin, Clock, CheckCircle2 } from 'lucide-react'
 import { useScrollReveal }                          from '../hooks/useScrollReveal'
+import PageHeaderImage                              from '../components/PageHeaderImage'
+import contactHero                                  from '../assets/stock/contact-lobby.jpg'
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -8,19 +10,13 @@ const API_URL = import.meta.env.VITE_API_URL
 
 function PageHeader() {
   return (
-    <div className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
-        <p className="section-label text-forest-400 mb-3">Get in Touch</p>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl mb-6">
-          Let's Start a{' '}
-          <span className="text-forest-400">Real Conversation</span>
-        </h1>
-        <p className="font-body text-base md:text-lg text-cream-200/60 max-w-xl leading-relaxed">
-          Whether you're looking to hire or looking for your next role,
-          we respond to every inquiry within one business day.
-        </p>
-      </div>
-    </div>
+    <PageHeaderImage
+      image={contactHero}
+      label="Get in Touch"
+      title="Let's Start a"
+      highlight="Real Conversation"
+      subtitle="Whether you're looking to hire or looking for your next role, we respond to every inquiry within one business day."
+    />
   )
 }
 
@@ -253,10 +249,10 @@ function ContactSection() {
                 <span className="font-body text-sm font-semibold text-forest-900">Direct Email</span>
               </div>
               <a
-                href="mailto:info@evergreenresources.org"
+                href="mailto:info@everixaworkforce.com"
                 className="font-body text-xs text-forest-600 hover:text-forest-800 transition-colors"
               >
-                info@evergreenresources.org
+                info@everixaworkforce.com
               </a>
             </div>
 

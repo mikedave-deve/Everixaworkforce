@@ -7,7 +7,7 @@ export const jobs = [
   {
     id: 1,
     title: 'Environmental Project Manager',
-    company: 'Evergreen Resources',
+    company: 'Everixa Workforce',
     location: 'Portland, OR',
     type: 'Full-Time',
     category: 'Management',
@@ -245,7 +245,7 @@ export const testimonials = [
   {
     id: 1,
     quote:
-      "Evergreen Resources consistently delivers candidates who genuinely understand both the technical and regulatory dimensions of our work. They've placed four of our key project managers - all exceptional hires.",
+      "Everixa Workforce consistently delivers candidates who genuinely understand both the technical and regulatory dimensions of our work. They've placed four of our key project managers - all exceptional hires.",
     name: 'Dr. Rebecca Holt',
     title: 'Director of Operations',
     company: 'Pacific Basin Environmental',
@@ -254,7 +254,7 @@ export const testimonials = [
   {
     id: 2,
     quote:
-      "When our Phase II team needed to triple in size before a major field season, Evergreen mobilized eight qualified technicians in under a week. Quality didn't suffer for speed.",
+      "When our Phase II team needed to triple in size before a major field season, Everixa mobilized eight qualified technicians in under a week. Quality didn't suffer for speed.",
     name: 'Marcus Chen',
     title: 'VP of Field Services',
     company: 'SteelBridge Consulting Group',
@@ -263,7 +263,7 @@ export const testimonials = [
   {
     id: 3,
     quote:
-      "I was skeptical that a recruiter could find someone with both the RCRA expertise and leadership skills we needed. Evergreen proved me wrong - our new Compliance Director is outstanding.",
+      "I was skeptical that a recruiter could find someone with both the RCRA expertise and leadership skills we needed. Everixa proved me wrong - our new Compliance Director is outstanding.",
     name: 'Amanda Torres',
     title: 'Chief Environmental Officer',
     company: 'Cascade Manufacturing',
@@ -298,7 +298,7 @@ export const team = [
     id: 1,
     name: 'Catherine Moore',
     title: 'Founder & CEO',
-    bio: 'Former environmental engineer with 12 years in the field before founding Evergreen Resources. Catherine built the firm on the principle that great hiring starts with technical fluency.',
+    bio: 'Former environmental engineer with 12 years in the field before founding Everixa Workforce. Catherine built the firm on the principle that great hiring starts with technical fluency.',
     initials: 'CM',
   },
   {
@@ -328,7 +328,7 @@ export const team = [
 //  TIMELINE DATA
 // ─────────────────────────────────────────────
 export const timeline = [
-  { year: '2006', event: 'Evergreen Resources founded in Portland, OR with a focus on environmental consulting placements.' },
+  { year: '2006', event: 'Everixa Workforce founded in Portland, OR with a focus on environmental consulting placements.' },
   { year: '2010', event: 'Expanded into EHS and compliance staffing; grew to a team of 12 specialists.' },
   { year: '2014', event: 'Launched executive search practice. Completed first C-suite placement.' },
   { year: '2018', event: 'Opened offices in Seattle and San Francisco. Surpassed 500 active client accounts.' },

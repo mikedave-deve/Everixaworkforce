@@ -70,7 +70,7 @@ export const staff = [
     name: 'LEAH SUMMERS',
     role: 'MARKETING & BRAND COORDINATOR',
     image: DDF,
-    bio: 'Shapes the Evergreen brand across every digital touchpoint.',
+    bio: 'Shapes the Everixa brand across every digital touchpoint.',
   },
 ]
 

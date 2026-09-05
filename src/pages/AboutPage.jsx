@@ -1,110 +1,65 @@
-import { industries } from '../data'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Target, HeartHandshake, Sparkles } from 'lucide-react'
+import { timeline } from '../data'
+import { staff } from '../data/staff'
 import { useScrollReveal } from '../hooks/useScrollReveal'
+import PageHeaderImage from '../components/PageHeaderImage'
+import aboutHero from '../assets/stock/about-team.jpg'
 
 function PageHeader() {
   return (
-    <div className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
-        <p className="section-label text-forest-400 mb-3">Sector Focus</p>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl mb-6">
-          Deep Expertise Across{' '}
-          <span className="text-forest-400">Every Industrial Discipline</span>
-        </h1>
-        <p className="font-body text-base md:text-lg text-cream-200/60 max-w-xl leading-relaxed">
-          We're devoted to bringing you thee best. Our practice spans
-          every major discipline within the sector.
-        </p>
-      </div>
-    </div>
+    <PageHeaderImage
+      image={aboutHero}
+      label="About Us"
+      title="People-First Staffing,"
+      highlight="Built On Real Connections"
+      subtitle="Everixa Workforce was founded on a simple idea: the right hire changes everything. Since 2006 we've built a firm that treats every placement like a long-term relationship, not a transaction."
+    />
   )
 }
 
-const extendedIndustries = [
-  ...industries,
-  {
-    id: 'climate',
-    title: 'Climate & Sustainability',
-    icon: '',
-    description: 'Corporate sustainability, carbon accounting, and climate strategy professionals.',
-    color: 'bg-forest-50 border-forest-200',
-  },
-  {
-    id: 'mining',
-    title: 'Mining & Reclamation',
-    icon: '',
-    description: 'Mine closure, reclamation bonds, and post-mining land use specialists.',
-    color: 'bg-cream-50 border-cream-300',
-  },
-  {
-    id: 'waste',
-    title: 'Waste Management',
-    icon: '',
-    description: 'Solid waste, hazardous materials, and landfill operations professionals.',
-    color: 'bg-forest-50 border-forest-200',
-  },
-  {
-    id: 'oil',
-    title: 'Oil & Gas Environmental',
-    icon: '',
-    description: 'Upstream and midstream environmental compliance, spill response, and permitting.',
-    color: 'bg-cream-50 border-cream-300',
-  },
-]
-
-function IndustriesGrid() {
+function OurStory() {
   const ref = useScrollReveal('.reveal')
+  const values = [
+    { icon: <Target className="w-5 h-5 text-forest-600" />, title: 'Purpose-Driven', body: 'We measure success by long-term retention, not just filled seats.' },
+    { icon: <HeartHandshake className="w-5 h-5 text-forest-600" />, title: 'People-First', body: 'Every candidate and client is a relationship we invest in for the long run.' },
+    { icon: <Sparkles className="w-5 h-5 text-forest-600" />, title: 'Genuinely Curious', body: 'We take the time to understand the work, not just the job title.' },
+  ]
+
   return (
     <section className="section-wrapper bg-white" ref={ref}>
       <div className="container-base">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {extendedIndustries.map((ind) => (
-            <div key={ind.id}
-                 className={`reveal group p-6 rounded-sm border ${ind.color}
-                             hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer`}>
-              <div className="text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                {ind.icon}
-              </div>
-              <h3 className="font-display text-lg font-semibold text-forest-900 mb-2
-                             group-hover:text-forest-700 transition-colors">
-                {ind.title}
-              </h3>
-              <p className="font-body text-sm text-forest-700/65 leading-relaxed">
-                {ind.description}
-              </p>
-              <div className="mt-4 h-0.5 w-8 bg-forest-400 group-hover:w-full transition-all duration-500 rounded-full" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function WhySpecialize() {
-  const ref = useScrollReveal('.reveal')
-  return (
-    <section className="section-wrapper bg-forest-900" ref={ref}>
-      <div className="container-base">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="section-label text-forest-400 mb-3 reveal">Why It Matters</p>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6 reveal">
-            Specialization Produces Better Outcomes
-          </h2>
-          <p className="font-body text-base text-cream-200/60 leading-relaxed mb-10 reveal">
-            A recruiter views various industry sector as a category.
-            We view it as a calling. That difference shows up in every conversation,
-            every screen, and every placement.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { stat: '94%', label: '1-Year Retention', desc: 'Because we validate true fit, not just keywords' },
-              { stat: '18d', label: 'Avg. Time-to-Offer', desc: 'vs. 42 days industry average' },
-              { stat: '8', label: 'Technical Disciplines', desc: 'Covered by our specialized practice teams' },
-            ].map((item) => (
-              <div key={item.label} className="reveal bg-forest-800/50 rounded-sm p-6 border border-forest-700/50">
-                <div className="font-display text-4xl font-bold text-forest-300 mb-2">{item.stat}</div>
-                <div className="font-body text-sm font-semibold text-white mb-1">{item.label}</div>
-                <div className="font-body text-xs text-forest-400">{item.desc}</div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <div className="reveal">
+            <p className="section-label mb-3">Our Story</p>
+            <h2 className="section-title mb-5">
+              Creating Connections{' '}
+              <span className="text-forest-600">Since 2006</span>
+            </h2>
+            <p className="font-body text-base text-forest-700/70 leading-relaxed mb-4">
+              Everixa Workforce started with a single recruiter and a conviction that
+              staffing could be done better: with real conversations, honest assessments,
+              and a genuine investment in getting the match right the first time.
+            </p>
+            <p className="font-body text-base text-forest-700/70 leading-relaxed">
+              Two decades later, we've grown into a nationwide network — but the philosophy
+              hasn't changed. We still pick up the phone, we still ask about your goals
+              before your resume, and we still believe great hiring starts with people,
+              not keywords.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            {values.map((v) => (
+              <div key={v.title}
+                   className="reveal flex items-center gap-5 p-5 bg-forest-50 border border-forest-100
+                              rounded-sm hover:shadow-md hover:border-forest-200 transition-all duration-300">
+                <div className="w-11 h-11 bg-white border border-forest-200 rounded-sm flex items-center justify-center shrink-0">
+                  {v.icon}
+                </div>
+                <div>
+                  <p className="font-display text-lg font-semibold text-forest-900">{v.title}</p>
+                  <p className="font-body text-sm text-forest-700/70">{v.body}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -114,12 +69,107 @@ function WhySpecialize() {
   )
 }
 
-export default function IndustriesPage() {
+function OurJourney() {
+  const ref = useScrollReveal('.reveal')
+  return (
+    <section className="section-wrapper bg-forest-50" ref={ref}>
+      <div className="container-base">
+        <div className="text-center mb-14 reveal">
+          <p className="section-label mb-3">Milestones</p>
+          <h2 className="section-title">Our Journey</h2>
+        </div>
+        <div className="max-w-3xl mx-auto">
+          {timeline.map((item, i) => (
+            <div key={item.year} className="reveal relative pl-10 pb-10 last:pb-0 border-l-2 border-forest-200 last:border-transparent">
+              <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-forest-600 border-4 border-forest-50" />
+              <p className="font-display text-2xl font-bold text-forest-700 mb-1.5">{item.year}</p>
+              <p className="font-body text-sm text-forest-700/75 leading-relaxed">{item.event}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function LeadershipTeaser() {
+  const ref = useScrollReveal('.reveal')
+  const leaders = staff.slice(0, 4)
+
+  return (
+    <section className="section-wrapper bg-white" ref={ref}>
+      <div className="container-base">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div className="reveal">
+            <p className="section-label mb-3">Leadership</p>
+            <h2 className="section-title">The People Behind Everixa</h2>
+          </div>
+          <Link to="/staff" className="reveal btn-outline text-sm self-start md:self-auto shrink-0">
+            Meet the Full Team
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {leaders.map((member) => (
+            <div key={member.id} className="reveal card-base group overflow-hidden">
+              <div className="relative overflow-hidden bg-forest-100" style={{ aspectRatio: '4/4' }}>
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-forest-900/0 group-hover:bg-forest-900/20 transition-all duration-300" />
+              </div>
+              <div className="p-5">
+                <h3 className="font-display text-lg font-semibold text-forest-900 mb-0.5 group-hover:text-forest-700 transition-colors">
+                  {member.name}
+                </h3>
+                <p className="font-body text-xs font-medium text-forest-500 tracking-wide uppercase">
+                  {member.role}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function CTASection() {
+  return (
+    <section className="section-wrapper bg-forest-900">
+      <div className="container-base text-center">
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+          Ready to write the next chapter with us?
+        </h2>
+        <p className="font-body text-base text-cream-200/60 mb-8 max-w-xl mx-auto">
+          Whether you're hiring or looking for your next role, we'd love to hear from you.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link to="/contact" className="btn-primary bg-forest-400 hover:bg-forest-300 text-forest-950">
+            Get in Touch <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link to="/jobs"
+                className="inline-flex items-center gap-2 border-2 border-cream-200/30 text-cream-100
+                           hover:border-cream-200/60 hover:bg-white/5 font-body font-medium
+                           px-6 py-3 rounded-sm transition-all duration-300">
+            View Open Positions
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export default function AboutPage() {
   return (
     <>
       <PageHeader />
-      <IndustriesGrid />
-      <WhySpecialize />
+      <OurStory />
+      <OurJourney />
+      <LeadershipTeaser />
+      <CTASection />
     </>
   )
 }

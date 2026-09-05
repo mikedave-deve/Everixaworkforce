@@ -2,25 +2,20 @@ import { Link } from 'react-router-dom'
 import { CheckCircle2, Users, Zap, Award, TrendingUp } from 'lucide-react'
 import { useScrollReveal, useCounterAnimation } from '../hooks/useScrollReveal'
 import { stats } from '../data'
+import PageHeaderImage from '../components/PageHeaderImage'
+import employersHero from '../assets/stock/employers-handshake.jpg'
 
 function PageHeader() {
   return (
-    <div className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
-        <p className="section-label text-forest-400 mb-3">For Employers</p>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl mb-6">
-          Hire Environmental Talent{' '}
-          <span className="text-forest-400">With Confidence</span>
-        </h1>
-        <p className="font-body text-base md:text-lg text-cream-200/60 max-w-xl leading-relaxed mb-8">
-          We're not a generalist staffing agency that happens to send environmental resumes.
-          We're the firm that environmental organizations call first.
-        </p>
-        <Link to="/contact" className="btn-primary bg-forest-500 hover:bg-forest-400 text-white">
-          Start Hiring Today
-        </Link>
-      </div>
-    </div>
+    <PageHeaderImage
+      image={employersHero}
+      label="For Employers"
+      title="Hire Environmental Talent"
+      highlight="With Confidence"
+      subtitle="We're not a generalist staffing agency that happens to send environmental resumes. We're the firm that environmental organizations call first."
+      cta="Start Hiring Today"
+      ctaHref="/contact"
+    />
   )
 }
 
@@ -104,10 +99,10 @@ function WhyChooseUs() {
       <div className="container-base">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <p className="section-label mb-3 reveal">Why Evergreen</p>
+            <p className="section-label mb-3 reveal">Why Everixa</p>
             <h2 className="section-title mb-5 reveal">Why Leading Environmental Firms Choose Us</h2>
             <p className="section-subtitle reveal">
-              Three hundred-plus organizations rely on Evergreen Resources as their
+              Three hundred-plus organizations rely on Everixa Workforce as their
               first call for environmental talent - not their last resort.
             </p>
           </div>

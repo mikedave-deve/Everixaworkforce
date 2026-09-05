@@ -2,25 +2,20 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, FileText, Search, UserCheck, Star } from 'lucide-react'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/Tabs'
+import PageHeaderImage from '../components/PageHeaderImage'
+import candidatesHero from '../assets/stock/candidates-remote.jpg'
 
 function PageHeader() {
   return (
-    <div className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
-        <p className="section-label text-forest-400 mb-3">For Candidates</p>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl mb-6">
-          A Recruiter Who Actually{' '}
-          <span className="text-forest-400">Understands Your Work</span>
-        </h1>
-        <p className="font-body text-base md:text-lg text-cream-200/60 max-w-xl leading-relaxed mb-8">
-          We do not read resumes with a keyword highlighter. We read them
-          with years of field and consulting experience behind us.
-        </p>
-        <Link to="/jobs" className="btn-primary bg-forest-500 hover:bg-forest-400 text-white">
-          View Open Positions
-        </Link>
-      </div>
-    </div>
+    <PageHeaderImage
+      image={candidatesHero}
+      label="For Candidates"
+      title="A Recruiter Who Actually"
+      highlight="Understands Your Work"
+      subtitle="We do not read resumes with a keyword highlighter. We read them with years of field and consulting experience behind us."
+      cta="View Open Positions"
+      ctaHref="/jobs"
+    />
   )
 }
 

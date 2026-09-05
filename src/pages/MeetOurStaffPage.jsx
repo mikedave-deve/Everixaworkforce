@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { staff, employeeOfTheMonthId } from '../data/staff'
+import staffHero from '../assets/stock/contact-team.jpg'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -31,8 +32,13 @@ function PageHeader() {
   }, [])
 
   return (
-    <div ref={headerRef} className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
+    <div ref={headerRef} className="relative overflow-hidden pt-32 pb-16 md:pt-40 md:pb-20">
+      <div className="absolute inset-0">
+        <img src={staffHero} alt="" className="w-full h-full object-cover animate-ken-burns" loading="eager" />
+        <div className="absolute inset-0 bg-gradient-to-r from-forest-950/95 via-forest-950/85 to-forest-950/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-transparent to-transparent" />
+      </div>
+      <div className="relative container-base">
         <p className="section-label text-forest-400 mb-3">Our People</p>
         <h1
           ref={titleRef}

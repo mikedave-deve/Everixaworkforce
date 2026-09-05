@@ -4,22 +4,18 @@ import { Search, MapPin, Briefcase, Clock, ChevronRight, SlidersHorizontal } fro
 import { jobs, jobCategories, jobTypes, jobLocations } from '../data'
 import Badge from '../components/ui/Badge'
 import { Card, CardContent } from '../components/ui/Card'
+import PageHeaderImage from '../components/PageHeaderImage'
+import jobsHero from '../assets/stock/jobs-videocall.jpg'
 
 function PageHeader() {
   return (
-    <div className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
-        <p className="section-label text-forest-400 mb-3">Career Opportunities</p>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl mb-6">
-          Find Your Next{' '}
-          <span className="text-forest-400">Career Role</span>
-        </h1>
-        <p className="font-body text-base md:text-lg text-cream-200/60 max-w-xl leading-relaxed">
-          Browse roles across various industries , engineering, compliance, and beyond.
-          Updated weekly with curated opportunities from trusted clients.
-        </p>
-      </div>
-    </div>
+    <PageHeaderImage
+      image={jobsHero}
+      label="Career Opportunities"
+      title="Find Your Next"
+      highlight="Career Role"
+      subtitle="Browse roles across various industries, engineering, compliance, and beyond. Updated weekly with curated opportunities from trusted clients."
+    />
   )
 }
 

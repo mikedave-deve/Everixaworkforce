@@ -6,22 +6,18 @@ import { useScrollReveal } from '../hooks/useScrollReveal'
 import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent
 } from '../components/ui/Accordion'
+import PageHeaderImage from '../components/PageHeaderImage'
+import servicesHero from '../assets/stock/industries-logistics.jpg'
 
 function PageHeader() {
   return (
-    <div className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
-        <p className="section-label text-forest-400 mb-3">What We Offer</p>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl mb-6">
-          Staffing Solutions That{' '}
-          <span className="text-forest-400">Match Your Scale</span>
-        </h1>
-        <p className="font-body text-base md:text-lg text-cream-200/60 max-w-xl leading-relaxed">
-          From single contract placements to full workforce strategies, our services
-          are built around the unique demands of the environmental sector.
-        </p>
-      </div>
-    </div>
+    <PageHeaderImage
+      image={servicesHero}
+      label="What We Offer"
+      title="Staffing Solutions That"
+      highlight="Match Your Scale"
+      subtitle="From single contract placements to full workforce strategies, our services are built around the unique demands of the environmental sector."
+    />
   )
 }
 
@@ -102,7 +98,7 @@ function FAQSection() {
     { q: 'Do you work with clients nationwide or only in the Pacific Northwest?', a: 'We place candidates across the continental U.S. Our core hubs are Portland, Seattle, and San Francisco, but we have successfully completed searches in 38 states.' },
     { q: 'What is your placement guarantee for direct hires?', a: 'All direct placement engagements include a 90-day guarantee. If a placed candidate leaves for any reason within 90 days, we conduct a full replacement search at no additional fee.' },
     { q: 'How do you screen candidates for technical competency?', a: 'Every candidate undergoes a structured phone screen conducted by a team member with relevant field experience. We evaluate both technical knowledge and communication skills needed for the role.' },
-    { q: 'Do you offer payroll and benefits administration for contract workers?', a: 'Yes. All contract placements are W-2 employees of Evergreen Resources. We handle payroll, workers\' compensation, unemployment insurance, and can include health benefits.' },
+    { q: 'Do you offer payroll and benefits administration for contract workers?', a: 'Yes. All contract placements are W-2 employees of Everixa Workforce. We handle payroll, workers\' compensation, unemployment insurance, and can include health benefits.' },
     { q: 'How are your fees structured?', a: 'Direct placement fees are a percentage of the candidate\'s first-year base salary, negotiated based on role complexity. Contract staffing is billed at an hourly bill rate inclusive of our margin.' },
   ]
   return (

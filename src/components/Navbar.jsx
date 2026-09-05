@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, ChevronDown, Leaf } from 'lucide-react'
+import { Menu, X, ChevronDown, User, Linkedin, Twitter, Mail } from 'lucide-react'
 import { useNavbarScroll } from '../hooks/useNavbarScroll'
 import { cn } from '../lib/utils'
+import { getSession } from '../lib/auth'
+import BrandMark from './BrandMark'
 
 const navLinks = [
   { label: 'About', href: '/about' },
@@ -32,6 +34,9 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(null)
   const location = useLocation()
+  const session = getSession()
+  const portalHref = session ? '/portal' : '/login'
+  const portalLabel = session ? 'My Portal' : 'Employee Login'
 
   // Close mobile on route change
   useEffect(() => {
@@ -53,14 +58,15 @@ export default function Navbar() {
       <div className="container-main">
         <nav className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-gold-500 flex items-center justify-center rounded-sm">
-              <Leaf size={16} className="text-forest-950" />
+          <div className="flex items-center gap-4">
+            <Link to="/" className="group">
+              <BrandMark variant="dark" />
+            </Link>
+            <div className="hidden xl:flex flex-col leading-tight border-l border-cream-100/20 pl-4">
+              <span className="text-[11px] text-cream-200/70 font-body whitespace-nowrap">Staffing &amp; Recruitment</span>
+              <span className="text-[11px] text-cream-200/70 font-body whitespace-nowrap">Since 2006</span>
             </div>
-            <span className="font-display text-xl font-600 text-cream-100 tracking-wide">
-              Evergreen <span className="text-gold-400 font-300 italic">Resources</span>
-            </span>
-          </Link>
+          </div>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
@@ -106,8 +112,28 @@ export default function Navbar() {
               )
             )}
             <Link
+              to={portalHref}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-body text-cream-200 hover:text-gold-400 transition-colors"
+            >
+              <User size={14} />
+              {portalLabel}
+            </Link>
+
+            <div className="hidden lg:flex items-center gap-1.5 ml-2 mr-1">
+              {[Linkedin, Twitter, Mail].map((Icon, i) => (
+                <a
+                  key={i}
+                  href="#"
+                  className="w-7 h-7 flex items-center justify-center border border-cream-100/30 text-cream-200 hover:border-gold-400 hover:text-gold-400 transition-colors"
+                >
+                  <Icon size={12} />
+                </a>
+              ))}
+            </div>
+
+            <Link
               to="/jobs"
-              className="ml-4 bg-gold-500 text-forest-950 px-5 py-2 text-sm font-body font-600 hover:bg-gold-400 transition-colors"
+              className="ml-1 rounded-full bg-gold-500 text-forest-950 px-5 py-2 text-sm font-body font-600 hover:bg-gold-400 transition-colors"
             >
               Find Talent
             </Link>
@@ -153,10 +179,14 @@ export default function Navbar() {
               )
             )}
             <div className="pt-3 space-y-2">
-              <Link to="/submit-resume" className="block text-center bg-gold-500 text-forest-950 px-5 py-3 text-sm font-body font-semibold hover:bg-gold-400 transition-colors touch-manipulation">
+              <Link to={portalHref} className="flex items-center justify-center gap-1.5 text-center rounded-full bg-gold-500 text-forest-950 px-5 py-3 text-sm font-body font-semibold hover:bg-gold-400 transition-colors touch-manipulation">
+                <User size={14} />
+                {portalLabel}
+              </Link>
+              <Link to="/submit-resume" className="block text-center rounded-full bg-gold-500 text-forest-950 px-5 py-3 text-sm font-body font-semibold hover:bg-gold-400 transition-colors touch-manipulation">
                 Submit Your Resume
               </Link>
-              <Link to="/jobs" className="block text-center bg-gold-500 text-forest-950 px-5 py-3 text-sm font-body font-semibold hover:bg-gold-400 transition-colors touch-manipulation">
+              <Link to="/jobs" className="block text-center rounded-full bg-gold-500 text-forest-950 px-5 py-3 text-sm font-body font-semibold hover:bg-gold-400 transition-colors touch-manipulation">
                 Find Talent
               </Link>
             </div>

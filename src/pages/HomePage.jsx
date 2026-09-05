@@ -8,6 +8,7 @@ import { services, industries, testimonials, stats } from '../data'
 import { useScrollReveal, useCounterAnimation } from '../hooks/useScrollReveal'
 import { Card, CardContent } from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
+import heroImage from '../assets/stock/hero-team.jpg'
 
 // ─── Hero Section ──────────────────────────────────────────────────────────
 function Hero() {
@@ -52,7 +53,13 @@ function Hero() {
     >
       {/* Background layers */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-forest-900 via-forest-950 to-forest-950" />
+        <img
+          src={heroImage}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover animate-ken-burns"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-forest-950/80 via-forest-950/70 to-forest-950/90" />
         <div className="absolute inset-0 opacity-10"
              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%235da45d' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }} />
         <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-forest-950 to-transparent" />
@@ -78,19 +85,19 @@ function Hero() {
             <span key={word} className="hero-word inline-block mr-[0.25em]">{word}</span>
           ))}
           <br />
-          {['what', 'we do Best.'].map(word => (
-            <span key={word}
-                  className={`hero-word inline-block mr-[0.25em] ${word === 'the' ? '' : 'text-forest-400'}`}>
+          {['what', 'we do'].map(word => (
+            <span key={word} className="hero-word inline-block mr-[0.25em] text-forest-400">
               {word}
             </span>
           ))}
+          <span className="hero-word inline-block text-outline text-forest-400">Best.</span>
         </h1>
 
         {/* Subtitle */}
         <p ref={subtitleRef}
            className="font-body text-base md:text-xl text-cream-200/60 max-w-2xl mx-auto mb-10 leading-relaxed">
-         Whether you are searching for your dream job or recruiting top talent, Evergreen Resources
-         is here to help you build a better future through strong industry connections and a people-first 
+         Whether you are searching for your dream job or recruiting top talent, Everixa Workforce
+         is here to help you build a better future through strong industry connections and a people-first
          philosophyy.
         </p>
 
@@ -122,6 +129,15 @@ function Hero() {
   )
 }
 
+// ─── Section Badge ─────────────────────────────────────────────────────────
+function SectionBadge({ number }) {
+  return (
+    <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-forest-400/50 text-forest-500 font-body text-xs mb-5">
+      {number}
+    </span>
+  )
+}
+
 // ─── Services Preview ──────────────────────────────────────────────────────
 function ServicesPreview() {
   const ref = useScrollReveal('.reveal')
@@ -129,10 +145,11 @@ function ServicesPreview() {
     <section className="section-wrapper bg-cream-50" ref={ref}>
       <div className="container-base">
         <div className="text-center mb-12 reveal">
+          <SectionBadge number="01" />
           <p className="section-label mb-3">What We Do</p>
           <h2 className="section-title mb-4">Staffing Solutions for Every Need</h2>
           <p className="section-subtitle max-w-xl mx-auto">
-            Whether you're a candidate seeking your dream role or a company looking for exceptional talent, we're here to 
+            Whether you're a candidate seeking your dream role or a company looking for exceptional talent, we're here to
             to make the right connection happen.
           </p>
         </div>
@@ -165,8 +182,15 @@ function ServicesPreview() {
 function StatsSection() {
   const ref = useCounterAnimation(stats)
   return (
-    <section className="section-wrapper bg-forest-900" ref={ref}>
-      <div className="container-base">
+    <section className="section-wrapper bg-forest-900 relative overflow-hidden" ref={ref}>
+      <div className="absolute inset-0 grid-lines-bg text-forest-700/10 pointer-events-none" />
+      <div className="relative container-base">
+        <div className="text-center mb-14">
+          <SectionBadge number="02" />
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-white leading-tight">
+            Data-Driven <span className="text-outline text-forest-400">Results</span>
+          </h2>
+        </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
           {stats.map((stat, i) => (
             <div key={i} className="space-y-2">
@@ -192,6 +216,7 @@ function IndustriesPreview() {
       <div className="container-base">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="reveal">
+            <SectionBadge number="03" />
             <p className="section-label mb-3">Our Focus</p>
             <h2 className="section-title">Industries We Serve</h2>
           </div>
