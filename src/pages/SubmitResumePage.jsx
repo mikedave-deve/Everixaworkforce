@@ -1,46 +1,41 @@
 import { Link } from 'react-router-dom'
 import { FileText, Clock, Users, ShieldCheck } from 'lucide-react'
 import { useScrollReveal } from '../hooks/useScrollReveal'
+import PageHeaderImage from '../components/PageHeaderImage'
+import submitHero from '../assets/stock/jobs-videocall.jpg'
 import ResumeSubmissionForm from '../components/ResumeSubmissionForm'
 
-// ─── Page Header — mirrors ContactPage header pattern exactly ─────────────
 function PageHeader() {
   return (
-    <div className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
-        <p className="section-label text-forest-400 mb-3">Career Opportunities</p>
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl mb-6">
-          Submit Your{' '}
-          <span className="text-forest-400">Resume</span>
-        </h1>
-        <p className="font-body text-base md:text-lg text-cream-200/60 max-w-xl leading-relaxed">
-          Share your experience with our team. We review every submission and reach out
-          when we have a role that genuinely fits your background and goals.
-        </p>
-      </div>
-    </div>
+    <PageHeaderImage
+      image={submitHero}
+      label="Career Opportunities"
+      title="Submit your"
+      highlight="resume"
+      subtitle="Share your experience with our team. We review every submission and reach out when we have a role that genuinely fits your background and goals."
+    />
   )
 }
 
 // ─── Trust signals sidebar ────────────────────────────────────────────────
 const trustItems = [
   {
-    icon: <ShieldCheck className="w-4 h-4 text-forest-500" />,
+    icon: <ShieldCheck className="w-4 h-4 text-brass-600" />,
     title: 'Confidential',
     body: 'Your resume and personal details are never shared without your explicit consent.',
   },
   {
-    icon: <Clock className="w-4 h-4 text-forest-500" />,
+    icon: <Clock className="w-4 h-4 text-brass-600" />,
     title: '1-2 Day Review',
     body: 'Every submission is personally reviewed by a specialist within 1-2 business days.',
   },
   {
-    icon: <Users className="w-4 h-4 text-forest-500" />,
+    icon: <Users className="w-4 h-4 text-brass-600" />,
     title: 'Human Recruiters',
     body: 'No automated screening. A real recruiter with sector experience reviews your file.',
   },
   {
-    icon: <FileText className="w-4 h-4 text-forest-500" />,
+    icon: <FileText className="w-4 h-4 text-brass-600" />,
     title: 'Active Pipeline',
     body: 'Your profile stays active in our candidate database for 12 months after submission.',
   },
@@ -54,96 +49,60 @@ const nextSteps = [
   { n: '04', text: 'We introduce you to the client only with your consent.' },
 ]
 
-// ─── Main Section — 5/3 grid mirrors ContactSection layout ───────────────
+// ─── Main Section ─────────────────────────────────────────────────────────
 function SubmitSection() {
   const ref = useScrollReveal('.reveal')
 
   return (
-    <section className="section-wrapper bg-white" ref={ref}>
-      <div className="container-base">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-
-          {/* ── Form column (3/5) ───────────────────────────────────────── */}
-          <div className="lg:col-span-3 reveal">
-            <p className="section-label mb-3">Submit Your Application</p>
-            <h2 className="section-title mb-2">Tell Us About Yourself</h2>
-            <p className="font-body text-sm text-forest-700/60 mb-8 leading-relaxed">
+    <section className="section-wrapper bg-cream-50" ref={ref}>
+      <div className="container-main">
+        <div className="grid gap-16 lg:grid-cols-[1.4fr_1fr] lg:gap-24">
+          <div className="reveal">
+            <p className="eyebrow mb-6">Submit Your Application</p>
+            <h2 className="section-title mb-5">Tell us about <em className="text-brass-700">yourself.</em></h2>
+            <p className="mb-12 max-w-md text-[15px] leading-relaxed text-ink-700/80">
               Fill in your details and attach your resume as a PDF. All fields marked
               with * are required.
             </p>
-
-            {/* Form card — same container style as ContactPage */}
-            <div className="bg-forest-50 border border-forest-100 rounded-sm p-7">
-             
-              <ResumeSubmissionForm />
-            </div>
+            <ResumeSubmissionForm />
           </div>
 
-          {/* ── Sidebar column (2/5) ────────────────────────────────────── */}
-          <div className="lg:col-span-2 space-y-5 reveal">
-
-            {/* Trust signals */}
+          <aside className="reveal space-y-12 lg:pt-4">
             <div>
-              <p className="section-label mb-4">Why Submit With Us</p>
-              <div className="space-y-3">
+              <p className="eyebrow mb-6">Why Submit With Us</p>
+              <ul className="border-t border-ink-900/15">
                 {trustItems.map((item) => (
-                  <div
-                    key={item.title}
-                    className="p-5 bg-forest-50 border border-forest-100 rounded-sm
-                               hover:border-forest-200 hover:shadow-sm transition-all"
-                  >
-                    <div className="flex items-center gap-2 mb-1.5">
+                  <li key={item.title} className="border-b border-ink-900/15 py-6">
+                    <div className="mb-2 flex items-center gap-3">
                       {item.icon}
-                      <span className="font-body text-sm font-semibold text-forest-900">
-                        {item.title}
-                      </span>
+                      <h3 className="font-display text-[1.45rem] leading-tight text-ink-900">{item.title}</h3>
                     </div>
-                    <p className="font-body text-xs text-forest-700/70 leading-relaxed pl-6">
-                      {item.body}
-                    </p>
-                  </div>
+                    <p className="pl-7 text-[14px] leading-relaxed text-ink-700/80">{item.body}</p>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
 
-            {/* What happens next */}
-            <div className="p-5 bg-forest-950 rounded-sm">
-              <p className="font-body text-xs font-semibold tracking-widest uppercase
-                            text-forest-400 mb-4">
-                What Happens Next
-              </p>
-              <ol className="space-y-3">
+            <div className="on-dark bg-ink-900 p-7">
+              <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-brass-300">What Happens Next</p>
+              <ol className="space-y-4">
                 {nextSteps.map((step) => (
-                  <li key={step.n} className="flex items-start gap-3">
-                    <span className="font-display text-xs font-bold text-forest-500
-                                     bg-forest-800/60 px-2 py-0.5 rounded-sm shrink-0 mt-0.5">
-                      {step.n}
-                    </span>
-                    <p className="font-body text-xs text-cream-200/70 leading-relaxed">
-                      {step.text}
-                    </p>
+                  <li key={step.n} className="flex items-start gap-4">
+                    <span className="font-num text-sm font-medium leading-none text-brass-300">{step.n}</span>
+                    <p className="text-[14px] leading-relaxed text-cream-100/75">{step.text}</p>
                   </li>
                 ))}
               </ol>
             </div>
 
-            {/* Already browsing jobs? */}
-            <div className="p-5 bg-forest-50 border border-forest-100 rounded-sm">
-              <p className="font-body text-sm font-semibold text-forest-900 mb-1.5">
-                Looking for a specific role?
-              </p>
-              <p className="font-body text-xs text-forest-700/70 leading-relaxed mb-4">
+            <div className="border-t border-ink-900/15 pt-8">
+              <p className="font-display text-[1.5rem] leading-tight text-ink-900">Looking for a specific role?</p>
+              <p className="mb-6 mt-2 text-[14px] leading-relaxed text-ink-700/80">
                 Browse our active job listings and apply directly to open positions.
               </p>
-              <Link
-                to="/jobs"
-                className="btn-outline text-xs py-2 px-4 w-full justify-center"
-              >
-                View Open Positions
-              </Link>
+              <Link to="/jobs" className="btn-outline">View Open Positions</Link>
             </div>
-
-          </div>
+          </aside>
         </div>
       </div>
     </section>

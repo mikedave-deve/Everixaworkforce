@@ -1,5 +1,5 @@
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
-import { ChevronDown } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 export const Accordion = AccordionPrimitive.Root
@@ -7,7 +7,7 @@ export const Accordion = AccordionPrimitive.Root
 export function AccordionItem({ className, ...props }) {
   return (
     <AccordionPrimitive.Item
-      className={cn('border-b border-forest-100', className)}
+      className={cn('border-b border-ink-900/15', className)}
       {...props}
     />
   )
@@ -18,15 +18,14 @@ export function AccordionTrigger({ className, children, ...props }) {
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         className={cn(
-          'flex flex-1 items-center justify-between py-4 font-body font-medium text-forest-900',
-          'transition-all hover:text-forest-600 text-left',
-          '[&[data-state=open]>svg]:rotate-180',
+          'group flex flex-1 items-center justify-between gap-6 py-6 text-left font-display text-[1.35rem] leading-snug text-ink-900',
+          'transition-colors hover:text-ink-600',
           className
         )}
         {...props}
       >
         {children}
-        <ChevronDown className="h-4 w-4 text-forest-500 shrink-0 transition-transform duration-300" />
+        <Plus className="h-5 w-5 shrink-0 text-ink-500 transition-transform duration-300 group-data-[state=open]:rotate-45" />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   )
@@ -36,13 +35,13 @@ export function AccordionContent({ className, children, ...props }) {
   return (
     <AccordionPrimitive.Content
       className={cn(
-        'overflow-hidden text-sm text-forest-700',
+        'overflow-hidden text-[15px] leading-relaxed text-ink-700/85',
         'data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down',
         className
       )}
       {...props}
     >
-      <div className="pb-4 pt-0">{children}</div>
+      <div className="max-w-xl pb-7 pr-10">{children}</div>
     </AccordionPrimitive.Content>
   )
 }

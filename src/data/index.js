@@ -185,7 +185,7 @@ export const industries = [
     title: 'Administrative & Office Support',
     icon: '',
     description: 'Provides essential workplace support through organization, coordination, and day-to-day office management that keeps businesses running efficiently.',
-    color: 'bg-forest-50 border-forest-200',
+    color: 'bg-ink-50 border-ink-200',
   },
   {
     id: 'energy',
@@ -199,7 +199,7 @@ export const industries = [
     title: 'Healthcare Administration',
     icon: '',
     description: 'Supports medical facilities by managing patient records, billing, scheduling, and administrative operations that enable healthcare professionals to focus on patient care',
-    color: 'bg-forest-50 border-forest-200',
+    color: 'bg-ink-50 border-ink-200',
   },
   {
     id: 'water',
@@ -213,7 +213,7 @@ export const industries = [
     title: 'Sales & Business Development',
     icon: '',
     description: 'Drives company growth by building client relationships, generating revenue opportunities, and expanding market presence.',
-    color: 'bg-forest-50 border-forest-200',
+    color: 'bg-ink-50 border-ink-200',
   },
   {
     id: 'ecology',
@@ -227,7 +227,7 @@ export const industries = [
     title: 'IT & Technology',
     icon: '',
     description: 'Supports digital infrastructure, software systems, cybersecurity, and technical operations that power modern business environments.',
-    color: 'bg-forest-50 border-forest-200',
+    color: 'bg-ink-50 border-ink-200',
   },
   {
     id: 'municipal',

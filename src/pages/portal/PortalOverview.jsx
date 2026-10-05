@@ -1,103 +1,130 @@
-import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import gsap from 'gsap'
-import { Clock, CalendarClock, FileText, Award, ArrowRight, MapPin } from 'lucide-react'
+import { ArrowRight, MapPin, Clock3, Award } from 'lucide-react'
+import { PageHead, Panel, Stat, Pill, ProgressBar } from '../../components/portal/ui'
 import { getSession } from '../../lib/auth'
-import { timesheet, upcomingShift, documents, announcements, recognitionPoints } from '../../data/employeePortal'
+import { usePortalState, fmtDate, money, isoDay, weekStart } from '../../lib/portalStore'
+import {
+  buildPayStubs, nextPayday, missions, announcements, recognitionPoints, timeOffBalances, equipmentSeed,
+} from '../../data/employeePortal'
 
-function StatTile({ icon: Icon, value, suffix = '', label }) {
-  const numRef = useRef(null)
+const SETUP_STEPS = ['personal', 'emergency', 'address', 'deposit', 'preferences']
 
-  useEffect(() => {
-    const el = numRef.current
-    if (!el) return
-    const counter = { val: 0 }
-    const tween = gsap.to(counter, {
-      val: value,
-      duration: 1.4,
-      ease: 'power2.out',
-      onUpdate() {
-        el.textContent = Math.round(counter.val).toLocaleString()
-      },
-    })
-    return () => tween.kill()
-  }, [value])
-
-  return (
-    <div className="bg-white border border-forest-100 rounded-sm p-5 hover:shadow-md hover:border-forest-200 transition-all duration-300">
-      <div className="w-9 h-9 bg-forest-50 border border-forest-100 rounded-sm flex items-center justify-center mb-4">
-        <Icon className="w-4 h-4 text-forest-600" />
-      </div>
-      <p className="font-display text-3xl font-bold text-forest-900">
-        <span ref={numRef}>0</span>{suffix}
-      </p>
-      <p className="font-body text-xs text-forest-500 mt-1">{label}</p>
-    </div>
-  )
+function greeting() {
+  const h = new Date().getHours()
+  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'
 }
 
 export default function PortalOverview() {
   const session = getSession()
-  const firstName = session?.name?.split(' ')[0] ?? 'there'
-  const weeklyHours = timesheet.reduce((sum, d) => sum + d.hours, 0)
-  const latestAnnouncement = announcements[0]
-  const ref = useRef(null)
+  const firstName = session?.firstName ?? session?.name?.split(' ')[0] ?? 'there'
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo('.portal-reveal',
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: 'power2.out' }
-      )
-    }, ref)
-    return () => ctx.revert()
-  }, [])
+  const [timesheets] = usePortalState('timesheets', {})
+  const [setup] = usePortalState('setup', {})
+  const [identity] = usePortalState('identity', { status: 'not_started' })
+  const [acked] = usePortalState('equipmentAck', ['eq-badge', 'eq-headset', 'eq-vest'])
+  const [timeOff] = usePortalState('timeoff', [])
+  const [missionAck] = usePortalState('missionAck', [])
+
+  const wk = timesheets[isoDay(weekStart())]
+  const weekHours = wk ? Object.values(wk.hours ?? {}).reduce((a, b) => a + Number(b || 0), 0) : 0
+  const submitted = Boolean(wk?.submitted)
+
+  const stub = buildPayStubs(1)[0]
+  const vacation = timeOffBalances[0]
+  const vacationLeft = vacation.accrued - vacation.used - timeOff.filter((r) => r.type === 'Vacation' && r.status !== 'Cancelled').reduce((a, r) => a + r.hours, 0)
+
+  const setupDone = SETUP_STEPS.filter((s) => setup[s]).length
+  const setupPct = (setupDone / SETUP_STEPS.length) * 100
+
+  const mission = missions.find((m) => m.status === 'Active')
+  const pendingEquip = equipmentSeed.filter((e) => !acked.includes(e.id)).length
+
+  const todos = [
+    identity.status === 'not_started' && { label: 'Complete identity verification (Form I-9)', to: '/portal/identity', tone: 'danger', tag: 'Required' },
+    setupDone < SETUP_STEPS.length && { label: `Finish information setup — ${SETUP_STEPS.length - setupDone} step${SETUP_STEPS.length - setupDone > 1 ? 's' : ''} left`, to: '/portal/setup', tone: 'brass', tag: 'Setup' },
+    !submitted && { label: "Submit this week's timesheet by Friday 5:00 PM", to: '/portal/timesheet', tone: 'brass', tag: 'Due Fri' },
+    pendingEquip > 0 && { label: `Acknowledge ${pendingEquip} item${pendingEquip > 1 ? 's' : ''} of company equipment`, to: '/portal/equipment', tone: 'neutral', tag: 'Equipment' },
+    mission && !missionAck.includes(mission.id) && { label: `Review and acknowledge instructions — ${mission.title}`, to: '/portal/missions', tone: 'neutral', tag: 'Mission' },
+  ].filter(Boolean)
 
   return (
-    <div ref={ref}>
-      <div className="portal-reveal mb-8">
-        <p className="section-label mb-2">Overview</p>
-        <h1 className="font-display text-3xl md:text-4xl font-bold text-forest-900">
-          Welcome back, {firstName}
-        </h1>
-        <p className="font-body text-sm text-forest-700/70 mt-2">
-          Here's what's happening with your account this week.
-        </p>
+    <div>
+      <PageHead
+        eyebrow="Dashboard"
+        title={`${greeting()}, ${firstName}.`}
+        description="Your schedule, pay and to-dos in one place."
+        actions={<Link to="/portal/timesheet" className="btn-primary">Open time sheet <ArrowRight size={16} /></Link>}
+      />
+
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Stat label="Hours this week" value={weekHours.toFixed(1)} hint={submitted ? 'Submitted for approval' : 'Not yet submitted'} />
+        <Stat label="Next payday" value={fmtDate(nextPayday(), { month: 'short', day: 'numeric' })} hint={`Last net pay ${money(stub.net)}`} />
+        <Stat label="Vacation available" value={`${Math.max(0, vacationLeft)}h`} hint={`${vacation.accrued}h accrued this year`} />
+        <Stat label="Setup complete" value={`${Math.round(setupPct)}%`} hint={`${setupDone} of ${SETUP_STEPS.length} steps`} />
       </div>
 
-      <div className="portal-reveal grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatTile icon={Clock} value={weeklyHours} suffix=" hrs" label="Hours This Week" />
-        <StatTile icon={CalendarClock} value={1} label="Upcoming Shift" />
-        <StatTile icon={FileText} value={documents.length} label="Documents on File" />
-        <StatTile icon={Award} value={recognitionPoints} label="Recognition Points" />
-      </div>
+      <div className="grid gap-6 lg:grid-cols-5">
+        <div className="space-y-6 lg:col-span-3">
+          {mission && (
+            <Panel tone="dark" title="Current mission" action={<Pill tone="onDark">{mission.status}</Pill>}>
+              <p className="font-display text-[1.7rem] leading-tight text-cream-50">{mission.title}</p>
+              <p className="mt-1 text-[14px] text-cream-100/65">{mission.client}</p>
+              <ul className="mt-5 space-y-2.5 text-[14px] text-cream-100/80">
+                <li className="flex items-start gap-3"><Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-brass-300" />{mission.schedule}</li>
+                <li className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brass-300" />{mission.site}</li>
+              </ul>
+              <Link to="/portal/missions" className="link-arrow mt-6">View instructions <ArrowRight size={14} /></Link>
+            </Panel>
+          )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="portal-reveal lg:col-span-3 bg-forest-950 rounded-sm p-7 relative overflow-hidden">
-          <p className="font-body text-xs font-semibold tracking-widest uppercase text-forest-400 mb-3">
-            {upcomingShift.label}
-          </p>
-          <p className="font-display text-2xl font-bold text-white mb-1">{upcomingShift.day}</p>
-          <p className="font-body text-sm text-cream-200/70 mb-4">{upcomingShift.time}</p>
-          <div className="flex items-center gap-2 text-cream-200/60">
-            <MapPin className="w-4 h-4" />
-            <span className="font-body text-xs">{upcomingShift.location}</span>
-          </div>
-          <Link to="/portal/timesheet" className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium font-body text-forest-400 hover:text-forest-300 transition-colors">
-            View full timesheet <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          <Panel title="Your to-do list" description={todos.length ? `${todos.length} item${todos.length > 1 ? 's' : ''} need your attention` : 'You are all caught up.'}>
+            {todos.length === 0 ? (
+              <p className="text-[14px] text-ink-600">Nothing pending. Nice work.</p>
+            ) : (
+              <ul className="divide-y divide-ink-900/10 border-y border-ink-900/10">
+                {todos.map((t) => (
+                  <li key={t.label}>
+                    <Link to={t.to} className="group flex items-center justify-between gap-4 py-4 transition-colors hover:bg-ink-50">
+                      <span className="text-[14px] text-ink-800">{t.label}</span>
+                      <span className="flex shrink-0 items-center gap-3">
+                        <Pill tone={t.tone}>{t.tag}</Pill>
+                        <ArrowRight size={15} className="text-ink-400 transition-transform group-hover:translate-x-0.5" />
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
         </div>
 
-        <div className="portal-reveal lg:col-span-2 bg-white border border-forest-100 rounded-sm p-7">
-          <p className="section-label mb-3">Latest Announcement</p>
-          <p className="font-display text-lg font-semibold text-forest-900 mb-1.5">{latestAnnouncement.title}</p>
-          <p className="font-body text-xs text-forest-400 mb-3">{latestAnnouncement.date}</p>
-          <p className="font-body text-sm text-forest-700/70 leading-relaxed line-clamp-3">
-            {latestAnnouncement.body}
-          </p>
-          <Link to="/portal/announcements" className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium font-body text-forest-600 hover:text-forest-800 transition-colors">
-            View all announcements <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+        <div className="space-y-6 lg:col-span-2">
+          <Panel title="Getting set up" description="Complete your profile so payroll and HR have what they need.">
+            <ProgressBar value={setupPct} label="Information setup progress" />
+            <p className="mt-3 text-[13px] text-ink-600">{setupDone} of {SETUP_STEPS.length} steps complete</p>
+            <Link to="/portal/setup" className="link-arrow mt-5">Continue setup <ArrowRight size={14} /></Link>
+          </Panel>
+
+          <Panel title="Announcements">
+            <ul className="divide-y divide-ink-900/10">
+              {announcements.map((a) => (
+                <li key={a.id} className="py-4 first:pt-0 last:pb-0">
+                  <p className="font-display text-[1.2rem] leading-snug text-ink-900">{a.title}</p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-ink-700/80">{a.body}</p>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+
+          <Panel>
+            <div className="flex items-center gap-4">
+              <Award className="h-8 w-8 text-brass-500" strokeWidth={1.4} />
+              <div>
+                <p className="font-num text-[2rem] leading-none text-ink-900">{recognitionPoints.toLocaleString()}</p>
+                <p className="mt-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-600">Recognition points</p>
+              </div>
+            </div>
+          </Panel>
         </div>
       </div>
     </div>

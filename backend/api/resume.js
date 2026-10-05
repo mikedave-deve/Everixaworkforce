@@ -1,6 +1,7 @@
 require('dotenv').config()
 const nodemailer = require('nodemailer')
 const multer     = require('multer')
+const { put }    = require('@vercel/blob')
 
 // ── Multer — memory storage, no disk writes ───────────────────────────────────
 const upload = multer({
@@ -60,6 +61,19 @@ async function handler(req, res) {
     return res.status(400).json({ success: false, message: 'Please attach your resume before submitting.' })
   }
 
+  // ── Store the resume in Vercel Blob — durable storage, no email attachment needed ──
+  let blob
+  try {
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')
+    blob = await put(`resumes/${Date.now()}-${safeName}`, file.buffer, {
+      access: 'public',
+      contentType: file.mimetype,
+    })
+  } catch (err) {
+    console.error('[resume] blob upload failed:', err.message)
+    return res.status(500).json({ success: false, message: 'Failed to store resume file. Please try again.' })
+  }
+
   const transporter = nodemailer.createTransport({
     host:   process.env.SMTP_HOST,
     port:   parseInt(process.env.SMTP_PORT, 10) || 465,
@@ -107,7 +121,10 @@ async function handler(req, res) {
               </tr>
               <tr>
                 <td style="padding:8px 0;border-bottom:1px solid #d9f0e3;font-size:12px;color:#2d6a4f;text-transform:uppercase;font-weight:bold">Resume</td>
-                <td style="padding:8px 0;border-bottom:1px solid #d9f0e3;font-size:14px">${file.originalname} — ${(file.size / 1024).toFixed(0)} KB (attached)</td>
+                <td style="padding:8px 0;border-bottom:1px solid #d9f0e3;font-size:14px">
+                  <a href="${blob.url}" style="color:#2d6a4f;font-weight:bold">${file.originalname}</a>
+                  <span style="color:#52b788;font-size:12px;margin-left:6px">(${(file.size / 1024).toFixed(0)} KB)</span>
+                </td>
               </tr>
             </table>
             ${message ? `
@@ -126,14 +143,9 @@ async function handler(req, res) {
         `Email:    ${email}`,
         `Phone:    ${phone || '—'}`,
         `Industry: ${industry}`,
-        `Resume:   ${file.originalname} (attached)`,
+        `Resume:   ${blob.url}`,
         message ? `\nNotes:\n${message}` : '',
       ].join('\n'),
-      attachments: [{
-        filename:    file.originalname,
-        content:     file.buffer,
-        contentType: file.mimetype,
-      }],
     })
 
     console.log('[resume] ✅ Email sent:', info.messageId)

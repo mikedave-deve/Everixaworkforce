@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom'
-import { CheckCircle2, Users, Zap, Award, TrendingUp } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { useScrollReveal, useCounterAnimation } from '../hooks/useScrollReveal'
 import { stats } from '../data'
 import PageHeaderImage from '../components/PageHeaderImage'
+import { SectionHead, CtaBand } from '../components/Editorial'
 import employersHero from '../assets/stock/employers-handshake.jpg'
 
 function PageHeader() {
@@ -10,8 +10,8 @@ function PageHeader() {
     <PageHeaderImage
       image={employersHero}
       label="For Employers"
-      title="Hire Environmental Talent"
-      highlight="With Confidence"
+      title="Hire environmental talent"
+      highlight="with confidence"
       subtitle="We're not a generalist staffing agency that happens to send environmental resumes. We're the firm that environmental organizations call first."
       cta="Start Hiring Today"
       ctaHref="/contact"
@@ -23,25 +23,21 @@ function HiringSolutions() {
   const ref = useScrollReveal('.reveal')
   const solutions = [
     {
-      icon: <Users className="w-6 h-6 text-forest-600" />,
       title: 'Direct Placement',
       body: 'We identify, screen, and present qualified permanent hires within 7-10 days. All candidates are technically vetted by a team member with relevant environmental experience.',
       features: ['90-day placement guarantee', 'Technical screening included', 'Salary benchmarking support'],
     },
     {
-      icon: <Zap className="w-6 h-6 text-forest-600" />,
       title: 'Contract Staffing',
       body: 'Mobilize skilled contractors within 48-72 hours. We manage payroll, workers\' comp, and compliance - you get productive professionals with zero administrative overhead.',
       features: ['Rapid deployment', 'W-2 employment handled', 'Contract-to-hire options'],
     },
     {
-      icon: <Award className="w-6 h-6 text-forest-600" />,
       title: 'Executive Search',
       body: 'Retained search for director through C-suite roles. We map the market, approach passive candidates confidentially, and validate leadership competencies.',
       features: ['Confidential retained model', 'Market mapping included', 'Leadership assessments'],
     },
     {
-      icon: <TrendingUp className="w-6 h-6 text-forest-600" />,
       title: 'Workforce Consulting',
       body: 'Struggling to attract environmental talent? We analyze your employer brand, compensation structure, and hiring process to identify what\'s holding you back.',
       features: ['Compensation benchmarking', 'Job description optimization', 'Diversity hiring strategy'],
@@ -49,34 +45,32 @@ function HiringSolutions() {
   ]
 
   return (
-    <section className="section-wrapper bg-white" ref={ref}>
-      <div className="container-base">
-        <div className="text-center mb-12 reveal">
-          <p className="section-label mb-3">Hiring Solutions</p>
-          <h2 className="section-title">Built for Environmental Organizations</h2>
-          <p className="section-subtitle max-w-xl mx-auto mt-4">
-            Every engagement is customized to your timeline, budget, and technical requirements.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {solutions.map((sol) => (
-            <div key={sol.title}
-                 className="reveal bg-forest-50 border border-forest-100 rounded-sm p-7
-                            hover:shadow-md hover:border-forest-200 transition-all">
-              <div className="w-12 h-12 bg-white rounded-sm border border-forest-200 flex items-center justify-center mb-5">
-                {sol.icon}
-              </div>
-              <h3 className="font-display text-xl font-bold text-forest-900 mb-3">{sol.title}</h3>
-              <p className="font-body text-sm text-forest-700/75 leading-relaxed mb-4">{sol.body}</p>
-              <ul className="space-y-2">
+    <section className="section-wrapper bg-cream-50" ref={ref}>
+      <div className="container-main">
+        <SectionHead
+          index="01"
+          label="Hiring Solutions"
+          title={<>Built for environmental <em className="text-brass-700">organizations.</em></>}
+          lede="Every engagement is customized to your timeline, budget, and technical requirements."
+        />
+        <div className="grid border-t border-ink-900/15 md:grid-cols-2">
+          {solutions.map((sol, i) => (
+            <article
+              key={sol.title}
+              className="reveal border-b border-ink-900/15 py-10 md:py-12 md:[&:nth-child(odd)]:border-r md:[&:nth-child(odd)]:pr-12 md:[&:nth-child(even)]:pl-12"
+            >
+              <span className="index-num">{String(i + 1).padStart(2, '0')}</span>
+              <h3 className="mt-4 font-display text-[2.1rem] leading-tight text-ink-900">{sol.title}</h3>
+              <p className="mt-4 max-w-md text-[15px] leading-[1.7] text-ink-700/80">{sol.body}</p>
+              <ul className="mt-7 space-y-3">
                 {sol.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-forest-500 shrink-0" />
-                    <span className="font-body text-sm text-forest-800">{f}</span>
+                  <li key={f} className="flex items-center gap-3 text-[14px] text-ink-800">
+                    <Check className="h-4 w-4 shrink-0 text-brass-600" strokeWidth={2} />
+                    {f}
                   </li>
                 ))}
               </ul>
-            </div>
+            </article>
           ))}
         </div>
       </div>
@@ -95,27 +89,25 @@ function WhyChooseUs() {
     { title: 'Proven Retention',      body: '94% of our placements remain with client firms 1 year post-hire.' },
   ]
   return (
-    <section className="section-wrapper bg-cream-50" ref={ref}>
-      <div className="container-base">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p className="section-label mb-3 reveal">Why Everixa</p>
-            <h2 className="section-title mb-5 reveal">Why Leading Environmental Firms Choose Us</h2>
-            <p className="section-subtitle reveal">
+    <section className="section-wrapper bg-cream-100" ref={ref}>
+      <div className="container-main">
+        <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
+          <div className="reveal lg:sticky lg:top-32 lg:self-start">
+            <p className="eyebrow mb-6"><span className="font-num text-[13px] font-medium normal-case tracking-[0.08em]">02</span>Why Everixa</p>
+            <h2 className="section-title mb-8">Why leading firms <em className="text-brass-700">choose us.</em></h2>
+            <p className="section-subtitle">
               Three hundred-plus organizations rely on Everixa Workforce as their
               first call for environmental talent - not their last resort.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <ul className="border-t border-ink-900/15">
             {reasons.map((reason) => (
-              <div key={reason.title}
-                   className="reveal bg-white border border-forest-100 rounded-sm p-5
-                              hover:shadow-sm hover:border-forest-200 transition-all">
-                <h4 className="font-body text-sm font-semibold text-forest-900 mb-1.5">{reason.title}</h4>
-                <p className="font-body text-xs text-forest-700/70 leading-relaxed">{reason.body}</p>
-              </div>
+              <li key={reason.title} className="reveal grid gap-2 border-b border-ink-900/15 py-7 sm:grid-cols-[14rem_1fr] sm:gap-8">
+                <h3 className="font-display text-[1.5rem] leading-tight text-ink-900">{reason.title}</h3>
+                <p className="text-[15px] leading-relaxed text-ink-700/80">{reason.body}</p>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
     </section>
@@ -125,46 +117,21 @@ function WhyChooseUs() {
 function MetricsSection() {
   const ref = useCounterAnimation(stats)
   return (
-    <section className="section-wrapper bg-forest-800" ref={ref}>
-      <div className="container-base text-center">
-        <p className="section-label text-forest-400 mb-3">By the Numbers</p>
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-10">
-          Proven Track Record
-        </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.map((stat, i) => (
-            <div key={i}>
-              <div className="font-display text-4xl lg:text-5xl font-bold text-forest-300">
-                <span className='text-white' data-counter>{stat.value}</span>
-                <span className="text-forest-400">{stat.suffix}</span>
-              </div>
-              <div className="font-body text-sm font-semibold text-white/90 mt-2">{stat.label}</div>
+    <section className="on-dark grain relative bg-ink-900 py-24 md:py-28" ref={ref}>
+      <div className="container-main relative">
+        <p className="eyebrow mb-6">By the numbers</p>
+        <h2 className="section-title mb-14">Proven <em className="text-brass-300">track record.</em></h2>
+        <dl className="grid grid-cols-2 border-t border-cream-50/15 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <div key={stat.label} className="border-b border-cream-50/15 py-9 pr-6 lg:border-b-0 lg:border-r lg:px-8 lg:first:pl-0 lg:last:border-r-0">
+              <dd className="font-num text-[clamp(2.8rem,5vw,4.6rem)] leading-none tracking-[-0.03em] text-cream-50">
+                <span data-counter>{stat.value}</span>
+                <span className="text-brass-300">{stat.suffix}</span>
+              </dd>
+              <dt className="mt-4 text-[14px] font-semibold text-cream-50">{stat.label}</dt>
             </div>
           ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function CTASection() {
-  return (
-    <section className="section-wrapper bg-white">
-      <div className="container-base">
-        <div className="bg-forest-950 rounded-sm p-10 md:p-14 text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to find your next great hire?
-          </h2>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            
-            <Link to="/services" className="inline-flex items-center gap-2 border-2 border-cream-200/30
-                                             text-cream-100 hover:border-cream-200/60 hover:bg-white/5
-                                             font-body font-medium px-6 py-3 rounded-sm transition-all">
-              View All Services
-            </Link>
-          </div>
-        </div>
+        </dl>
       </div>
     </section>
   )
@@ -177,7 +144,11 @@ export default function EmployersPage() {
       <HiringSolutions />
       <WhyChooseUs />
       <MetricsSection />
-      <CTASection />
+      <CtaBand
+        title={<>Ready to find your next <em className="text-brass-700">great hire?</em></>}
+        primary={{ to: '/contact', label: 'Start Hiring Today' }}
+        secondary={{ to: '/services', label: 'View All Services' }}
+      />
     </>
   )
 }

@@ -1,244 +1,191 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowRight, ChevronRight, Award, Star } from 'lucide-react'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
 
 import { services, industries, testimonials, stats } from '../data'
 import { useScrollReveal, useCounterAnimation } from '../hooks/useScrollReveal'
-import { Card, CardContent } from '../components/ui/Card'
-import Badge from '../components/ui/Badge'
-import heroImage from '../assets/stock/hero-team.jpg'
+import { SectionHead, CtaBand, Marquee } from '../components/Editorial'
+import ceoImage from '../assets/CEO.jpeg'
 
-// ─── Hero Section ──────────────────────────────────────────────────────────
+// ─── Hero background: looping footage on capable screens, still photo otherwise ──
+function useHeroVideoAllowed() {
+  const [allowed] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const wide = window.matchMedia('(min-width: 768px)').matches
+    const calm = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const saveData = navigator.connection?.saveData === true
+    return wide && calm && !saveData
+  })
+  return allowed
+}
+
+function HeroBackdrop() {
+  const allowed = useHeroVideoAllowed()
+  const [ready, setReady] = useState(false)
+  return (
+    <div className="absolute inset-0">
+      <img src="/video/hero-poster.jpg" alt="" className="animate-ken-burns h-full w-full object-cover" loading="eager" fetchPriority="high" />
+      {allowed && (
+        <video
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1400ms] ${ready ? 'opacity-100' : 'opacity-0'}`}
+          src="/video/hero-team.mp4"
+          poster="/video/hero-poster.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          tabIndex={-1}
+          onPlaying={() => setReady(true)}
+        />
+      )}
+      <div className="absolute inset-0 bg-ink-950/55" />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/35 to-ink-950/70" />
+    </div>
+  )
+}
+
+// ─── Hero ──────────────────────────────────────────────────────────────────
 function Hero() {
-  const heroRef    = useRef(null)
-  const titleRef   = useRef(null)
-  const subtitleRef = useRef(null)
-  const ctaRef     = useRef(null)
-  const badgeRef   = useRef(null)
+  const rootRef = useRef(null)
 
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ delay: 0.05 })
-      tl.fromTo(badgeRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
-      )
-      .fromTo(titleRef.current.querySelectorAll('.hero-word'),
-        { opacity: 0, y: 60, rotateX: -20 },
-        { opacity: 1, y: 0, rotateX: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out' },
-        '-=0.3'
-      )
-      .fromTo(subtitleRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
-        '-=0.4'
-      )
-      .fromTo(ctaRef.current.children,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.12, ease: 'power2.out' },
-        '-=0.3'
-      )
-    }, heroRef)
-
+      const tl = gsap.timeline({ delay: 2.9 }) // lands as the preloader lifts
+      tl.from('[data-line]', { yPercent: 110, duration: 1.1, stagger: 0.12, ease: 'power4.out' })
+        .from('[data-fade]', { opacity: 0, y: 20, duration: 0.9, stagger: 0.1, ease: 'power3.out' }, '-=0.6')
+    }, rootRef)
     return () => ctx.revert()
   }, [])
 
   return (
     <section
-      ref={heroRef}
-      className="relative min-h-[100svh] flex items-center justify-center overflow-hidden
-                 bg-forest-950"
+      ref={rootRef}
+      className="on-dark grain relative flex min-h-[100svh] items-end overflow-hidden bg-ink-950"
     >
-      {/* Background layers */}
-      <div className="absolute inset-0">
-        <img
-          src={heroImage}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover animate-ken-burns"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-forest-950/80 via-forest-950/70 to-forest-950/90" />
-        <div className="absolute inset-0 opacity-10"
-             style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%235da45d' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }} />
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-forest-950 to-transparent" />
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-forest-600/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-forest-400/10 rounded-full blur-3xl" />
-      </div>
+      <HeroBackdrop />
 
-      <div className="relative container-base pt-24 pb-16 text-center">
-        {/* Badge */}
-        <div ref={badgeRef} className="inline-flex items-center gap-2  border border-forest-600/40
-                                       rounded-full px-4 py-1.5 mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-forest-400 animate-pulse" />
-          <span className="font-body text-sm font-bold text-white tracking-wide">
-           STAFFING & RECRUITMENT SINCE 2006
+      <div className="container-main relative pb-12 pt-36 md:pb-16">
+        <p data-fade className="eyebrow mb-8">Staffing &amp; Recruitment since 2006</p>
+
+        <h1 className="display-xl text-cream-50">
+          <span className="block overflow-hidden pb-[0.08em]"><span data-line className="block">Creating connections</span></span>
+          <span className="block overflow-hidden pb-[0.08em]">
+            <span data-line className="block">is <em className="font-medium text-brass-300">what we do best.</em></span>
           </span>
-        </div>
-
-        {/* Headline */}
-        <h1 ref={titleRef} className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl
-                                       font-bold text-white leading-[1.05] mb-6 overflow-hidden"
-            style={{ perspective: '1000px' }}>
-          {['Creating', 'Connections', 'is'].map(word => (
-            <span key={word} className="hero-word inline-block mr-[0.25em]">{word}</span>
-          ))}
-          <br />
-          {['what', 'we do'].map(word => (
-            <span key={word} className="hero-word inline-block mr-[0.25em] text-forest-400">
-              {word}
-            </span>
-          ))}
-          <span className="hero-word inline-block text-outline text-forest-400">Best.</span>
         </h1>
 
-        {/* Subtitle */}
-        <p ref={subtitleRef}
-           className="font-body text-base md:text-xl text-cream-200/60 max-w-2xl mx-auto mb-10 leading-relaxed">
-         Whether you are searching for your dream job or recruiting top talent, Everixa Workforce
-         is here to help you build a better future through strong industry connections and a people-first
-         philosophyy.
-        </p>
-
-        {/* CTAs */}
-        <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Link to="/submit-resume"
-                className="inline-flex items-center gap-2 bg-forest-500 hover:bg-forest-400
-                           text-white font-body font-medium px-8 py-4 rounded-sm
-                           transition-all duration-300 hover:shadow-xl hover:shadow-forest-500/30
-                           active:scale-95">
-           Submit Your Resume
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link to="/jobs"
-                className="inline-flex items-center gap-2 border border-cream-200/30 text-cream-100
-                           hover:border-cream-200/60 hover:bg-white/5
-                           font-body font-medium px-8 py-4 rounded-sm transition-all duration-300">
-            Browse Open Roles
-          </Link>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute mt-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-          <span className="font-body text-xs text-forest-500 tracking-[0.15em] uppercase">Explore</span>
-          <div className="w-px h-10 bg-gradient-to-b from-forest-500 to-transparent animate-pulse" />
+        <div className="mt-12 grid gap-10 border-t border-cream-50/15 pt-8 md:mt-16 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-16">
+          <p data-fade className="lede text-cream-100/75">
+            Whether you are searching for your dream job or recruiting top talent, Everixa Workforce
+            is here to help you build a better future through strong industry connections and a
+            people-first philosophy.
+          </p>
+          <div data-fade className="flex flex-col gap-3 sm:flex-row lg:justify-end [&>a]:w-full sm:[&>a]:w-auto">
+            <Link to="/submit-resume" className="btn-light">Submit Your Resume <ArrowRight size={16} /></Link>
+            <Link to="/jobs" className="btn-ghost-light">Browse Open Roles</Link>
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-// ─── Section Badge ─────────────────────────────────────────────────────────
-function SectionBadge({ number }) {
-  return (
-    <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-forest-400/50 text-forest-500 font-body text-xs mb-5">
-      {number}
-    </span>
-  )
-}
-
-// ─── Services Preview ──────────────────────────────────────────────────────
+// ─── Services: numbered index ──────────────────────────────────────────────
 function ServicesPreview() {
   const ref = useScrollReveal('.reveal')
   return (
     <section className="section-wrapper bg-cream-50" ref={ref}>
-      <div className="container-base">
-        <div className="text-center mb-12 reveal">
-          <SectionBadge number="01" />
-          <p className="section-label mb-3">What We Do</p>
-          <h2 className="section-title mb-4">Staffing Solutions for Every Need</h2>
-          <p className="section-subtitle max-w-xl mx-auto">
-            Whether you're a candidate seeking your dream role or a company looking for exceptional talent, we're here to
-            to make the right connection happen.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((service) => (
-            <Card key={service.id} className="reveal p-6 flex flex-col gap-4 group cursor-pointer">
-              <div className="text-3xl">{service.icon}</div>
-              <div>
-                <h3 className="font-display text-xl font-semibold text-forest-900 mb-2 group-hover:text-forest-700 transition-colors">
-                  {service.title}
-                </h3>
-                <p className="font-body text-sm text-forest-700/70 leading-relaxed">
-                  {service.shortDesc}
-                </p>
-              </div>
-              <Link to="/services"
-                    className="mt-auto inline-flex items-center gap-1.5 text-xs font-medium font-body
-                               text-forest-600 hover:text-forest-800 transition-colors">
-                Learn more <ChevronRight className="w-3 h-3" />
+      <div className="container-main">
+        <SectionHead
+          index="01"
+          label="What We Do"
+          title={<>Staffing solutions for <em className="text-brass-700">every need.</em></>}
+          lede="Whether you're a candidate seeking your dream role or a company looking for exceptional talent, we're here to make the right connection happen."
+        />
+        <ul className="border-t border-ink-900/15">
+          {services.map((service, i) => (
+            <li key={service.id} className="reveal border-b border-ink-900/15">
+              <Link
+                to="/services"
+                className="group grid items-baseline gap-x-8 gap-y-3 py-8 transition-colors hover:bg-ink-100/50 md:grid-cols-[5rem_1.1fr_1.4fr_auto] md:px-4 md:py-10"
+              >
+                <span className="index-num">{String(i + 1).padStart(2, '0')}</span>
+                <h3 className="font-display text-[clamp(1.8rem,3vw,2.6rem)] leading-tight text-ink-900">{service.title}</h3>
+                <p className="max-w-md text-[15px] leading-relaxed text-ink-700/80">{service.shortDesc}</p>
+                <span className="mt-2 inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-ink-700 md:mt-0">
+                  Learn more
+                  <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </span>
               </Link>
-            </Card>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   )
 }
 
-// ─── Stats Section ─────────────────────────────────────────────────────────
+// ─── Stats ─────────────────────────────────────────────────────────────────
 function StatsSection() {
   const ref = useCounterAnimation(stats)
   return (
-    <section className="section-wrapper bg-forest-900 relative overflow-hidden" ref={ref}>
-      <div className="absolute inset-0 grid-lines-bg text-forest-700/10 pointer-events-none" />
-      <div className="relative container-base">
-        <div className="text-center mb-14">
-          <SectionBadge number="02" />
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-white leading-tight">
-            Data-Driven <span className="text-outline text-forest-400">Results</span>
-          </h2>
+    <section className="on-dark grain relative overflow-hidden bg-ink-900 py-24 md:py-32" ref={ref}>
+      <div className="container-main relative">
+        <div className="mb-16 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <p className="eyebrow mb-6"><span className="font-num text-[13px] font-medium normal-case tracking-[0.08em]">02</span>By the numbers</p>
+            <h2 className="section-title">Data-driven <em className="text-brass-300">results.</em></h2>
+          </div>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-          {stats.map((stat, i) => (
-            <div key={i} className="space-y-2">
-              <div className="font-display text-4xl lg:text-5xl font-bold text-white">
+        <dl className="grid grid-cols-2 border-t border-cream-50/15 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="border-b border-cream-50/15 py-10 pr-6 lg:border-b-0 lg:border-r lg:px-8 lg:first:pl-0 lg:last:border-r-0"
+            >
+              <dd className="font-num text-[clamp(3rem,6vw,5.5rem)] leading-none tracking-[-0.03em] text-cream-50">
                 <span data-counter>{stat.value}</span>
-                <span className="text-forest-400">{stat.suffix}</span>
-              </div>
-              <div className="font-body text-sm font-semibold text-white/90">{stat.label}</div>
-              <div className="font-body text-xs text-forest-400/80">{stat.description}</div>
+                <span className="text-brass-300">{stat.suffix}</span>
+              </dd>
+              <dt className="mt-5 text-[14px] font-semibold text-cream-50">{stat.label}</dt>
+              <p className="mt-1.5 max-w-[16rem] text-[13px] leading-relaxed text-cream-100/60">{stat.description}</p>
             </div>
           ))}
-        </div>
+        </dl>
       </div>
     </section>
   )
 }
 
-// ─── Industries Preview ────────────────────────────────────────────────────
+// ─── Industries: two-column index ──────────────────────────────────────────
 function IndustriesPreview() {
   const ref = useScrollReveal('.reveal')
   return (
-    <section className="section-wrapper bg-white" ref={ref}>
-      <div className="container-base">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div className="reveal">
-            <SectionBadge number="03" />
-            <p className="section-label mb-3">Our Focus</p>
-            <h2 className="section-title">Industries We Serve</h2>
-          </div>
-          <Link to="/industries" className="reveal btn-outline text-sm self-start md:self-auto shrink-0">
-            View All Industries
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {industries.slice(0, 8).map((ind) => (
-            <div key={ind.id}
-                 className={`reveal p-5 rounded-sm border ${ind.color}
-                             hover:shadow-md transition-all duration-300 cursor-pointer group`}>
-              <div className="">{ind.icon}</div>
-              <h3 className="font-body text-lg font-semibold text-forest-900 mb-1.5 group-hover:text-forest-700 transition-colors">
-                {ind.title}
-              </h3>
-              <p className="font-body text-sm text-forest-700/60 leading-relaxed hidden md:block">
-                {ind.description}
-              </p>
-            </div>
+    <section className="section-wrapper bg-cream-100" ref={ref}>
+      <div className="container-main">
+        <SectionHead
+          index="03"
+          label="Our Focus"
+          title={<>Industries <em className="text-brass-700">we serve.</em></>}
+          action={<Link to="/industries" className="link-arrow">View all industries <ArrowRight size={14} /></Link>}
+        />
+        <ul className="grid border-t border-ink-900/15 md:grid-cols-2 md:gap-x-16">
+          {industries.slice(0, 8).map((ind, i) => (
+            <li key={ind.id} className="reveal border-b border-ink-900/15 py-7">
+              <div className="flex gap-5">
+                <span className="index-num pt-1">{String(i + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3 className="font-display text-2xl leading-tight text-ink-900">{ind.title}</h3>
+                  <p className="mt-2 max-w-md text-[14px] leading-relaxed text-ink-700/75">{ind.description}</p>
+                </div>
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   )
@@ -247,31 +194,38 @@ function IndustriesPreview() {
 // ─── Testimonials ──────────────────────────────────────────────────────────
 function TestimonialsSection() {
   const ref = useScrollReveal('.reveal')
+  const [lead, ...rest] = testimonials
   return (
-    <section className="section-wrapper bg-forest-50" ref={ref}>
-      <div className="container-base">
-        <div className="text-center mb-12 reveal">
-          <p className="section-label mb-3">Client Stories</p>
-          <h2 className="section-title">Trusted Across the Sector</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {testimonials.map((t) => (
-            <div key={t.id} className="reveal bg-white p-7 rounded-sm border border-forest-100 shadow-sm
-                                       hover:shadow-md transition-shadow">
-              <div className="flex items-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-forest-700 flex items-center justify-center shrink-0">
-                  <span className="font-body text-xs font-bold text-cream-100">{t.initials}</span>
-                </div>
-                <div>
-                  <div className="font-body text-sm font-semibold text-forest-900">{t.name}</div>
-                  <div className="font-body text-xs text-forest-500">{t.title} · {t.company}</div>
-                </div>
-              </div>
-              <div className="text-forest-400 font-display text-4xl leading-none mb-2 select-none">"</div>
-              <p className="font-body text-sm text-forest-700/80 leading-relaxed italic">
-                {t.quote}
-              </p>
-            </div>
+    <section className="section-wrapper bg-cream-50" ref={ref}>
+      <div className="container-main">
+        <SectionHead
+          index="04"
+          label="Client Stories"
+          title={<>Trusted across <em className="text-brass-700">the sector.</em></>}
+        />
+
+        <figure className="reveal grid gap-8 border-t border-ink-900/15 pt-12 lg:grid-cols-[auto_1fr] lg:gap-16">
+          <span aria-hidden="true" className="font-display text-[8rem] leading-[0.6] text-brass-400 lg:text-[11rem]">“</span>
+          <div>
+            <blockquote className="font-display text-[clamp(1.6rem,3vw,2.6rem)] leading-[1.25] tracking-[-0.01em] text-ink-900">
+              {lead.quote}
+            </blockquote>
+            <figcaption className="mt-8 text-[14px]">
+              <span className="font-semibold text-ink-900">{lead.name}</span>
+              <span className="text-ink-600"> — {lead.title}, {lead.company}</span>
+            </figcaption>
+          </div>
+        </figure>
+
+        <div className="mt-16 grid gap-10 border-t border-ink-900/15 pt-10 md:grid-cols-3 md:gap-8">
+          {rest.map((t) => (
+            <figure key={t.id} className="reveal">
+              <blockquote className="text-[15px] leading-relaxed text-ink-800/85">“{t.quote}”</blockquote>
+              <figcaption className="mt-5 text-[13px]">
+                <span className="block font-semibold text-ink-900">{t.name}</span>
+                <span className="text-ink-600">{t.title} · {t.company}</span>
+              </figcaption>
+            </figure>
           ))}
         </div>
       </div>
@@ -279,142 +233,59 @@ function TestimonialsSection() {
   )
 }
 
-// ─── Award-Winning Employee Recognition ───────────────────────────────────
+// ─── Recognition ───────────────────────────────────────────────────────────
 function EmployeeRecognitionSection() {
-  const ref    = useScrollReveal('.reveal')
-  const barRef = useRef(null)
-
-  useEffect(() => {
-    if (!barRef.current) return
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        barRef.current,
-        { scaleX: 0, transformOrigin: 'left center' },
-        {
-          scaleX: 1, duration: 1.4, ease: 'power3.out',
-          scrollTrigger: { trigger: barRef.current, start: 'top 85%', toggleActions: 'play none none none' },
-        }
-      )
-    })
-    return () => ctx.revert()
-  }, [])
-
+  const ref = useScrollReveal('.reveal')
   const highlights = [
-    { icon: <Award className="w-5 h-5 text-yellow-500" />,  label: 'Recognition Awards',  value: '3x Annual' },
-    { icon: <Star  className="w-5 h-5 text-forest-400" />,  label: 'Performance Bonuses', value: 'Monthly'    },
-    { icon: <ChevronRight className="w-5 h-5 text-forest-500" />, label: 'Growth Pathways', value: 'Structured' },
+    { label: 'Recognition Awards', value: '3x Annual' },
+    { label: 'Performance Bonuses', value: 'Monthly' },
+    { label: 'Growth Pathways', value: 'Structured' },
   ]
 
   return (
-    <section className="section-wrapper bg-cream-50 relative overflow-hidden" ref={ref}>
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23193919' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-      />
-      <div className="relative container-base">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <div>
-            <div ref={barRef} className="w-12 h-1 bg-forest-500 mb-6 rounded-full" />
-            <div className="reveal inline-flex items-center gap-2 bg-forest-100 border border-forest-200
-                            rounded-full px-3 py-1 mb-5">
-              <Award className="w-3.5 h-3.5 text-yellow-500" />
-              <span className="font-body text-xs font-semibold text-forest-700 tracking-wide">
-                Award-Winning Program
-              </span>
+    <section className="section-wrapper bg-cream-100" ref={ref}>
+      <div className="container-main">
+        <div className="grid items-center gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
+          <div className="reveal relative">
+            <div className="aspect-[4/5] overflow-hidden bg-ink-200">
+              <img src={ceoImage} alt="James Whitfield, CEO and Founder" className="h-full w-full object-cover object-top grayscale contrast-[1.05]" loading="lazy" />
             </div>
-            <h2 className="reveal section-title mb-5 leading-tight">
-              Award-Winning Employee{' '}
-              <span className="text-forest-600">Recognition Program</span>
+            <figure className="on-dark absolute -bottom-8 right-0 w-[88%] bg-ink-900 p-6 md:-right-8 md:w-[78%] md:p-8">
+              <blockquote className="font-display text-[19px] italic leading-snug text-cream-50 md:text-[22px]">
+                “Our recognition program has transformed team culture. People don't just show up — they bring their best every single day.”
+              </blockquote>
+              <figcaption className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-brass-300">
+                James Whitfield · CEO &amp; Founder
+              </figcaption>
+            </figure>
+          </div>
+
+          <div className="mt-8 lg:mt-0">
+            <p className="reveal eyebrow mb-6"><span className="font-num text-[13px] font-medium normal-case tracking-[0.08em]">05</span>Award-Winning Program</p>
+            <h2 className="reveal section-title mb-8">
+              Award-winning employee <em className="text-brass-700">recognition program.</em>
             </h2>
-            <p className="reveal font-body text-base text-forest-700/70 leading-relaxed mb-6 max-w-lg">
+            <p className="reveal mb-5 max-w-lg text-[16px] leading-relaxed text-ink-700/85">
               We proudly recognize and reward outstanding team members through our award-winning
               employee recognition program. This initiative is designed to identify individuals
               with exceptional potential and performance, providing them with opportunities for
               growth, advancement, and exclusive incentives.
             </p>
-            <p className="reveal font-body text-sm text-forest-700/60 leading-relaxed mb-8 max-w-lg">
+            <p className="reveal mb-10 max-w-lg text-[15px] leading-relaxed text-ink-700/70">
               From monthly spotlights to annual excellence awards, every contribution is seen,
               valued, and celebrated — because the best organisations are built by the best people.
             </p>
-            <div className="reveal">
-              <Link to="/staff" className="btn-primary">
-                Meet Our Team <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 gap-4">
-            {highlights.map((h, i) => (
-              <div
-                key={i}
-                className="reveal flex items-center gap-5 p-5 bg-white border border-forest-100
-                           rounded-sm shadow-sm hover:shadow-md hover:border-forest-200 transition-all duration-300 group"
-              >
-                <div className="w-10 h-10 bg-forest-50 border border-forest-100 rounded-sm
-                                flex items-center justify-center shrink-0 group-hover:bg-forest-100 transition-colors">
-                  {h.icon}
+            <dl className="reveal mb-10 border-t border-ink-900/15">
+              {highlights.map((h) => (
+                <div key={h.label} className="flex items-baseline justify-between border-b border-ink-900/15 py-4">
+                  <dt className="text-[12px] font-semibold uppercase tracking-[0.16em] text-ink-600">{h.label}</dt>
+                  <dd className="font-display text-2xl text-ink-900">{h.value}</dd>
                 </div>
-                <div className="flex-1">
-                  <p className="font-body text-xs text-forest-500 uppercase tracking-widest mb-0.5">{h.label}</p>
-                  <p className="font-display text-lg font-semibold text-forest-900">{h.value}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-forest-300 group-hover:text-forest-500 transition-colors" />
-              </div>
-            ))}
-            <div className="reveal p-6 bg-forest-900 rounded-sm">
-              <div className="text-forest-400 font-display text-4xl leading-none mb-2 select-none">"</div>
-              <p className="font-body text-sm text-cream-200/80 leading-relaxed italic mb-4">
-                Our recognition program has transformed team culture. People don't just show up —
-                they bring their best every single day.
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-forest-600 flex items-center justify-center shrink-0">
-                  <span className="font-body text-xs font-bold text-white">JW</span>
-                </div>
-                <div>
-                  <p className="font-body text-xs font-semibold text-white">JAMES WHITFIELD</p>
-                  <p className="font-body text-xs text-forest-400">CEO &amp; FOUNDER</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
+              ))}
+            </dl>
 
-// ─── CTA Banner ────────────────────────────────────────────────────────────
-function CTASection() {
-  const ref = useScrollReveal('.reveal')
-  return (
-    <section className="section-wrapper bg-forest-800 relative overflow-hidden" ref={ref}>
-      <div className="absolute inset-0 opacity-5"
-           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3Ccircle cx='23' cy='23' r='1'/%3E%3C/g%3E%3C/svg%3E")` }} />
-      <div className="relative container-base text-center">
-        <div className="max-w-2xl mx-auto">
-          <p className="reveal font-body text-xs font-semibold tracking-[0.2em] uppercase text-forest-300 mb-4">
-            Ready to Start?
-          </p>
-          <h2 className="reveal font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-            The right hire changes everything.
-          </h2>
-          <p className="reveal font-body text-base text-cream-200/60 mb-10 leading-relaxed">
-            Whether you're looking for your next great role or searching for an exceptional
-            environmental professional, we're here to make the connection.
-          </p>
-          <div className="reveal flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/contact" className="btn-primary bg-forest-400 hover:bg-forest-300 text-forest-950">
-              Work With Us
-            </Link>
-            <Link to="/jobs"
-                  className="inline-flex items-center gap-2 border-2 border-cream-200/30 text-cream-100
-                             hover:border-cream-200/60 hover:bg-white/5 font-body font-medium
-                             px-6 py-3 rounded-sm transition-all duration-300">
-              View Open Positions
-            </Link>
+            <Link to="/staff" className="reveal btn-primary">Meet Our Team <ArrowRight size={16} /></Link>
           </div>
         </div>
       </div>
@@ -427,12 +298,19 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <Marquee items={industries.slice(0, 8).map((i) => i.title)} />
       <ServicesPreview />
       <StatsSection />
       <IndustriesPreview />
       <TestimonialsSection />
       <EmployeeRecognitionSection />
-      <CTASection />
+      <CtaBand
+        eyebrow="Ready to start?"
+        title={<>The right hire <em className="text-brass-700">changes everything.</em></>}
+        body="Whether you're looking for your next great role or searching for an exceptional professional, we're here to make the connection."
+        primary={{ to: '/contact', label: 'Work With Us' }}
+        secondary={{ to: '/jobs', label: 'View Open Positions' }}
+      />
     </>
   )
 }

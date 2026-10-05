@@ -6,6 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 const express         = require('express')
+const { put }         = require('@vercel/blob')
 const { transporter } = require('../config/mailer')
 const upload          = require('../config/upload')
 const { validateResume } = require('../utils/validate')
@@ -21,6 +22,19 @@ router.post('/', upload.single('resume'), async (req, res) => {
   const errors = validateResume({ firstName, lastName, email, industry, file })
   if (errors.length) {
     return res.status(400).json({ success: false, errors })
+  }
+
+  // ── Store the resume in Vercel Blob — durable storage, no email attachment ──
+  let blob
+  try {
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')
+    blob = await put(`resumes/${Date.now()}-${safeName}`, file.buffer, {
+      access: 'public',
+      contentType: file.mimetype,
+    })
+  } catch (err) {
+    console.error('[resume] blob upload failed:', err)
+    return res.status(500).json({ success: false, message: 'Failed to store resume file. Please try again.' })
   }
 
   // ── Build email ─────────────────────────────────────────────────────────
@@ -80,9 +94,9 @@ router.post('/', upload.single('resume'), async (req, res) => {
                 <strong style="color:#2d6a4f;font-size:12px;text-transform:uppercase;letter-spacing:.05em">Resume File</strong>
               </td>
               <td style="padding:8px 0;border-bottom:1px solid #d9f0e3;font-size:14px">
-                ${file.originalname}
+                <a href="${blob.url}" style="color:#2d6a4f;font-weight:bold">${file.originalname}</a>
                 <span style="color:#52b788;font-size:12px;margin-left:8px">
-                  (${(file.size / 1024).toFixed(0)} KB — attached below)
+                  (${(file.size / 1024).toFixed(0)} KB)
                 </span>
               </td>
             </tr>
@@ -98,7 +112,6 @@ router.post('/', upload.single('resume'), async (req, res) => {
 
           <p style="margin-top:24px;font-size:12px;color:#52b788">
             This application was submitted via everixaworkforce.com.
-            The resume is attached to this email.
             Reply directly to respond to ${firstName}.
           </p>
         </div>
@@ -109,17 +122,9 @@ router.post('/', upload.single('resume'), async (req, res) => {
       `Email:    ${email}`,
       `Phone:    ${phone || '—'}`,
       `Industry: ${industry}`,
-      `Resume:   ${file.originalname} (attached)`,
+      `Resume:   ${blob.url}`,
       message ? `\nNotes:\n${message}` : '',
     ].join('\n'),
-    // ── Attach from buffer — no temp file needed ─────────────────────────
-    attachments: [
-      {
-        filename:    file.originalname,
-        content:     file.buffer,       // Buffer from memoryStorage
-        contentType: file.mimetype,
-      },
-    ],
   }
 
   // ── Send ─────────────────────────────────────────────────────────────────

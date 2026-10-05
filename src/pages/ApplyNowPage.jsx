@@ -1,72 +1,31 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { CheckCircle2, Briefcase, Clock, User, Mail, Phone, Calendar, MapPin, FileText, ChevronDown } from 'lucide-react'
 import { useScrollReveal } from '../hooks/useScrollReveal'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
+import PageHeaderImage from '../components/PageHeaderImage'
+import applyHero from '../assets/stock/candidates-remote.jpg'
 
 // ── Backend base URL — set VITE_API_URL in your .env (e.g. https://your-backend.vercel.app)
 const API_BASE = import.meta.env.VITE_API_URL ?? ''
 
 // ─── Page Header ──────────────────────────────────────────────────────────
 function PageHeader() {
-  const headerRef = useRef(null)
-  const titleRef  = useRef(null)
-  const subRef    = useRef(null)
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ delay: 0.15 })
-      tl.fromTo(
-        titleRef.current.querySelectorAll('.header-word'),
-        { opacity: 0, y: 40, rotateX: -15 },
-        { opacity: 1, y: 0, rotateX: 0, duration: 0.75, stagger: 0.07, ease: 'power3.out' }
-      ).fromTo(
-        subRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-        '-=0.35'
-      )
-    }, headerRef)
-    return () => ctx.revert()
-  }, [])
-
   return (
-    <div ref={headerRef} className="bg-forest-950 pt-32 pb-16 md:pt-40 md:pb-20">
-      <div className="container-base">
-        <p className="section-label text-forest-400 mb-3">Join Our Network</p>
-        <h1
-          ref={titleRef}
-          className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl mb-6"
-          style={{ perspective: '800px' }}
-        >
-          {['Apply', 'Now'].map(w => (
-            <span key={w} className="header-word inline-block mr-[0.25em]">{w}</span>
-          ))}
-          <br />
-          {['&'].map(w => (
-            <span key={w} className="header-word inline-block mr-[0.25em]">{w}</span>
-          ))}
-          {['Start', 'Your', 'Journey'].map(w => (
-            <span key={w} className="header-word inline-block mr-[0.25em] text-forest-400">{w}</span>
-          ))}
-        </h1>
-        <p ref={subRef} className="font-body text-base md:text-lg text-cream-200/60 max-w-xl leading-relaxed">
-          Take the first step toward your next career milestone. Complete the form below and
-          a dedicated recruiter will be in touch within one business day.
-        </p>
-      </div>
-    </div>
+    <PageHeaderImage
+      image={applyHero}
+      label="Join Our Network"
+      title="Apply now &"
+      highlight="start your journey"
+      subtitle="Take the first step toward your next career milestone. Complete the form below and a dedicated recruiter will be in touch within one business day."
+    />
   )
 }
 
 // ─── Trust Badges ─────────────────────────────────────────────────────────
 const trustItems = [
-  { icon: <User className="w-4 h-4 text-forest-500" />,    title: 'Personalized Match',  body: 'Every application is reviewed by a human recruiter who specialises in your field.' },
-  { icon: <Clock className="w-4 h-4 text-forest-500" />,   title: '24-Hr Response',      body: 'We respond to every submission within one business day — no automated filters.' },
-  { icon: <Briefcase className="w-4 h-4 text-forest-500" />, title: 'Active Openings',   body: 'We keep an active pipeline of vetted roles across multiple sectors and locations.' },
-  { icon: <FileText className="w-4 h-4 text-forest-500" />, title: 'Confidential',        body: 'Your details are never shared with employers without your explicit consent.' },
+  { icon: <User className="w-4 h-4 text-brass-600" />,    title: 'Personalized Match',  body: 'Every application is reviewed by a human recruiter who specialises in your field.' },
+  { icon: <Clock className="w-4 h-4 text-brass-600" />,   title: '24-Hr Response',      body: 'We respond to every submission within one business day — no automated filters.' },
+  { icon: <Briefcase className="w-4 h-4 text-brass-600" />, title: 'Active Openings',   body: 'We keep an active pipeline of vetted roles across multiple sectors and locations.' },
+  { icon: <FileText className="w-4 h-4 text-brass-600" />, title: 'Confidential',        body: 'Your details are never shared with employers without your explicit consent.' },
 ]
 
 // ─── The Application Form ─────────────────────────────────────────────────
@@ -75,15 +34,9 @@ function ApplicationForm() {
   const [loading,     setLoading]     = useState(false)
   const [submitError, setSubmitError] = useState('')
 
-  const inputClass = [
-    'w-full px-4 py-3 text-sm font-body',
-    'border border-forest-200 rounded-sm',
-    'bg-forest-50 text-forest-900 placeholder-forest-400',
-    'focus:outline-none focus:ring-2 focus:ring-forest-500 focus:border-transparent',
-    'transition-all duration-200',
-  ].join(' ')
+  const inputClass = 'field'
 
-  const labelClass = 'block font-body text-xs font-medium text-forest-700 mb-1.5 tracking-wide uppercase'
+  const labelClass = 'mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700'
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -123,13 +76,13 @@ function ApplicationForm() {
   if (submitted) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 bg-forest-100 rounded-full flex items-center justify-center mb-5">
-          <CheckCircle2 className="w-8 h-8 text-forest-600" />
+        <div className="w-16 h-16 bg-ink-100 rounded-full flex items-center justify-center mb-5">
+          <CheckCircle2 className="w-8 h-8 text-ink-600" />
         </div>
-        <h3 className="font-display text-2xl font-bold text-forest-900 mb-3">
+        <h3 className="font-display text-2xl font-medium text-ink-900 mb-3">
           Application Received
         </h3>
-        <p className="font-body text-sm text-forest-700/70 max-w-sm leading-relaxed">
+        <p className="font-body text-sm text-ink-700/70 max-w-sm leading-relaxed">
           Thank you for applying. One of our recruiters will review your information and reach
           out within one business day.
         </p>
@@ -144,7 +97,7 @@ function ApplicationForm() {
       <div>
         <label htmlFor="fullName" className={labelClass}>Full Name *</label>
         <div className="relative">
-          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest-400 pointer-events-none" />
+          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
           <input
             id="fullName" name="fullName" type="text" required
             className={`${inputClass} pl-10`}
@@ -158,7 +111,7 @@ function ApplicationForm() {
         <div>
           <label htmlFor="email" className={labelClass}>Email Address *</label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest-400 pointer-events-none" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
             <input
               id="email" name="email" type="email" required
               className={`${inputClass} pl-10`}
@@ -169,7 +122,7 @@ function ApplicationForm() {
         <div>
           <label htmlFor="phone" className={labelClass}>Phone Number *</label>
           <div className="relative">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest-400 pointer-events-none" />
+            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
             <input
               id="phone" name="phone" type="tel" required
               className={`${inputClass} pl-10`}
@@ -184,7 +137,7 @@ function ApplicationForm() {
         <div>
           <label htmlFor="dob" className={labelClass}>Date of Birth *</label>
           <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest-400 pointer-events-none" />
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
             <input
               id="dob" name="dob" type="date" required
               className={`${inputClass} pl-10`}
@@ -194,7 +147,7 @@ function ApplicationForm() {
         <div>
           <label htmlFor="address" className={labelClass}>Home Address *</label>
           <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest-400 pointer-events-none" />
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
             <input
               id="address" name="address" type="text" required
               className={`${inputClass} pl-10`}
@@ -209,7 +162,7 @@ function ApplicationForm() {
         <div>
           <label htmlFor="jobPosition" className={labelClass}>Job Position *</label>
           <div className="relative">
-            <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest-400 pointer-events-none" />
+            <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
             <select
               id="jobPosition" name="jobPosition" defaultValue="" required
               className={`${inputClass} pl-10 appearance-none`}
@@ -224,7 +177,7 @@ function ApplicationForm() {
               <option value="office-admin">Office Administrator</option>
               <option value="other">Other / Open to Opportunities</option>
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest-400 pointer-events-none" />
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
           </div>
         </div>
         <div>
@@ -245,12 +198,12 @@ function ApplicationForm() {
             {['Full Time', 'Part Time'].map(opt => (
               <label
                 key={opt}
-                className="flex items-center gap-2 flex-1 px-4 py-3 border border-forest-200 rounded-sm
-                           bg-forest-50 cursor-pointer hover:border-forest-400 transition-colors
-                           has-[:checked]:border-forest-600 has-[:checked]:bg-forest-100"
+                className="flex items-center gap-2 flex-1 px-4 py-3 border border-ink-200 rounded-sm
+                           bg-ink-50 cursor-pointer hover:border-ink-400 transition-colors
+                           has-[:checked]:border-ink-600 has-[:checked]:bg-ink-100"
               >
-                <input type="radio" name="availability" value={opt} required className="accent-forest-600" />
-                <span className="font-body text-sm text-forest-800">{opt}</span>
+                <input type="radio" name="availability" value={opt} required className="accent-ink-600" />
+                <span className="font-body text-sm text-ink-800">{opt}</span>
               </label>
             ))}
           </div>
@@ -269,14 +222,14 @@ function ApplicationForm() {
               <option value="seasonal">Seasonal</option>
               <option value="open">Open to Discussion</option>
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest-400 pointer-events-none" />
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
           </div>
         </div>
       </div>
 
       {/* Row 6 – Message */}
       <div>
-        <label htmlFor="message" className={labelClass}>Message <span className="normal-case text-forest-400 tracking-normal">(optional)</span></label>
+        <label htmlFor="message" className={labelClass}>Message <span className="normal-case text-ink-400 tracking-normal">(optional)</span></label>
         <textarea
           id="message" name="message" rows={4}
           className={`${inputClass} resize-none`}
@@ -307,7 +260,7 @@ function ApplicationForm() {
         ) : 'Submit Application'}
       </button>
 
-      <p className="font-body text-xs text-center text-forest-400">
+      <p className="font-body text-xs text-center text-ink-400">
         By submitting, you agree that your information may be used to connect you with suitable employers.
       </p>
     </form>
@@ -319,40 +272,38 @@ function ApplicationSection() {
   const ref = useScrollReveal('.reveal')
 
   return (
-    <section className="section-wrapper bg-white" ref={ref}>
-      <div className="container-base">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+    <section className="section-wrapper bg-cream-50" ref={ref}>
+      <div className="container-main">
+        <div className="grid gap-16 lg:grid-cols-[1.4fr_1fr] lg:gap-24">
 
           {/* Form Column */}
-          <div className="lg:col-span-3 reveal">
+          <div className="reveal">
             <p className="section-label mb-3">Application Form</p>
-            <h2 className="section-title mb-8">
-              Tell Us About <span className="text-forest-600">Yourself</span>
-            </h2>
-            <div className="bg-forest-50 border border-forest-100 rounded-sm p-7">
-              <ApplicationForm />
-            </div>
+            <h2 className="section-title mb-12">Tell us about <em className="text-brass-700">yourself.</em></h2>
+            <ApplicationForm />
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-2 space-y-5 reveal">
-            <p className="section-label mb-4">Why Apply With Us</p>
-            {trustItems.map(item => (
-              <div key={item.title} className="p-5 bg-white border border-forest-100 rounded-sm shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-2 mb-2">
-                  {item.icon}
-                  <span className="font-body text-sm font-semibold text-forest-900">{item.title}</span>
-                </div>
-                <p className="font-body text-xs text-forest-700/70 leading-relaxed">{item.body}</p>
-              </div>
-            ))}
+          <aside className="reveal lg:pt-4">
+            <p className="eyebrow mb-6">Why Apply With Us</p>
+            <ul className="mb-10 border-t border-ink-900/15">
+              {trustItems.map(item => (
+                <li key={item.title} className="border-b border-ink-900/15 py-6">
+                  <div className="mb-2 flex items-center gap-3">
+                    {item.icon}
+                    <h3 className="font-display text-[1.45rem] leading-tight text-ink-900">{item.title}</h3>
+                  </div>
+                  <p className="pl-7 text-[14px] leading-relaxed text-ink-700/80">{item.body}</p>
+                </li>
+              ))}
+            </ul>
 
             {/* Highlight box */}
-            <div className="p-5 bg-forest-900 rounded-sm">
-              <p className="font-body text-xs font-semibold tracking-widest uppercase text-forest-400 mb-2">
+            <div className="on-dark bg-ink-900 p-7">
+              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-brass-300">
                 Since 2006
               </p>
-              <p className="font-display text-2xl font-bold text-white mb-2 leading-snug">
+              <p className="font-display text-3xl leading-tight text-cream-50 mb-3">
                 Over 2,000+ successful placements
               </p>
               <p className="font-body text-xs text-cream-200/60 leading-relaxed">
@@ -360,7 +311,7 @@ function ApplicationSection() {
                 talented professionals across every major sector.
               </p>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </section>

@@ -34,7 +34,7 @@ function AuthImageCarousel() {
           style={{ opacity: i === active ? 1 : 0 }}
         >
           <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-forest-950/90 via-forest-950/30 to-forest-950/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/30 to-ink-950/10" />
           <div className="relative h-full flex flex-col justify-end p-12">
             <p className="font-display text-2xl font-semibold text-white leading-snug mb-3 max-w-md">
               {slide.quote}
@@ -73,11 +73,11 @@ export default function AuthLayout({ eyebrow, title, subtitle, children }) {
       <div className="flex flex-col justify-center px-6 sm:px-12 lg:px-20 py-16">
         <div className="max-w-sm w-full mx-auto">
           {eyebrow && <p className="section-label mb-3">{eyebrow}</p>}
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-forest-900 mb-3 leading-tight">
+          <h1 className="font-display text-3xl md:text-4xl font-medium text-ink-900 mb-3 leading-tight">
             {title}
           </h1>
           {subtitle && (
-            <p className="font-body text-sm text-forest-700/70 leading-relaxed mb-8">
+            <p className="font-body text-sm text-ink-700/70 leading-relaxed mb-8">
               {subtitle}
             </p>
           )}

@@ -14,7 +14,7 @@ export function SheetOverlay({ className, ...props }) {
   return (
     <DialogPrimitive.Overlay
       className={cn(
-        'fixed inset-0 z-50 bg-forest-950/60 backdrop-blur-sm',
+        'fixed inset-0 z-50 bg-ink-950/60 backdrop-blur-sm',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         className
@@ -46,7 +46,7 @@ export function SheetContent({ className, children, side = 'right', ...props }) 
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 text-forest-600 hover:text-forest-900 transition-colors">
+        <DialogPrimitive.Close className="absolute right-4 top-4 p-1 text-ink-500 hover:text-ink-900 transition-colors focus-visible:outline-brass-600">
           <X className="h-5 w-5" />
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
@@ -61,7 +61,7 @@ export function SheetHeader({ className, ...props }) {
 export function SheetTitle({ className, ...props }) {
   return (
     <DialogPrimitive.Title
-      className={cn('font-display text-xl font-semibold text-forest-900', className)}
+      className={cn('font-display text-xl font-semibold text-ink-900', className)}
       {...props}
     />
   )

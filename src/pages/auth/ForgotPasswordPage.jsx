@@ -4,15 +4,9 @@ import { Mail, ArrowRight, CheckCircle2, ArrowLeft } from 'lucide-react'
 import AuthLayout from '../../layout/AuthLayout'
 import { requestPasswordReset } from '../../lib/auth'
 
-const inputClass = [
-  'w-full pl-10 pr-4 py-3 text-sm font-body',
-  'border border-forest-200 rounded-sm',
-  'bg-forest-50 text-forest-900 placeholder-forest-400',
-  'focus:outline-none focus:ring-2 focus:ring-forest-500 focus:border-transparent',
-  'transition-all duration-200',
-].join(' ')
+const inputClass = 'field pl-11'
 
-const labelClass = 'block font-body text-xs font-medium text-forest-700 mb-1.5 tracking-wide'
+const labelClass = 'mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail]     = useState('')
@@ -31,11 +25,11 @@ export default function ForgotPasswordPage() {
     return (
       <AuthLayout eyebrow="Employee Portal" title="Check your email">
         <div className="flex flex-col items-center text-center py-4">
-          <div className="w-14 h-14 bg-forest-100 rounded-full flex items-center justify-center mb-5">
-            <CheckCircle2 className="w-7 h-7 text-forest-600" />
+          <div className="w-14 h-14 bg-ink-100 rounded-full flex items-center justify-center mb-5">
+            <CheckCircle2 className="w-7 h-7 text-ink-600" />
           </div>
-          <p className="font-body text-sm text-forest-700/70 leading-relaxed mb-8">
-            If an account exists for <span className="font-semibold text-forest-800">{email}</span>,
+          <p className="font-body text-sm text-ink-700/70 leading-relaxed mb-8">
+            If an account exists for <span className="font-semibold text-ink-800">{email}</span>,
             a password reset link is on its way.
           </p>
           <Link to="/login" className="btn-outline text-sm w-full justify-center">
@@ -56,7 +50,7 @@ export default function ForgotPasswordPage() {
         <div>
           <label htmlFor="email" className={labelClass}>Email</label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest-400" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
             <input
               id="email" type="email" required value={email}
               onChange={e => setEmail(e.target.value)}
@@ -69,8 +63,8 @@ export default function ForgotPasswordPage() {
           {loading ? 'Sending...' : <>Send Reset Link <ArrowRight className="w-4 h-4" /></>}
         </button>
 
-        <p className="font-body text-sm text-center text-forest-600">
-          <Link to="/login" className="font-medium text-forest-800 hover:text-forest-900 underline inline-flex items-center gap-1">
+        <p className="font-body text-sm text-center text-ink-600">
+          <Link to="/login" className="font-medium text-ink-800 hover:text-ink-900 underline inline-flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Sign In
           </Link>
         </p>

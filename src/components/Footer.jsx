@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Leaf, Linkedin, Twitter, Mail, Phone, MapPin } from 'lucide-react'
+import { ArrowUpRight, Mail, Phone, MapPin } from 'lucide-react'
+import BrandMark from './BrandMark'
 
 const footerLinks = {
   Company: [
@@ -11,7 +12,7 @@ const footerLinks = {
   Talent: [
     { label: 'Job Board', href: '/jobs' },
     { label: 'For Candidates', href: '/candidates' },
-    { label: 'Submit Resume', href: '/candidates' },
+    { label: 'Submit Resume', href: '/submit-resume' },
     { label: 'Career Resources', href: '/candidates' },
   ],
   Employers: [
@@ -24,72 +25,60 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="bg-forest-950 text-cream-200">
-      {/* CTA Banner */}
-      <div className="bg-forest-800 py-10">
-        <div className="container-main flex flex-col md:flex-row items-center justify-between gap-6">
+    <footer className="on-dark relative overflow-hidden bg-ink-950 text-cream-100">
+      <div className="container-main">
+        {/* Closing statement */}
+        <div className="grid gap-10 border-b border-cream-50/10 py-20 md:py-28 lg:grid-cols-[1.4fr_1fr] lg:items-end">
           <div>
-            <p className="label-tag">Ready to grow?</p>
-            <h3 className="font-display text-2xl text-cream-100">Partner with Everixa Workforce today.</h3>
+            <p className="eyebrow mb-6">Ready to grow?</p>
+            <h2 className="font-display text-[clamp(2.4rem,6vw,5.2rem)] leading-[0.98] tracking-[-0.025em] text-cream-50">
+              Partner with Everixa
+              <br />
+              <em className="text-brass-300">Workforce</em> today.
+            </h2>
           </div>
-          <div className="flex gap-3">
-            <Link to="/jobs" className="btn-gold text-sm">Browse Jobs</Link>
-            <Link to="/contact" className="btn-outline border-cream-200 text-cream-100 hover:bg-cream-100 hover:text-forest-900 text-sm">Contact Us</Link>
+          <div className="flex flex-wrap gap-3 lg:justify-end">
+            <Link to="/jobs" className="btn-light">Browse Jobs <ArrowUpRight size={16} /></Link>
+            <Link to="/contact" className="btn-ghost-light">Contact Us</Link>
           </div>
         </div>
-      </div>
 
-      {/* Main Footer */}
-      <div className="container-main py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gold-500 flex items-center justify-center rounded-sm">
-                <Leaf size={16} className="text-forest-950" />
-              </div>
-              <span className="font-display text-xl text-cream-100">
-                Everixa <span className="text-gold-400 font-300 italic">Workforce</span>
-              </span>
+        {/* Directory */}
+        <div className="grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
+          <div>
+            <Link to="/" aria-label="Everixa Workforce — home" className="inline-block">
+              <BrandMark variant="dark" size="md" />
             </Link>
-            <p className="text-sm text-cream-300 leading-relaxed max-w-xs mb-6">
-              Connecting exceptional talent with forward-thinking organizations since 2008. 
+            <p className="mt-6 max-w-xs text-[15px] leading-relaxed text-cream-100/65">
+              Connecting exceptional talent with forward-thinking organizations since 2006.
               We believe great placements change lives — and companies.
             </p>
-            <div className="space-y-2 text-sm text-cream-300">
-              <div className="flex items-center gap-2"><MapPin size={14} className="text-gold-500 shrink-0" /><span>1200 Forest Way, Suite 400, Austin TX 78701</span></div>
-              <div className="flex items-center gap-2"><Phone size={14} className="text-gold-500 shrink-0" /><span>(863) 243-3789 </span></div>
-              <div className="flex items-center gap-2"><Mail size={14} className="text-gold-500 shrink-0" /><span>info@everixaworkforce.com</span></div>
-            </div>
+            <ul className="mt-7 space-y-3 text-[14px] text-cream-100/75">
+              <li className="flex items-start gap-3"><MapPin size={15} className="mt-0.5 shrink-0 text-brass-300" />1200 Forest Way, Suite 400, Austin TX 78701</li>
+              <li><a href="tel:+18632433789" className="flex items-center gap-3 hover:text-cream-50"><Phone size={15} className="shrink-0 text-brass-300" />(863) 243-3789</a></li>
+              <li><a href="mailto:info@everixaworkforce.com" className="flex items-center gap-3 hover:text-cream-50"><Mail size={15} className="shrink-0 text-brass-300" />info@everixaworkforce.com</a></li>
+            </ul>
           </div>
 
-          {/* Links */}
           {Object.entries(footerLinks).map(([category, links]) => (
-            <div key={category}>
-              <h4 className="text-xs font-body font-600 uppercase tracking-[0.15em] text-gold-500 mb-4">{category}</h4>
-              <ul className="space-y-2">
+            <nav key={category} aria-label={category}>
+              <h3 className="mb-5 font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-brass-300">{category}</h3>
+              <ul className="space-y-3">
                 {links.map((link) => (
-                  <li key={link.href}>
-                    <Link to={link.href} className="text-sm text-cream-300 hover:text-gold-400 transition-colors">
+                  <li key={link.label}>
+                    <Link to={link.href} className="text-[15px] text-cream-100/75 transition-colors hover:text-cream-50">
                       {link.label}
                     </Link>
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
           ))}
         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-forest-800">
-        <div className="container-main py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-cream-300">© {new Date().getFullYear()} Everixa Workforce LLC. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <a href="#" className="text-cream-300 hover:text-gold-400 transition-colors"><Linkedin size={16} /></a>
-            <a href="#" className="text-cream-300 hover:text-gold-400 transition-colors"><Twitter size={16} /></a>
-            <a href="#" className="text-cream-300 hover:text-gold-400 transition-colors"><Mail size={16} /></a>
-          </div>
+        <div className="flex flex-col items-start justify-between gap-3 border-t border-cream-50/10 py-6 text-[13px] text-cream-100/55 sm:flex-row sm:items-center">
+          <p>© {new Date().getFullYear()} Everixa Workforce LLC. All rights reserved.</p>
+          <p>Staffing &amp; Recruitment · Since 2006</p>
         </div>
       </div>
     </footer>

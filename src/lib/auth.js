@@ -22,6 +22,10 @@ export function seedDemoAccount() {
   users.push({
     id: 'demo-user',
     name: 'Jordan Blake',
+    firstName: 'Jordan',
+    lastName: 'Blake',
+    phone: '(503) 555-0148',
+    employeeId: 'EW-204817',
     email: 'demo@everixaworkforce.com',
     password: 'demo1234',
     role: 'Field Coordinator',
@@ -30,7 +34,7 @@ export function seedDemoAccount() {
   writeUsers(users)
 }
 
-export function signup({ name, email, password }) {
+export function signup({ firstName, lastName, phone, email, password }) {
   const users = readUsers()
   const normalizedEmail = email.trim().toLowerCase()
 
@@ -38,12 +42,18 @@ export function signup({ name, email, password }) {
     throw new Error('An account with that email already exists.')
   }
 
+  const first = firstName.trim()
+  const last = lastName.trim()
   const user = {
     id: `user-${Date.now()}`,
-    name: name.trim(),
+    name: `${first} ${last}`,
+    firstName: first,
+    lastName: last,
+    phone: phone.trim(),
     email: normalizedEmail,
     password,
     role: 'Team Member',
+    employeeId: `EW-${Math.floor(100000 + Math.random() * 900000)}`,
     startDate: new Date().toISOString().slice(0, 10),
   }
 
@@ -95,6 +105,17 @@ export function updateProfile(updates) {
   writeUsers(users)
   setSession(users[idx])
   return users[idx]
+}
+
+// Verifies the current password before changing it (demo store only).
+export function changePassword(currentPassword, nextPassword) {
+  const session = getSession()
+  if (!session) throw new Error('You are signed out.')
+  const users = readUsers()
+  const idx = users.findIndex(u => u.id === session.id)
+  if (idx === -1 || users[idx].password !== currentPassword) throw new Error('Current password is incorrect.')
+  users[idx] = { ...users[idx], password: nextPassword }
+  writeUsers(users)
 }
 
 // Always resolves the same way regardless of whether the email exists,

@@ -3,16 +3,9 @@ import { CheckCircle2, Upload, FileText, X, AlertCircle } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL
 
-const inputClass = [
-  'w-full px-4 py-3 text-sm font-body',
-  'border border-forest-200 rounded-sm',
-  'bg-forest-50 text-forest-900 placeholder-forest-400',
-  'focus:outline-none focus:ring-2 focus:ring-forest-500 focus:border-transparent',
-  'transition-all duration-200',
-].join(' ')
+const inputClass = 'field'
 
-const labelClass =
-  'block font-body text-xs font-medium text-forest-700 mb-1.5 tracking-wide'
+const labelClass = 'mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700'
 
 const INDUSTRIES = [
   'Technology',
@@ -33,24 +26,24 @@ function SuccessMessage() {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="relative mb-6">
-        <div className="w-20 h-20 bg-forest-100 rounded-full flex items-center justify-center">
-          <CheckCircle2 className="w-10 h-10 text-forest-600" />
+        <div className="w-20 h-20 bg-ink-100 rounded-full flex items-center justify-center">
+          <CheckCircle2 className="w-10 h-10 text-ink-600" />
         </div>
       </div>
 
-      <h3 className="font-display text-2xl font-bold text-forest-900 mb-3">
+      <h3 className="font-display text-2xl font-medium text-ink-900 mb-3">
         Resume Submitted
       </h3>
 
-      <p className="font-body text-sm text-forest-700/70 max-w-sm leading-relaxed">
+      <p className="font-body text-sm text-ink-700/70 max-w-sm leading-relaxed">
         Thank you for submitting your resume. Our recruitment team will review
         your application and contact you if there is a match.
       </p>
 
-      <div className="mt-6 px-5 py-3 bg-forest-50 border border-forest-100 rounded-sm">
-        <p className="font-body text-xs text-forest-500">
+      <div className="mt-6 px-5 py-3 bg-ink-50 border border-ink-100 rounded-sm">
+        <p className="font-body text-xs text-ink-500">
           Expected response time:{' '}
-          <span className="font-semibold text-forest-700">3 to 5 business days</span>
+          <span className="font-semibold text-ink-700">3 to 5 business days</span>
         </p>
       </div>
     </div>
@@ -102,16 +95,16 @@ function UploadZone({ file, onFileChange, error }) {
       />
 
       {file ? (
-        <div className="relative flex items-center gap-4 p-4 bg-forest-50 border-2 border-forest-400 rounded-sm">
-          <div className="w-10 h-10 bg-forest-700 rounded-sm flex items-center justify-center shrink-0">
+        <div className="relative flex items-center gap-4 p-4 bg-ink-50 border-2 border-ink-400 rounded-sm">
+          <div className="w-10 h-10 bg-ink-700 rounded-sm flex items-center justify-center shrink-0">
             <FileText className="w-5 h-5 text-cream-100" />
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="font-body text-sm font-semibold text-forest-900 truncate">
+            <p className="font-body text-sm font-semibold text-ink-900 truncate">
               {file.name}
             </p>
-            <p className="font-body text-xs text-forest-500 mt-0.5">
+            <p className="font-body text-xs text-ink-500 mt-0.5">
               {(file.size / 1024).toFixed(0)} KB
             </p>
           </div>
@@ -119,7 +112,7 @@ function UploadZone({ file, onFileChange, error }) {
           <button
             type="button"
             onClick={handleRemove}
-            className="w-7 h-7 rounded-full bg-white border border-forest-200 flex items-center justify-center"
+            className="w-7 h-7 rounded-full bg-white border border-ink-200 flex items-center justify-center"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -132,17 +125,17 @@ function UploadZone({ file, onFileChange, error }) {
           onDrop={handleDrop}
           className={`p-8 border-2 border-dashed rounded-sm cursor-pointer text-center ${
             dragging
-              ? 'border-forest-500 bg-forest-50'
+              ? 'border-ink-500 bg-ink-50'
               : error
               ? 'border-red-300 bg-red-50'
-              : 'border-forest-200 bg-forest-50/50'
+              : 'border-ink-200 bg-ink-50/50'
           }`}
         >
-          <Upload className="w-6 h-6 text-forest-600 mx-auto mb-2" />
-          <p className="font-body text-sm text-forest-800">
+          <Upload className="w-6 h-6 text-ink-600 mx-auto mb-2" />
+          <p className="font-body text-sm text-ink-800">
             Drag and drop your resume or browse files
           </p>
-          <p className="font-body text-xs text-forest-400 mt-1">
+          <p className="font-body text-xs text-ink-400 mt-1">
             PDF, DOC, DOCX · Max 10 MB
           </p>
         </div>
@@ -297,7 +290,7 @@ export default function ResumeSubmissionForm() {
         )}
       </div>
 
-      <div className="h-px bg-forest-100" />
+      <div className="h-px bg-ink-100" />
 
       <button
         type="submit"
@@ -307,7 +300,7 @@ export default function ResumeSubmissionForm() {
         {loading ? 'Submitting...' : 'Submit Resume'}
       </button>
 
-      <p className="font-body text-xs text-center text-forest-400">
+      <p className="font-body text-xs text-center text-ink-400">
         Your information is kept confidential and used only for recruitment.
       </p>
     </form>

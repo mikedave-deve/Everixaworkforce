@@ -3,10 +3,10 @@ import gsap from 'gsap'
 
 export default function PreLoader({ onFinish }) {
   const overlayRef = useRef(null)
-  const boxRef      = useRef(null)
-  const pctRef       = useRef(null)
-  const rectRef      = useRef(null)
-  const lineRef      = useRef(null)
+  const boxRef = useRef(null)
+  const pctRef = useRef(null)
+  const rectRef = useRef(null)
+  const lineRef = useRef(null)
   const [hidden, setHidden] = useState(false)
 
   useEffect(() => {
@@ -51,30 +51,31 @@ export default function PreLoader({ onFinish }) {
     <div
       ref={overlayRef}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-cream-50"
-      aria-hidden="true"
+      role="status"
+      aria-label="Loading Everixa Workforce"
     >
       <div ref={boxRef} className="flex flex-col items-center opacity-0 translate-y-2">
         <div className="relative">
-          <svg width="220" height="90" viewBox="0 0 220 90" className="overflow-visible">
+          <svg width="220" height="90" viewBox="0 0 220 90" className="overflow-visible" aria-hidden="true">
             <rect
               ref={rectRef}
               x="1" y="1" width="218" height="88"
               fill="none" stroke="currentColor" strokeWidth="1.5"
-              className="text-forest-700"
+              className="text-ink-700"
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-display italic text-3xl font-semibold tracking-wide text-forest-700">
+            <span className="font-display italic text-3xl font-semibold tracking-wide text-ink-700">
               EVERIXA
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mt-6">
-          <div className="w-32 h-px bg-forest-200 relative overflow-hidden">
-            <div ref={lineRef} className="absolute inset-0 bg-forest-600" />
+        <div className="mt-6 flex items-center gap-3">
+          <div className="relative h-px w-32 overflow-hidden bg-ink-200">
+            <div ref={lineRef} className="absolute inset-0 bg-ink-600" />
           </div>
-          <span ref={pctRef} className="font-body text-xs tracking-widest text-forest-500 tabular-nums">
+          <span ref={pctRef} className="font-body text-xs tabular-nums tracking-widest text-ink-600">
             0%
           </span>
         </div>

@@ -1,32 +1,51 @@
-import { Leaf } from 'lucide-react'
 import { cn } from '../lib/utils'
 
-export default function BrandMark({ variant = 'dark', className }) {
+/**
+ * Everixa wordmark — the same framed, italic EVERIXA that draws itself on the preloader.
+ * variant="dark"  → cream on a dark surface
+ * variant="light" → forest on a light surface
+ * draw            → animate the frame stroke in (used once in the header, timed to land as the preloader lifts)
+ */
+export default function BrandMark({ variant = 'dark', className, draw = false, size = 'md' }) {
   const isDark = variant === 'dark'
+  const sizes = {
+    sm: 'px-3 py-1.5 text-[19px]',
+    md: 'px-4 py-2 text-[23px]',
+    lg: 'px-6 py-3.5 text-[34px]',
+  }
 
   return (
-    <div
+    <span
       className={cn(
-        'relative flex items-center gap-2 border px-3 py-1.5 transition-colors',
-        isDark
-          ? 'border-cream-100/50 hover:border-gold-400'
-          : 'border-forest-300 hover:border-gold-500',
+        'relative inline-flex items-center font-display italic font-semibold leading-none tracking-[0.06em]',
+        sizes[size],
+        isDark ? 'text-cream-50' : 'text-ink-800',
         className
       )}
+      aria-label="Everixa Workforce"
     >
-      <div className="w-5 h-5 bg-gold-500 flex items-center justify-center rounded-sm shrink-0">
-        <Leaf size={11} className="text-forest-950" />
-      </div>
-      <span
-        className={cn(
-          'font-display italic text-lg font-semibold tracking-wide whitespace-nowrap',
-          isDark ? 'text-cream-100' : 'text-forest-900'
-        )}
+      <svg
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full overflow-visible"
+        preserveAspectRatio="none"
       >
-        Everixa <span className="text-gold-400 not-italic font-normal">Workforce</span>
-      </span>
-      <span className="absolute -top-px -right-px w-2.5 h-2.5 border-t border-r border-gold-400 pointer-events-none" />
-      <span className="absolute -bottom-px -left-px w-2.5 h-2.5 border-b border-l border-gold-400 pointer-events-none" />
-    </div>
+        <rect
+          x="0.75" y="0.75"
+          width="calc(100% - 1.5px)" height="calc(100% - 1.5px)"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeOpacity={isDark ? 0.75 : 0.9}
+          pathLength="1"
+          vectorEffect="non-scaling-stroke"
+          style={
+            draw
+              ? { strokeDasharray: 1, strokeDashoffset: 1, animation: 'drawFrame 1.4s cubic-bezier(.65,0,.35,1) 2.3s forwards' }
+              : undefined
+          }
+        />
+      </svg>
+      EVERIXA
+    </span>
   )
 }
