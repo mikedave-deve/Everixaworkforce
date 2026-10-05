@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { CheckCircle2, Upload, FileText, X, AlertCircle } from 'lucide-react'
 
-const API_URL = import.meta.env.VITE_API_URL
+import { api } from '../lib/api'
 
 const inputClass = 'field'
 
@@ -183,25 +183,22 @@ export default function ResumeSubmissionForm() {
     setFileError('')
 
     try {
-      // Build multipart payload — FormData handles the file correctly
-      const formData = new FormData(formRef.current)
-      formData.set('resume', file, file.name)
-
-      const response = await fetch(`${API_URL}/api/resume`, {
-        method: 'POST',
-        body:   formData,
-        // Do NOT set Content-Type — the browser sets it with the boundary
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        setSubmitted(true)
-      } else {
-        setFileError(data.message || 'Submission failed. Please try again.')
-      }
-    } catch {
-      setFileError('Network error. Please check your connection and try again.')
+      // 1) upload the resume file, 2) submit the form details that reference it
+      const { id } = await api.upload('/public/upload', file, { auth: false })
+      const f = formRef.current
+      await api.post('/public/resume', {
+        firstName: f.firstName.value.trim(),
+        lastName: f.lastName.value.trim(),
+        email: f.email.value.trim(),
+        phone: f.phone.value.trim(),
+        industry: f.industry.value,
+        message: f.message.value.trim(),
+        website: f.website.value,
+        fileId: id,
+      }, { auth: false })
+      setSubmitted(true)
+    } catch (err) {
+      setFileError(err.message)
     } finally {
       setLoading(false)
     }
@@ -211,6 +208,7 @@ export default function ResumeSubmissionForm() {
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-5" noValidate>
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 opacity-0" />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>First Name *</label>

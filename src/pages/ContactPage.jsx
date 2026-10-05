@@ -4,7 +4,7 @@ import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageHeaderImage from '../components/PageHeaderImage'
 import contactHero from '../assets/stock/contact-lobby.jpg'
 
-const API_URL = import.meta.env.VITE_API_URL
+import { api } from '../lib/api'
 
 // ---------------------------------------------------------------------------
 
@@ -37,29 +37,19 @@ function ContactForm() {
     const form = e.target
 
     try {
-      const response = await fetch(`${API_URL}/api/contact`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName:   form.firstName.value.trim(),
-          lastName:    form.lastName.value.trim(),
-          email:       form.email.value.trim(),
-          phone:       form.phone.value.trim(),
-          inquiryType: form.inquiryType.value,
-          company:     form.company.value.trim(),
-          message:     form.message.value.trim(),
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        setSubmitted(true)
-      } else {
-        setSubmitError(data.message || 'Something went wrong. Please try again.')
-      }
-    } catch {
-      setSubmitError('Network error. Please check your connection and try again.')
+      await api.post('/public/contact', {
+        firstName:   form.firstName.value.trim(),
+        lastName:    form.lastName.value.trim(),
+        email:       form.email.value.trim(),
+        phone:       form.phone.value.trim(),
+        inquiryType: form.inquiryType.value,
+        company:     form.company.value.trim(),
+        message:     form.message.value.trim(),
+        website:     form.website.value,
+      }, { auth: false })
+      setSubmitted(true)
+    } catch (err) {
+      setSubmitError(err.message)
     } finally {
       setLoading(false)
     }
@@ -79,6 +69,7 @@ function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 opacity-0" />
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="firstName" className={labelClass}>First Name *</label>

@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { CheckCircle2, Briefcase, Clock, User, Mail, Phone, Calendar, MapPin, FileText, ChevronDown } from 'lucide-react'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageHeaderImage from '../components/PageHeaderImage'
+import { api } from '../lib/api'
 import applyHero from '../assets/stock/candidates-remote.jpg'
 
 // ── Backend base URL — set VITE_API_URL in your .env (e.g. https://your-backend.vercel.app)
-const API_BASE = import.meta.env.VITE_API_URL ?? ''
 
 // ─── Page Header ──────────────────────────────────────────────────────────
 function PageHeader() {
@@ -48,26 +48,10 @@ function ApplicationForm() {
     const data = Object.fromEntries(new FormData(form).entries())
 
     try {
-      const res = await fetch(`${API_BASE}/api/apply`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(data),
-      })
-
-      const json = await res.json()
-
-      if (!res.ok || !json.success) {
-        // Surface backend validation errors or generic error message
-        const msg = Array.isArray(json.errors)
-          ? json.errors.join(' ')
-          : (json.message || 'Something went wrong. Please try again.')
-        setSubmitError(msg)
-        return
-      }
-
+      await api.post('/public/apply', data, { auth: false })
       setSubmitted(true)
-    } catch {
-      setSubmitError('Unable to reach the server. Please check your connection and try again.')
+    } catch (err) {
+      setSubmitError(err.message)
     } finally {
       setLoading(false)
     }
@@ -92,6 +76,7 @@ function ApplicationForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 opacity-0" />
 
       {/* Row 1 – Full Name */}
       <div>

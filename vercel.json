@@ -1,17 +1,15 @@
 {
-    "services": {
-        "frontend": {
-            "root": ".",
-            "framework": "vite"
-        }
-    },
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": {
-                "type": "service",
-                "service": "frontend"
-            }
-        }
-    ]
+  "framework": "vite",
+  "functions": {
+    "api/[...route].js": {
+      "maxDuration": 30,
+      "includeFiles": "node_modules/pdfkit/js/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

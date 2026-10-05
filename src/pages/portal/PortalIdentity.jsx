@@ -1,132 +1,157 @@
 import { useState } from 'react'
-import { ShieldCheck, FileCheck2, Clock3 } from 'lucide-react'
-import { PageHead, Panel, Pill, Field, useToast } from '../../components/portal/ui'
-import { fmtDate, isoDay, logActivity, usePortalState } from '../../lib/portalStore'
+import { Camera, Check, Loader2, ShieldCheck } from 'lucide-react'
+import { PageHead, Panel, Pill, Field, Loading, ErrorState, useToast } from '../../components/portal/ui'
+import { api, compressImage, useApi } from '../../lib/api'
+import { fmtDate } from '../../lib/format'
 import { cn } from '../../lib/utils'
 
-const LIST_A = ['U.S. Passport or Passport Card', 'Permanent Resident Card (Form I-551)', 'Employment Authorization Document (Form I-766)']
-const LIST_B = ['Driver\'s license or state ID card', 'School ID with photograph', 'U.S. military card']
-const LIST_C = ['Social Security Account Number card (unrestricted)', 'Certified birth certificate', 'U.S. Citizen ID card (Form I-197)']
-
 const STATUS = {
-  not_started: { tone: 'danger', label: 'Action required' },
+  none: { tone: 'danger', label: 'Action required' },
   submitted: { tone: 'info', label: 'Under review' },
   verified: { tone: 'success', label: 'Verified' },
+  rejected: { tone: 'danger', label: 'Resubmit needed' },
+}
+
+/** One image slot: picks, compresses and uploads immediately; shows a preview. */
+function ImageSlot({ slot, label, hint, value, onChange, disabled }) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  async function pick(e) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setError('')
+    setBusy(true)
+    try {
+      const small = await compressImage(file, { max: 1600, quality: 0.8 })
+      const { id } = await api.upload(`/identity/upload?slot=${slot}`, small)
+      onChange(slot, { id, preview: URL.createObjectURL(small) })
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div>
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700">{label}</p>
+      <label
+        className={cn(
+          'relative flex aspect-[4/3] cursor-pointer flex-col items-center justify-center overflow-hidden border border-dashed text-center transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brass-600',
+          value ? 'border-ink-800 bg-ink-50' : 'border-ink-900/30 bg-ink-50 hover:border-ink-700',
+          disabled && 'pointer-events-none opacity-60'
+        )}
+      >
+        {value ? (
+          <>
+            <img src={value.preview} alt={`${label} preview`} className="absolute inset-0 h-full w-full object-cover" />
+            <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center bg-ink-800 text-white"><Check className="h-4 w-4" strokeWidth={3} /></span>
+          </>
+        ) : busy ? (
+          <Loader2 className="h-6 w-6 animate-spin text-brass-600" />
+        ) : (
+          <>
+            <Camera className="h-6 w-6 text-ink-500" strokeWidth={1.5} />
+            <span className="mt-2 px-3 text-[13px] font-medium text-ink-800">Choose or take a photo</span>
+            <span className="mt-0.5 px-3 text-[11px] text-ink-500">{hint}</span>
+          </>
+        )}
+        <input type="file" accept="image/*" capture={slot === 'selfie' ? 'user' : undefined} className="sr-only" onChange={pick} disabled={disabled} />
+      </label>
+      {error && <p role="alert" className="mt-1.5 text-[12px] text-red-700">{error}</p>}
+    </div>
+  )
 }
 
 export default function PortalIdentity() {
   const notify = useToast()
-  const [id, setId] = usePortalState('identity', { status: 'not_started' })
-  const [mode, setMode] = useState('A')
-  const [error, setError] = useState('')
-  const [fileName, setFileName] = useState('')
-  const s = STATUS[id.status]
+  const { data, error, loading, reload } = useApi('/identity')
+  const [images, setImages] = useState({})
+  const [dl, setDl] = useState('')
+  const [ssn, setSsn] = useState('')
+  const [attest, setAttest] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  function submit(e) {
+  if (loading) return <Loading />
+  if (error) return <ErrorState error={error} onRetry={reload} />
+
+  const st = STATUS[data.status] ?? STATUS.none
+  const editable = data.status === 'none' || data.status === 'rejected'
+  const complete = ['dlFront', 'dlBack', 'ssnFront', 'ssnBack', 'selfie'].every((k) => images[k])
+
+  const setImage = (slot, v) => setImages((i) => ({ ...i, [slot]: v }))
+
+  async function submit(e) {
     e.preventDefault()
-    const f = Object.fromEntries(new FormData(e.currentTarget))
-    setError('')
-    if (!fileName) return setError('Attach a clear photo or scan of the document.')
-    if (!/^[A-Za-z0-9]{4}$/.test(f.last4)) return setError('Enter the last four characters of the document number.')
-    if (f.expires && f.expires < isoDay()) return setError('That document has expired. Provide an unexpired document.')
-    if (f.attest !== 'on') return setError('You must attest to the accuracy of the information.')
-
-    setId({
-      status: 'submitted',
-      mode,
-      docType: f.docType,
-      docType2: f.docType2 ?? null,
-      last4: f.last4.toUpperCase(),
-      expires: f.expires,
-      fileName,
-      submittedAt: new Date().toISOString(),
-    })
-    logActivity('security', 'Identity documents submitted', f.docType)
-    notify('Documents submitted. HR will review within 1–2 business days.')
+    setFormError('')
+    if (!complete) return setFormError('Please add all five photos.')
+    if (!attest) return setFormError('Please confirm the statement below before submitting.')
+    setBusy(true)
+    try {
+      await api.post('/identity', { dlNumber: dl, ssn, files: Object.fromEntries(Object.entries(images).map(([k, v]) => [k, v.id])) })
+      notify('Documents submitted. HR will review them within 1–2 business days.')
+      reload()
+    } catch (err) {
+      setFormError(err.message)
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
     <div>
       <PageHead
         eyebrow="Identity Verification"
-        title="Verify your eligibility to work."
-        description="Federal law (Form I-9) requires every new employee to present original identity and work-authorization documents within three business days of starting."
-        actions={<Pill tone={s.tone}>{s.label}</Pill>}
+        title="Verify your identity."
+        description="Federal law requires every employee to verify their identity and work eligibility. Upload your driver's license and Social Security card, plus a selfie."
+        actions={<Pill tone={st.tone}>{st.label}</Pill>}
       />
 
-      <div className="mb-8 grid gap-4 md:grid-cols-3">
-        {[
-          [ShieldCheck, '1. Choose documents', 'Either one List A document, or one List B plus one List C.'],
-          [FileCheck2, '2. Upload & attest', 'Attach a clear image and confirm the details are accurate.'],
-          [Clock3, '3. HR review', 'We verify within 1–2 business days and may ask to see originals.'],
-        ].map(([Icon, t, b]) => (
-          <div key={t} className="border border-ink-900/10 bg-white p-5">
-            <Icon className="h-5 w-5 text-brass-600" strokeWidth={1.5} />
-            <p className="mt-3 font-display text-[1.25rem] leading-tight text-ink-900">{t}</p>
-            <p className="mt-1 text-[13px] leading-relaxed text-ink-600">{b}</p>
-          </div>
-        ))}
-      </div>
-
-      {id.status !== 'not_started' ? (
-        <Panel
-          title={id.status === 'verified' ? 'Identity verified' : 'Submitted — awaiting review'}
-          description={`Submitted ${fmtDate(id.submittedAt)}`}
-          action={<Pill tone={s.tone}>{s.label}</Pill>}
-        >
+      {!editable ? (
+        <Panel title={data.status === 'verified' ? 'Identity verified' : 'Submitted — awaiting review'} description={`Submitted ${fmtDate(data.submittedAt)}`} action={<Pill tone={st.tone}>{st.label}</Pill>}>
           <dl className="grid gap-5 text-[14px] sm:grid-cols-2">
-            <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Document</dt><dd className="mt-1 text-ink-900">{id.docType}{id.docType2 ? ` + ${id.docType2}` : ''}</dd></div>
-            <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Number</dt><dd className="mt-1 text-ink-900">••••{id.last4}</dd></div>
-            <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">File</dt><dd className="mt-1 text-ink-900">{id.fileName}</dd></div>
-            <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Expires</dt><dd className="mt-1 text-ink-900">{id.expires ? fmtDate(id.expires) : '—'}</dd></div>
+            <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Driver's license</dt><dd className="mt-1 text-ink-900">{data.dlMasked}</dd></div>
+            <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Social Security</dt><dd className="mt-1 text-ink-900">{data.ssnMasked}</dd></div>
           </dl>
-          <button className="link-arrow mt-6" onClick={() => setId({ status: 'not_started' })}>Resubmit different documents</button>
+          <p className="mt-6 flex items-center gap-3 text-[14px] text-ink-700"><ShieldCheck className="h-5 w-5 text-brass-600" /> Your documents are stored securely and only visible to authorized HR staff.</p>
         </Panel>
       ) : (
-        <Panel title="Submit documents">
-          <div role="tablist" aria-label="Document option" className="mb-6 inline-flex border border-ink-900/20">
-            {[['A', 'One List A document'], ['BC', 'List B + List C']].map(([k, l]) => (
-              <button key={k} role="tab" aria-selected={mode === k} onClick={() => setMode(k)} className={cn('px-5 py-2.5 text-[13px] font-medium transition-colors', mode === k ? 'bg-ink-800 text-cream-50' : 'text-ink-700 hover:bg-ink-100')}>{l}</button>
-            ))}
-          </div>
+        <form onSubmit={submit} noValidate className="space-y-6">
+          {data.status === 'rejected' && (
+            <p role="alert" className="border border-red-300 bg-red-50 p-4 text-[14px] text-red-800">HR could not verify your documents{data.note ? `: ${data.note}` : '.'} Please resubmit clear photos.</p>
+          )}
 
-          <form onSubmit={submit} className="space-y-5" noValidate>
+          <Panel title="Driver's license" description="Front and back, with the license number.">
             <div className="grid gap-5 sm:grid-cols-2">
-              <Field id="docType" label={mode === 'A' ? 'List A document' : 'List B document'} className="sm:col-span-2">
-                <select id="docType" name="docType" className="field">{(mode === 'A' ? LIST_A : LIST_B).map((d) => <option key={d}>{d}</option>)}</select>
-              </Field>
-              {mode === 'BC' && (
-                <Field id="docType2" label="List C document" className="sm:col-span-2">
-                  <select id="docType2" name="docType2" className="field">{LIST_C.map((d) => <option key={d}>{d}</option>)}</select>
-                </Field>
-              )}
-              <Field id="last4" label="Last 4 of document number" hint="We never ask for your full document or Social Security number here."><input id="last4" name="last4" maxLength={4} autoComplete="off" className="field" /></Field>
-              <Field id="expires" label="Expiration date"><input id="expires" name="expires" type="date" className="field" /></Field>
+              <ImageSlot slot="dlFront" label="Front" hint="All four corners visible" value={images.dlFront} onChange={setImage} />
+              <ImageSlot slot="dlBack" label="Back" hint="Barcode readable" value={images.dlBack} onChange={setImage} />
             </div>
+            <Field id="dl-number" label="Driver's license number" className="mt-6 max-w-sm"><input id="dl-number" className="field" value={dl} onChange={(e) => setDl(e.target.value)} autoComplete="off" /></Field>
+          </Panel>
 
-            <div>
-              <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700">Document image</span>
-              <label htmlFor="file" className="flex cursor-pointer flex-col items-center justify-center border border-dashed border-ink-900/30 bg-ink-50 px-6 py-8 text-center transition-colors hover:border-ink-700 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brass-600">
-                <span className="text-[14px] font-medium text-ink-900">{fileName || 'Choose a photo or PDF'}</span>
-                <span className="mt-1 text-[12px] text-ink-600">JPG, PNG or PDF · up to 10 MB</span>
-                <input id="file" type="file" accept="image/*,.pdf" className="sr-only" onChange={(e) => {
-                  const f = e.target.files?.[0]
-                  if (f && f.size > 10 * 1024 * 1024) { setError('File is larger than 10 MB.'); setFileName(''); return }
-                  setError(''); setFileName(f?.name ?? '')
-                }} />
-              </label>
-              <p className="mt-1.5 text-[12px] text-ink-600">Demo: only the file name is kept; nothing is uploaded.</p>
+          <Panel title="Social Security card" description="Front and back, with your 9-digit number.">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <ImageSlot slot="ssnFront" label="Front" hint="Name and number readable" value={images.ssnFront} onChange={setImage} />
+              <ImageSlot slot="ssnBack" label="Back" hint="Whole card in frame" value={images.ssnBack} onChange={setImage} />
             </div>
+            <Field id="ssn-number" label="Social Security number" className="mt-6 max-w-sm"><input id="ssn-number" className="field" inputMode="numeric" maxLength={11} placeholder="XXX-XX-XXXX" value={ssn} onChange={(e) => setSsn(e.target.value)} autoComplete="off" /></Field>
+          </Panel>
 
-            <label className="flex items-start gap-3 text-[14px] text-ink-800">
-              <input type="checkbox" name="attest" className="mt-1 h-4 w-4 accent-ink-800" />
-              I attest, under penalty of perjury, that these documents are genuine and relate to me.
-            </label>
+          <Panel title="Selfie" description="A clear photo of your face in good light.">
+            <div className="max-w-xs"><ImageSlot slot="selfie" label="Selfie" hint="Face the camera, no sunglasses" value={images.selfie} onChange={setImage} /></div>
+          </Panel>
 
-            {error && <p role="alert" className="border border-red-300 bg-red-50 p-3 text-[13px] text-red-800">{error}</p>}
-            <button className="btn-primary">Submit for verification</button>
-          </form>
-        </Panel>
+          <label className="flex items-start gap-3 text-[14px] text-ink-800">
+            <input type="checkbox" checked={attest} onChange={(e) => setAttest(e.target.checked)} className="mt-1 h-4 w-4 accent-ink-800" />
+            I confirm that these documents are genuine and belong to me.
+          </label>
+
+          {formError && <p role="alert" className="border border-red-300 bg-red-50 p-3.5 text-[14px] text-red-800">{formError}</p>}
+          <button className="btn-primary" disabled={busy}>{busy ? 'Submitting…' : 'Submit for verification'}</button>
+        </form>
       )}
     </div>
   )

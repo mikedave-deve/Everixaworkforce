@@ -124,3 +124,9 @@
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .reveal { opacity: 1 !important; transform: none !important; }
 }
+
+/* Auth carousel: slow pan/zoom per slide, rising captions, filling progress bars */
+@keyframes authZoomA { from { transform: scale(1.04) translate3d(0, 0, 0); } to { transform: scale(1.16) translate3d(-2.2%, -1.6%, 0); } }
+@keyframes authZoomB { from { transform: scale(1.16) translate3d(-1.5%, 1%, 0); } to { transform: scale(1.04) translate3d(1.5%, -1%, 0); } }
+@keyframes riseIn { from { opacity: 0; transform: translate3d(0, 22px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes progressFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }

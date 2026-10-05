@@ -1,7 +1,8 @@
 /* eslint-disable react-refresh/only-export-components -- UI kit intentionally co-locates small style constants and the toast hook with its components */
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { CheckCircle2, X } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Loader2, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { api } from '../../lib/api'
 
 /* ── Page header ─────────────────────────────────────────────── */
 export function PageHead({ eyebrow, title, description, actions }) {
@@ -123,8 +124,8 @@ export function ToastProvider({ children }) {
   const [toast, setToast] = useState(null)
   const timer = useRef(null)
 
-  const notify = useCallback((message) => {
-    setToast({ message, id: Date.now() })
+  const notify = useCallback((message, tone = 'success') => {
+    setToast({ message, tone, id: Date.now() })
     clearTimeout(timer.current)
     timer.current = setTimeout(() => setToast(null), 3800)
   }, [])
@@ -137,7 +138,7 @@ export function ToastProvider({ children }) {
       <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-6 z-[60] flex justify-center px-4">
         {toast && (
           <div key={toast.id} className="on-dark pointer-events-auto flex items-center gap-3 border border-ink-700 bg-ink-900 py-3 pl-4 pr-3 text-[14px] text-cream-50 shadow-xl">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-brass-300" />
+            {toast.tone === 'error' ? <AlertCircle className="h-4 w-4 shrink-0 text-red-300" /> : <CheckCircle2 className="h-4 w-4 shrink-0 text-brass-300" />}
             {toast.message}
             <button onClick={() => setToast(null)} aria-label="Dismiss" className="ml-2 p-1 text-cream-100/60 hover:text-cream-50">
               <X className="h-4 w-4" />
@@ -147,4 +148,74 @@ export function ToastProvider({ children }) {
       </div>
     </ToastCtx.Provider>
   )
+}
+
+/* ── Async helpers ───────────────────────────────────────────── */
+/** Wraps an async action: tracks busy state and shows API errors as a toast. */
+export function useAction(fn) {
+  const notify = useToast()
+  const [busy, setBusy] = useState(false)
+  const ref = useRef(fn)
+  useEffect(() => { ref.current = fn })
+  const run = useCallback(async (...args) => {
+    setBusy(true)
+    try {
+      return await ref.current(...args)
+    } catch (err) {
+      notify(err.message || 'Something went wrong.', 'error')
+      return undefined
+    } finally {
+      setBusy(false)
+    }
+  }, [notify])
+  return [run, busy]
+}
+
+export function Loading({ label = 'Loading…' }) {
+  return (
+    <div role="status" className="flex items-center justify-center gap-3 py-20 text-[14px] text-ink-600">
+      <Loader2 className="h-5 w-5 animate-spin text-brass-600" /> {label}
+    </div>
+  )
+}
+
+export function ErrorState({ error, onRetry }) {
+  return (
+    <div role="alert" className="border border-red-300 bg-red-50 p-6">
+      <p className="font-display text-xl text-red-900">We couldn't load this.</p>
+      <p className="mt-1 text-[14px] text-red-800">{error?.message}</p>
+      {onRetry && <button onClick={onRetry} className="btn-outline mt-4">Try again</button>}
+    </div>
+  )
+}
+
+/** Renders a private file (e.g. a profile photo or ID image) through the authenticated API. */
+export function AuthImage({ fileId, alt = '', className, style, fallback = null }) {
+  const [src, setSrc] = useState(null)
+  const [failed, setFailed] = useState(false)
+  useEffect(() => {
+    if (!fileId) return
+    let url
+    let alive = true
+    api.get(`/files/${fileId}`, { as: 'blob' })
+      .then(({ blob }) => { if (alive) { url = URL.createObjectURL(blob); setSrc(url) } })
+      .catch(() => alive && setFailed(true))
+    return () => { alive = false; if (url) URL.revokeObjectURL(url) }
+  }, [fileId])
+  if (!fileId || failed) return fallback
+  if (!src) return <div style={style} className={cn('animate-pulse bg-ink-100', className)} aria-hidden="true" />
+  return <img src={src} alt={alt} className={className} style={style} />
+}
+
+export function Avatar({ user, size = 40, className }) {
+  const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase()
+  const style = { width: size, height: size }
+  const fallback = (
+    <div style={style} className={cn('flex shrink-0 items-center justify-center bg-ink-800 text-[12px] font-semibold tracking-wide text-cream-50', className)}>
+      {initials || '•'}
+    </div>
+  )
+  return user?.avatarFileId ? (
+    <AuthImage fileId={user.avatarFileId} alt={user.name} style={style} className={cn('shrink-0 object-cover', className)} fallback={fallback} />
+  ) : fallback
 }

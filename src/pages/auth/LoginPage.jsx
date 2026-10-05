@@ -1,30 +1,34 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Mail, Lock, ArrowRight } from 'lucide-react'
+import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react'
 import AuthLayout from '../../layout/AuthLayout'
-import { login } from '../../lib/auth'
-
-const inputClass = 'field pl-11'
+import { homeFor, login } from '../../lib/auth'
 
 const labelClass = 'mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700'
 
 export default function LoginPage() {
-  const [email, setEmail]     = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError]     = useState('')
+  const [remember, setRemember] = useState(false)
+  const [error, setError] = useState('')
+  const [pending, setPending] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setPending(false)
     setLoading(true)
     try {
-      login(email, password)
-      const from = new URLSearchParams(location.search).get('from') || '/portal'
-      navigate(from, { replace: true })
+      const user = await login({ email, password, remember })
+      const from = new URLSearchParams(location.search).get('from')
+      // Never send an employee into the admin area (or vice-versa) through a stale ?from= link.
+      const target = from && from.startsWith(user.role === 'admin' ? '/admin' : '/portal') ? from : homeFor(user)
+      navigate(target, { replace: true })
     } catch (err) {
+      setPending(err.code === 'pending')
       setError(err.message)
     } finally {
       setLoading(false)
@@ -32,63 +36,45 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthLayout
-      eyebrow="Employee Portal"
-      title="Welcome back"
-      subtitle="Sign in to view your schedule, documents, and recognition."
-    >
+    <AuthLayout eyebrow="Employee Portal" title="Welcome back" subtitle="Sign in to view your missions, pay, time sheet and documents.">
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <div>
           <label htmlFor="email" className={labelClass}>Email</label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
-            <input
-              id="email" type="email" required value={email}
-              onChange={e => setEmail(e.target.value)}
-              className={inputClass} placeholder="you@everixaworkforce.com"
-            />
+            <Mail aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+            <input id="email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field pl-11" placeholder="you@email.com" />
           </div>
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label htmlFor="password" className="font-body text-xs font-medium text-ink-700 tracking-wide">Password</label>
-            <Link to="/forgot-password" className="font-body text-xs text-ink-600 hover:text-ink-800 transition-colors">
-              Forgot password?
-            </Link>
+          <div className="mb-2 flex items-center justify-between">
+            <label htmlFor="password" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700">Password</label>
+            <Link to="/forgot-password" className="text-[12px] text-ink-600 underline decoration-ink-300 underline-offset-4 hover:text-ink-900">Forgot password?</Link>
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
-            <input
-              id="password" type="password" required value={password}
-              onChange={e => setPassword(e.target.value)}
-              className={inputClass} placeholder="••••••••"
-            />
+            <Lock aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+            <input id="password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="field pl-11" placeholder="••••••••" />
           </div>
         </div>
 
+        <label className="flex cursor-pointer items-center gap-3 text-[14px] text-ink-700">
+          <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 accent-ink-800" />
+          Keep me signed in
+        </label>
+
         {error && (
-          <div className="flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-sm">
-            <span className="text-red-500 text-sm shrink-0 mt-0.5">!</span>
-            <p className="font-body text-sm text-red-700">{error}</p>
+          <div role="alert" className={`border p-3.5 text-[14px] ${pending ? 'border-brass-400 bg-brass-300/20 text-ink-900' : 'border-red-300 bg-red-50 text-red-800'}`}>
+            {error}
           </div>
         )}
 
-        <button type="submit" disabled={loading} className="btn-primary w-full justify-center text-sm py-3.5 disabled:opacity-60">
-          {loading ? 'Signing in...' : <>Sign In <ArrowRight className="w-4 h-4" /></>}
+        <button type="submit" disabled={loading} className="btn-primary w-full">
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing in…</> : <>Sign In <ArrowRight className="h-4 w-4" /></>}
         </button>
 
-        <div className="p-3.5 bg-ink-50 border border-ink-100 rounded-sm">
-          <p className="font-body text-xs text-ink-600 leading-relaxed">
-            Demo account: <span className="font-semibold text-ink-800">demo@everixaworkforce.com</span> / <span className="font-semibold text-ink-800">demo1234</span>
-          </p>
-        </div>
-
-        <p className="font-body text-sm text-center text-ink-600">
+        <p className="pt-2 text-center text-[14px] text-ink-600">
           New employee?{' '}
-          <Link to="/signup" className="font-medium text-ink-800 hover:text-ink-900 underline">
-            Create an account
-          </Link>
+          <Link to="/signup" className="font-medium text-ink-800 underline decoration-ink-300 underline-offset-4 hover:decoration-ink-700">Create an account</Link>
         </p>
       </form>
     </AuthLayout>

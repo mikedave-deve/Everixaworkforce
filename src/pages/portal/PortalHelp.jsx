@@ -1,34 +1,36 @@
 import { useState } from 'react'
 import { Phone, Mail, Clock3 } from 'lucide-react'
-import { PageHead, Panel, Pill, Field, EmptyState, useToast } from '../../components/portal/ui'
+import { PageHead, Panel, Pill, Field, EmptyState, Loading, useAction, useToast } from '../../components/portal/ui'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../../components/ui/Accordion'
-import { faqs, hrContacts } from '../../data/employeePortal'
-import { fmtDate, logActivity, usePortalState } from '../../lib/portalStore'
+import { faqs, hrContacts } from '../../data/portalCatalog'
+import { api, useApi } from '../../lib/api'
+import { fmtDate } from '../../lib/format'
 
 const TOPICS = ['Pay or direct deposit', 'Timesheet correction', 'Benefits', 'Time off', 'Equipment', 'Schedule or assignment', 'Workplace concern', 'Other']
 
 export default function PortalHelp() {
   const notify = useToast()
-  const [tickets, setTickets] = usePortalState('tickets', [])
+  const { data, loading, reload } = useApi('/help')
   const [form, setForm] = useState({ topic: TOPICS[0], subject: '', message: '' })
+  const [error, setError] = useState('')
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
-  function submit(e) {
+  const [submit, sending] = useAction(async (e) => {
     e.preventDefault()
-    const ref = `HR-${String(Math.floor(10000 + Math.random() * 90000))}`
-    setTickets((cur) => [{ id: ref, ...form, status: 'Open', at: new Date().toISOString() }, ...cur])
-    logActivity('help', 'Help request opened', `${ref} · ${form.topic}`)
-    notify(`Request ${ref} opened. We reply within one business day.`)
-    setForm({ topic: TOPICS[0], subject: '', message: '' })
-  }
+    setError('')
+    try {
+      const { ref } = await api.post('/help', form)
+      notify(`Request ${ref} sent to HR. We reply within one business day.`)
+      setForm({ topic: TOPICS[0], subject: '', message: '' })
+      reload()
+    } catch (err) {
+      setError(err.message)
+    }
+  })
 
   return (
     <div>
-      <PageHead
-        eyebrow="Help & HR"
-        title="We're here to help."
-        description="Search common answers, contact HR directly, or open a request and we'll follow up within one business day."
-      />
+      <PageHead eyebrow="Help & HR" title="We're here to help." description="Search common answers, contact HR directly, or send a request — it goes straight to our HR inbox." />
 
       <div className="mb-8 grid gap-4 md:grid-cols-2">
         {hrContacts.map((c) => (
@@ -57,22 +59,23 @@ export default function PortalHelp() {
         </Panel>
 
         <div className="space-y-6 lg:col-span-2">
-          <Panel title="Open a request">
-            <form onSubmit={submit} className="space-y-5">
+          <Panel title="Send a request">
+            <form onSubmit={submit} className="space-y-5" noValidate>
               <Field id="t-topic" label="Topic"><select id="t-topic" className="field" value={form.topic} onChange={set('topic')}>{TOPICS.map((t) => <option key={t}>{t}</option>)}</select></Field>
               <Field id="t-subject" label="Subject"><input id="t-subject" required className="field" value={form.subject} onChange={set('subject')} /></Field>
               <Field id="t-msg" label="How can we help?"><textarea id="t-msg" required rows={4} className="field resize-none" value={form.message} onChange={set('message')} /></Field>
-              <button className="btn-primary w-full">Send request</button>
+              {error && <p role="alert" className="border border-red-300 bg-red-50 p-3 text-[13px] text-red-800">{error}</p>}
+              <button className="btn-primary w-full" disabled={sending}>{sending ? 'Sending…' : 'Send to HR'}</button>
             </form>
           </Panel>
 
           <Panel title="Your requests">
-            {tickets.length === 0 ? <EmptyState title="No open requests" /> : (
+            {loading ? <Loading /> : data.requests.length === 0 ? <EmptyState title="No requests yet" /> : (
               <ul className="divide-y divide-ink-900/10">
-                {tickets.map((t) => (
+                {data.requests.map((t) => (
                   <li key={t.id} className="flex items-start justify-between gap-3 py-3.5 first:pt-0 last:pb-0">
-                    <div className="min-w-0"><p className="truncate text-[14px] font-medium text-ink-900">{t.subject}</p><p className="text-[12px] text-ink-600">{t.id} · {fmtDate(t.at)}</p></div>
-                    <Pill tone="brass">{t.status}</Pill>
+                    <div className="min-w-0"><p className="truncate text-[14px] font-medium text-ink-900">{t.subject}</p><p className="text-[12px] text-ink-600">{t.ref} · {fmtDate(t.createdAt)}</p></div>
+                    <Pill tone={t.status === 'Resolved' ? 'success' : 'brass'}>{t.status}</Pill>
                   </li>
                 ))}
               </ul>

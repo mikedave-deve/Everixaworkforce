@@ -1,40 +1,69 @@
 import { useState } from 'react'
 import { Check } from 'lucide-react'
-import { PageHead, Panel, Pill, Field, useToast } from '../../components/portal/ui'
-import { coverageLevels, medicalPlans, otherBenefits, HOURLY_RATE } from '../../data/employeePortal'
-import { fmtDate, logActivity, money, usePortalState } from '../../lib/portalStore'
+import { PageHead, Panel, Pill, Field, Loading, ErrorState, useAction, useToast } from '../../components/portal/ui'
+import { coverageLevels, medicalPlans, otherBenefits } from '../../data/portalCatalog'
+import { api, useApi } from '../../lib/api'
+import { fmtDate, money } from '../../lib/format'
 import { cn } from '../../lib/utils'
 
-const DEFAULT = { medical: 'pp', coverage: 'ee', k401: 4, savedAt: null }
 const MATCH_CAP = 4
+const GROSS_PER_PAY_FALLBACK = 24.5 * 80
 
 export default function PortalBenefits() {
+  const { data, error, loading, reload } = useApi('/benefits')
+  const { data: pay } = useApi('/pay')
+
+  if (loading) return <Loading />
+  if (error) return <ErrorState error={error} onRetry={reload} />
+  return <BenefitsEditor data={data} pay={pay} reload={reload} />
+}
+
+function BenefitsEditor({ data, pay, reload }) {
   const notify = useToast()
-  const [saved, setSaved] = usePortalState('benefits', DEFAULT)
-  const [draft, setDraft] = useState(saved)
+  const base = data.pending ?? data.approved
+  const [draft, setDraft] = useState(base ? { medical: base.medical, coverage: base.coverage, k401: base.k401 } : { medical: 'pp', coverage: 'ee', k401: 4 })
+
+  const [submit, submitting] = useAction(async () => {
+    await api.post('/benefits', draft)
+    notify('Elections submitted for approval. HR will review them shortly.')
+    reload()
+  })
 
   const plan = medicalPlans.find((p) => p.id === draft.medical)
   const level = coverageLevels.find((c) => c.id === draft.coverage)
   const medicalPerPay = plan.id === 'wv' ? 0 : (plan.premium * level.factor * 12) / 26
-  const grossPerPay = HOURLY_RATE * 80
+  const grossPerPay = (pay?.rate || 0) > 0 ? pay.rate * 80 : GROSS_PER_PAY_FALLBACK
   const k401PerPay = (grossPerPay * draft.k401) / 100
   const matchPerPay = (grossPerPay * Math.min(draft.k401, MATCH_CAP)) / 100
-  const dirty = JSON.stringify({ ...draft, savedAt: null }) !== JSON.stringify({ ...saved, savedAt: null })
 
-  function save() {
-    setSaved({ ...draft, savedAt: new Date().toISOString() })
-    logActivity('benefit', 'Benefits election saved', `${plan.name} · ${level.label} · 401(k) ${draft.k401}%`)
-    notify('Benefits elections saved.')
-  }
+  const current = data.pending ?? data.approved
+  const dirty = !current || current.medical !== draft.medical || current.coverage !== draft.coverage || current.k401 !== draft.k401
+  const canSubmit = dirty && !submitting
 
   return (
     <div>
       <PageHead
         eyebrow="Benefits"
         title="Choose coverage that fits."
-        description="Compare plans, set your 401(k) contribution and see exactly what each paycheck will cost."
+        description="Compare plans, set your 401(k) contribution and see what each paycheck will cost. HR reviews every election before it takes effect."
         actions={<Pill tone="brass">Open enrollment Nov 1 – Nov 15</Pill>}
       />
+
+      {data.pending && (
+        <p role="status" className="mb-6 flex flex-wrap items-center gap-3 border border-brass-400 bg-brass-300/20 p-4 text-[14px] text-ink-900">
+          <Pill tone="brass">Pending approval</Pill> Submitted {fmtDate(data.pending.submittedAt)}. You'll see it here once HR approves.
+        </p>
+      )}
+      {!data.pending && data.lastRejected && (
+        <p role="alert" className="mb-6 border border-red-300 bg-red-50 p-4 text-[14px] text-red-800">
+          <Pill tone="danger" className="mr-3">Not approved</Pill>{data.lastRejected.reviewNote || 'Please contact HR about your elections.'}
+        </p>
+      )}
+      {data.approved && !data.pending && (
+        <p role="status" className="mb-6 flex flex-wrap items-center gap-3 border border-ink-900/10 bg-white p-4 text-[14px] text-ink-800">
+          <Pill tone="success">Active</Pill> Approved {fmtDate(data.approved.reviewedAt)} — {medicalPlans.find((p) => p.id === data.approved.medical)?.name}, 401(k) {data.approved.k401}%.
+        </p>
+      )}
 
       <Panel title="Medical plan" description="Costs shown are your share per bi-weekly paycheck, pre-tax.">
         <fieldset>
@@ -102,9 +131,8 @@ export default function PortalBenefits() {
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brass-300">Estimated per paycheck</p>
           <p className="font-num text-[1.9rem] leading-tight text-cream-50">{money(medicalPerPay + k401PerPay)} <span className="text-[13px] text-cream-100/60">medical + 401(k)</span></p>
-          {saved.savedAt && <p className="text-[12px] text-cream-100/55">Last saved {fmtDate(saved.savedAt)}</p>}
         </div>
-        <button onClick={save} disabled={!dirty} className="btn-light">{dirty ? 'Save elections' : 'No changes'}</button>
+        <button onClick={submit} disabled={!canSubmit} className="btn-light">{submitting ? 'Submitting…' : dirty ? 'Submit for approval' : 'No changes'}</button>
       </div>
     </div>
   )

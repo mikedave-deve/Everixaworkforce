@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Menu, X, ChevronDown, ArrowUpRight } from 'lucide-react'
 import { useNavbarScroll } from '../hooks/useNavbarScroll'
 import { cn } from '../lib/utils'
-import { getSession } from '../lib/auth'
+import { getSession, homeFor } from '../lib/auth'
 import BrandMark from './BrandMark'
 
 const navLinks = [
@@ -89,8 +89,8 @@ export default function Navbar() {
   const setMobileOpen = (fn) => setOpenOn((cur) => ((typeof fn === 'function' ? fn(cur === pathname) : fn) ? pathname : null))
   const setExpanded = (label) => setExpandedOn({ path: pathname, label })
   const session = getSession()
-  const portalHref = session ? '/portal' : '/login'
-  const portalLabel = session ? 'My Portal' : 'Employee Login'
+  const portalHref = session ? homeFor(session) : '/login'
+  const portalLabel = session ? (session.role === 'admin' ? 'Admin Portal' : 'My Portal') : 'Employee Login'
 
   // Lock page scroll while the full-screen menu is open
   useEffect(() => {
@@ -101,6 +101,7 @@ export default function Navbar() {
   const solid = scrolled || mobileOpen
 
   return (
+    <>
     <header
       className={cn(
         'on-dark fixed inset-x-0 top-0 z-50 transition-[background-color,padding,border-color] duration-500 ease-out',
@@ -156,10 +157,12 @@ export default function Navbar() {
         </nav>
       </div>
 
+    </header>
+
       {/* Mobile: full-height sheet */}
       <div
         className={cn(
-          'fixed inset-x-0 bottom-0 top-[64px] overflow-y-auto bg-ink-950 transition-[opacity,visibility] duration-300 lg:hidden',
+          'on-dark fixed inset-0 z-40 overflow-y-auto bg-ink-950 pt-[76px] transition-[opacity,visibility] duration-300 lg:hidden',
           mobileOpen ? 'visible opacity-100' : 'invisible opacity-0'
         )}
       >
@@ -206,6 +209,6 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-    </header>
+    </>
   )
 }

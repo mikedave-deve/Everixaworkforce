@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
 import PreLoader from "./components/PreLoader";
 import RootLayout from "./layout/RootLayout";
 import PortalLayout from "./layout/PortalLayout";
+import AdminLayout from "./layout/AdminLayout";
 import RequireAuth from "./components/RequireAuth";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
@@ -18,6 +19,7 @@ import MeetOurStaffPage from "./pages/MeetOurStaffPage";
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import PortalOverview from "./pages/portal/PortalOverview";
 import PortalMissions from "./pages/portal/PortalMissions";
 import PortalActivity from "./pages/portal/PortalActivity";
@@ -33,22 +35,38 @@ import PortalIdentity from "./pages/portal/PortalIdentity";
 import PortalDocuments from "./pages/portal/PortalDocuments";
 import PortalProfile from "./pages/portal/PortalProfile";
 import PortalHelp from "./pages/portal/PortalHelp";
-import { seedDemoAccount } from "./lib/auth";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminApprovals from "./pages/admin/AdminApprovals";
+import AdminEmployees from "./pages/admin/AdminEmployees";
+import AdminMissions from "./pages/admin/AdminMissions";
+import AdminPay from "./pages/admin/AdminPay";
+import AdminShipments from "./pages/admin/AdminShipments";
+import AdminDocuments from "./pages/admin/AdminDocuments";
+import AdminInbox from "./pages/admin/AdminInbox";
+
+/** Sends the user to the login page whenever the API reports their session has ended. */
+function SessionWatcher() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const onOut = () => navigate("/login", { replace: true });
+    window.addEventListener("everixa:signed-out", onOut);
+    return () => window.removeEventListener("everixa:signed-out", onOut);
+  }, [navigate]);
+  return null;
+}
 
 export default function App() {
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    seedDemoAccount();
-  }, []);
-
   return (
     <BrowserRouter>
+      <SessionWatcher />
       {loading && <PreLoader onFinish={() => setLoading(false)} />}
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         <Route
           path="/portal"
@@ -75,6 +93,25 @@ export default function App() {
           <Route path="help" element={<PortalHelp />} />
           <Route path="announcements" element={<Navigate to="/portal" replace />} />
           <Route path="*" element={<Navigate to="/portal" replace />} />
+        </Route>
+
+        <Route
+          path="/admin"
+          element={
+            <RequireAuth role="admin">
+              <AdminLayout />
+            </RequireAuth>
+          }
+        >
+          <Route index element={<AdminOverview />} />
+          <Route path="approvals" element={<AdminApprovals />} />
+          <Route path="employees" element={<AdminEmployees />} />
+          <Route path="missions" element={<AdminMissions />} />
+          <Route path="pay" element={<AdminPay />} />
+          <Route path="shipments" element={<AdminShipments />} />
+          <Route path="documents" element={<AdminDocuments />} />
+          <Route path="inbox" element={<AdminInbox />} />
+          <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
 
         <Route element={<RootLayout />}>

@@ -12,13 +12,20 @@ export default function ForgotPasswordPage() {
   const [email, setEmail]     = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent]       = useState(false)
+  const [error, setError]     = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
+    setError('')
     setLoading(true)
-    await requestPasswordReset(email)
-    setLoading(false)
-    setSent(true)
+    try {
+      await requestPasswordReset(email)
+      setSent(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (sent) {
@@ -54,11 +61,12 @@ export default function ForgotPasswordPage() {
             <input
               id="email" type="email" required value={email}
               onChange={e => setEmail(e.target.value)}
-              className={inputClass} placeholder="you@everixaworkforce.com"
+              className={inputClass} placeholder="you@email.com"
             />
           </div>
         </div>
 
+        {error && <div role="alert" className="border border-red-300 bg-red-50 p-3.5 text-[14px] text-red-800">{error}</div>}
         <button type="submit" disabled={loading} className="btn-primary w-full justify-center text-sm py-3.5 disabled:opacity-60">
           {loading ? 'Sending...' : <>Send Reset Link <ArrowRight className="w-4 h-4" /></>}
         </button>
