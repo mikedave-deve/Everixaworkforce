@@ -1,20 +1,19 @@
 import { randomUUID } from 'node:crypto'
-import { mkdir, readFile, writeFile, unlink } from 'node:fs/promises'
-import path from 'node:path'
-import { put, del } from '@vercel/blob'
+import { Binary } from 'mongodb'
+import { put, del, get } from '@vercel/blob'
 import { getConfig } from './config.js'
 import { getDb, oid, ser } from './db.js'
 import { HttpError } from './http.js'
 
 /**
- * File storage. Production uses Vercel Blob (BLOB_READ_WRITE_TOKEN). Without a token
- * (local development) files are written to .data/blob instead, behind the same API.
+ * File storage.
+ *  - With BLOB_READ_WRITE_TOKEN set, files go to Vercel Blob.
+ *  - Without it, files (max 4 MB each) are stored in MongoDB instead, so uploads still work.
+ *    Files already stored there stay readable after a Blob token is added later.
  *
- * Blob URLs are never sent to the browser: every download is proxied through
+ * Storage URLs are never sent to the browser: every download is proxied through
  * GET /api/files/:id so access is always checked against the signed-in user.
  */
-const LOCAL_DIR = path.resolve(process.cwd(), '.data', 'blob')
-
 export const ALLOWED = {
   image: ['image/jpeg', 'image/png', 'image/webp'],
   doc: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
@@ -33,17 +32,37 @@ export function sniff(buf) {
   return null
 }
 
+let warned = false
+let detectedAccess = null
+
+/**
+ * Uploads to Vercel Blob. A store is either private or public and the API rejects the wrong
+ * one, so we try private first (the safer default for ID documents) and fall back to public,
+ * remembering what worked.
+ */
+async function putBlob(key, buffer, type, token) {
+  const order = detectedAccess ? [detectedAccess] : ['private', 'public']
+  let lastErr
+  for (const access of order) {
+    try {
+      const blob = await put(key, buffer, { access, addRandomSuffix: true, contentType: type, token })
+      detectedAccess = access
+      return { blob, access }
+    } catch (err) {
+      lastErr = err
+      if (!/\b(private|public)\b/i.test(err.message ?? '')) throw err // not an access-type mismatch
+    }
+  }
+  throw lastErr
+}
+
 export async function saveFile({ buffer, name, ownerId = null, kind, allowed = 'any', meta = {} }) {
   const type = sniff(buffer)
   if (!type || !ALLOWED[allowed].includes(type)) {
     throw new HttpError(415, allowed === 'image' ? 'Please upload a JPG, PNG or WebP image.' : 'That file type is not supported.')
   }
   const ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' }[type] ?? 'bin'
-  const key = `${kind}/${randomUUID()}.${ext}`
   const cfg = getConfig()
-  if (!cfg.blobToken && cfg.isProd) {
-    throw new HttpError(503, 'File storage is not configured yet. Ask the site owner to set BLOB_READ_WRITE_TOKEN.')
-  }
   const doc = {
     ownerId: ownerId ? oid(ownerId) : null,
     kind,
@@ -53,22 +72,31 @@ export async function saveFile({ buffer, name, ownerId = null, kind, allowed = '
     createdAt: new Date(),
     ...meta,
   }
+  const db = await getDb()
 
   if (cfg.blobToken) {
-    const blob = await put(key, buffer, { access: 'public', addRandomSuffix: true, contentType: type, token: cfg.blobToken })
+    const { blob, access } = await putBlob(`${kind}/${randomUUID()}.${ext}`, buffer, type, cfg.blobToken)
     doc.storage = 'blob'
     doc.blobUrl = blob.url
-  } else {
-    const full = path.join(LOCAL_DIR, key)
-    await mkdir(path.dirname(full), { recursive: true })
-    await writeFile(full, buffer)
-    doc.storage = 'local'
-    doc.localKey = key
+    doc.blobPathname = blob.pathname
+    doc.blobAccess = access
+    const { insertedId } = await db.collection('files').insertOne(doc)
+    return ser({ _id: insertedId, ...doc }, ['blobUrl', 'blobPathname', 'blobAccess', 'storage'])
   }
 
-  const db = await getDb()
+  if (!warned) {
+    warned = true
+    console.warn('[storage] BLOB_READ_WRITE_TOKEN is not set — storing uploaded files in MongoDB. Add the token to use Vercel Blob.')
+  }
+  doc.storage = 'db'
   const { insertedId } = await db.collection('files').insertOne(doc)
-  return ser({ _id: insertedId, ...doc }, ['blobUrl', 'localKey', 'storage'])
+  try {
+    await db.collection('fileData').insertOne({ _id: insertedId, data: new Binary(buffer) })
+  } catch (err) {
+    await db.collection('files').deleteOne({ _id: insertedId })
+    throw err
+  }
+  return ser({ _id: insertedId, ...doc }, ['storage'])
 }
 
 export async function loadFile(id) {
@@ -79,11 +107,19 @@ export async function loadFile(id) {
   if (!doc) return null
   let buffer
   if (doc.storage === 'blob') {
-    const r = await fetch(doc.blobUrl)
-    if (!r.ok) throw new HttpError(502, 'The file could not be retrieved.')
-    buffer = Buffer.from(await r.arrayBuffer())
+    if (doc.blobAccess === 'private') {
+      const r = await get(doc.blobPathname ?? doc.blobUrl, { access: 'private', token: getConfig().blobToken })
+      if (!r || r.statusCode !== 200) throw new HttpError(502, 'The file could not be retrieved.')
+      buffer = Buffer.from(await new Response(r.stream).arrayBuffer())
+    } else {
+      const r = await fetch(doc.blobUrl)
+      if (!r.ok) throw new HttpError(502, 'The file could not be retrieved.')
+      buffer = Buffer.from(await r.arrayBuffer())
+    }
   } else {
-    buffer = await readFile(path.join(LOCAL_DIR, doc.localKey))
+    const row = await db.collection('fileData').findOne({ _id })
+    if (!row) throw new HttpError(404, 'The file content is missing.')
+    buffer = Buffer.from(row.data.buffer)
   }
   return { doc, buffer }
 }
@@ -96,7 +132,7 @@ export async function removeFile(id) {
   if (!doc) return
   try {
     if (doc.storage === 'blob') await del(doc.blobUrl, { token: getConfig().blobToken })
-    else await unlink(path.join(LOCAL_DIR, doc.localKey))
+    else await db.collection('fileData').deleteOne({ _id })
   } catch {
     /* already gone */
   }
