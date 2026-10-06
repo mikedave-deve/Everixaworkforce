@@ -1,3 +1,5 @@
+import { HttpError } from './http.js'
+
 /**
  * Central configuration. Read lazily so tests and the dev server can set env first.
  * Variables follow the project's .env arrangement.
@@ -9,6 +11,14 @@ const list = (v) =>
     .filter(Boolean)
 
 const clean = (v) => String(v ?? '').trim().replace(/,+$/, '')
+
+function databaseFromUri(uri) {
+  try {
+    return decodeURIComponent(new URL(uri).pathname.replace(/^\//, ''))
+  } catch {
+    return ''
+  }
+}
 
 export function getConfig() {
   const env = process.env
@@ -25,7 +35,8 @@ export function getConfig() {
     isProd,
     port: Number(env.PORT) || 4000,
     mongoUri: clean(env.MONGODB_URI),
-    dbName: clean(env.MONGODB_DB) || 'everixa',
+    // MONGODB_DB wins; otherwise the database named in the connection string; otherwise "everixa".
+    dbName: clean(env.MONGODB_DB) || databaseFromUri(clean(env.MONGODB_URI)) || 'everixa',
     jwtSecret: clean(env.JWT_SECRET),
     jwtDays: Number(env.JWT_EXPIRES_IN_DAYS) || 7,
     jwtDaysRemember: Number(env.JWT_EXPIRES_IN_DAYS_REMEMBER) || 30,
@@ -55,7 +66,8 @@ export function getConfig() {
 export function assertConfig() {
   const c = getConfig()
   if (!c.jwtSecret || c.jwtSecret.length < 16) {
-    throw new Error('JWT_SECRET must be set (16+ characters).')
+    console.error('[config] JWT_SECRET is missing or shorter than 16 characters.')
+    throw new HttpError(503, 'The site is not fully configured yet (sign-in key). Please contact the site owner.')
   }
   return c
 }

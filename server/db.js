@@ -1,5 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb'
 import { getConfig } from './config.js'
+import { HttpError } from './http.js'
 
 export { ObjectId }
 
@@ -22,7 +23,10 @@ async function connect() {
   const cfg = getConfig()
   let uri = cfg.mongoUri
   if (!uri) {
-    if (cfg.isProd) throw new Error('MONGODB_URI is not set.')
+    if (cfg.isProd) {
+      console.error('[db] MONGODB_URI is not set. Add it under Vercel → Settings → Environment Variables, then redeploy.')
+      throw new HttpError(503, 'The site is not connected to its database yet. Please contact the site owner.')
+    }
     console.warn('[db] MONGODB_URI is empty — using an embedded development database (.data/mongo).')
     uri = await startMemoryServer()
   }
