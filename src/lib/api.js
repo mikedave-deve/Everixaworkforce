@@ -5,7 +5,26 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * Vercel). The session token lives in localStorage when "Remember me" is ticked,
  * otherwise in sessionStorage so it disappears when the browser closes.
  */
-const BASE = String(import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '')
+const isLocalHost = (h) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]'
+
+/**
+ * Base URL for API calls. Empty means "same origin" (`/api/...`), which is right for Vercel and for
+ * the Vite dev server. VITE_API_URL is only honoured when it points somewhere genuinely different;
+ * a localhost value baked into a production build is ignored, so a deployed site never tries to
+ * call the visitor's own computer.
+ */
+const BASE = (() => {
+  const configured = String(import.meta.env.VITE_API_URL ?? '').trim().replace(/\/+$/, '')
+  if (!configured) return ''
+  try {
+    const u = new URL(configured)
+    if (u.origin === window.location.origin) return ''
+    if (isLocalHost(u.hostname) && !isLocalHost(window.location.hostname)) return ''
+  } catch {
+    return ''
+  }
+  return configured
+})()
 const TOKEN_KEY = 'everixa_token'
 const USER_KEY = 'everixa_user'
 
