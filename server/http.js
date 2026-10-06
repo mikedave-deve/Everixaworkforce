@@ -92,7 +92,12 @@ export function createRouter() {
     delete: (p, ...h) => add('DELETE', p, ...h),
     async handle(req, res) {
       const url = new URL(req.url, 'http://x')
-      const path = url.pathname.replace(/^\/api/, '') || '/'
+      // On Vercel every /api/* request is rewritten to one function with the original path in ?__path=
+      // (see vercel.json). Locally the real path is used directly. Both forms resolve identically.
+      const forwarded = url.searchParams.get('__path')
+      url.searchParams.delete('__path')
+      if (forwarded !== null && url.searchParams.get('path') === forwarded) url.searchParams.delete('path') // Vercel also adds ?path=
+      const path = forwarded !== null ? `/${forwarded.replace(/^\/+/, '')}` : url.pathname.replace(/^\/api/, '') || '/'
       const cors = corsHeaders(req)
       const secure = {
         'X-Content-Type-Options': 'nosniff',

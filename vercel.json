@@ -1,15 +1,13 @@
 {
   "framework": "vite",
   "functions": {
-    "api/[...route].js": {
+    "api/index.js": {
       "maxDuration": 30,
       "includeFiles": "node_modules/pdfkit/js/**"
     }
   },
   "rewrites": [
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
-    }
+    { "source": "/api/:path*", "destination": "/api?__path=:path*" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

@@ -355,3 +355,14 @@ test('password reset flow emails a link and changes the password', async () => {
   assert.equal((await call('POST', '/api/auth/reset', { body: { token, password: 'Another1234' } })).status, 200)
   assert.equal((await call('POST', '/api/auth/login', { body: { email: EMAIL, password: 'Another1234' } })).status, 200)
 })
+
+test('Vercel-style routing: /api?__path=... reaches the same routes and keeps other query params', async () => {
+  assert.equal((await call('GET', '/api?__path=health')).status, 200)
+  assert.equal((await call('GET', '/api/health?__path=health')).status, 200)
+  // multi-segment path through the rewritten URL
+  const login = await call('POST', '/api?__path=auth/login', { body: { email: EMAIL, password: 'Another1234' } })
+  assert.equal(login.status, 200, 'login through the rewritten URL')
+  // a real query param (used by uploads) survives alongside __path
+  const up = await call('POST', '/api?__path=identity/upload&slot=dlFront', { token: login.data.token, raw: PNG, headers: { 'Content-Type': 'image/png' } })
+  assert.equal(up.status, 200, 'identity upload through the rewritten URL')
+})
