@@ -4,7 +4,6 @@ import { PageHead, Panel, Pill, Field, useAction, useToast } from '../../compone
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../components/ui/Sheet'
 import { companyServices } from '../../data/portalCatalog'
 import { api } from '../../lib/api'
-import { useSession } from '../../lib/useSession'
 
 /** Write-up for one service, with a real "Request this service" button. */
 function ServiceDetail({ service, requested, onRequested }) {
@@ -47,9 +46,8 @@ function ServiceDetail({ service, requested, onRequested }) {
 /** Simple "Submit your details" form at the bottom of the page. */
 function DetailsForm() {
   const notify = useToast()
-  const session = useSession()
-  const [firstName, setFirstName] = useState(session?.firstName ?? '')
-  const [surname, setSurname] = useState(session?.lastName ?? '')
+  const [firstName, setFirstName] = useState('')
+  const [surname, setSurname] = useState('')
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
 

@@ -107,9 +107,24 @@ export function EmptyState({ title, body }) {
 
 /* ── Table wrapper (scrolls on small screens) ────────────────── */
 export function TableWrap({ children, min = '36rem' }) {
+  const ref = useRef(null)
+  // On phones each row becomes a stacked card; copy the column headings onto cells as labels.
+  useEffect(() => {
+    const table = ref.current
+    if (!table) return
+    const heads = [...table.querySelectorAll('thead th')].map((h) => (h.querySelector('.sr-only') ? '' : h.textContent.trim()))
+    table.querySelectorAll('tbody tr').forEach((tr) => {
+      let col = 0
+      ;[...tr.children].forEach((cell) => {
+        if (cell.colSpan > 1) cell.removeAttribute('data-label')
+        else cell.setAttribute('data-label', heads[col] ?? '')
+        col += cell.colSpan
+      })
+    })
+  })
   return (
     <div className="relative overflow-x-auto">
-      <table className="w-full text-left text-[14px]" style={{ minWidth: min }}>{children}</table>
+      <table ref={ref} className="stack-table w-full text-left text-[14px]" style={{ '--table-min': min }}>{children}</table>
     </div>
   )
 }

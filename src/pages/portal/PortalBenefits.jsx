@@ -4,7 +4,6 @@ import { PageHead, Panel, Pill, Field, Loading, ErrorState, useAction, useToast 
 import { coverageLevels, medicalPlans, otherBenefits } from '../../data/portalCatalog'
 import { api, useApi } from '../../lib/api'
 import { fmtDate, money } from '../../lib/format'
-import { useSession } from '../../lib/useSession'
 import { cn } from '../../lib/utils'
 
 const MATCH_CAP = 4
@@ -13,9 +12,8 @@ const GROSS_PER_PAY_FALLBACK = 24.5 * 80
 /** Simple name + surname form inside the 401(k) box. Goes straight to HR's inbox and email. */
 function KDetailsForm() {
   const notify = useToast()
-  const session = useSession()
-  const [firstName, setFirstName] = useState(session?.firstName ?? '')
-  const [surname, setSurname] = useState(session?.lastName ?? '')
+  const [firstName, setFirstName] = useState('')
+  const [surname, setSurname] = useState('')
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
 
