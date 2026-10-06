@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react'
 import AuthLayout from '../../layout/AuthLayout'
+import PasswordInput from '../../components/PasswordInput'
 import { homeFor, login } from '../../lib/auth'
 
 const labelClass = 'mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700'
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const justReset = new URLSearchParams(location.search).get('reset') === '1'
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -51,16 +53,17 @@ export default function LoginPage() {
             <label htmlFor="password" className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700">Password</label>
             <Link to="/forgot-password" className="text-[12px] text-ink-600 underline decoration-ink-300 underline-offset-4 hover:text-ink-900">Forgot password?</Link>
           </div>
-          <div className="relative">
-            <Lock aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
-            <input id="password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="field pl-11" placeholder="••••••••" />
-          </div>
+          <PasswordInput id="password" icon={Lock} required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
         </div>
 
         <label className="flex cursor-pointer items-center gap-3 text-[14px] text-ink-700">
           <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 accent-ink-800" />
           Keep me signed in
         </label>
+
+        {justReset && !error && (
+          <div role="status" className="border border-emerald-300 bg-emerald-50 p-3.5 text-[14px] text-emerald-900">Your password was changed. Sign in with your new password.</div>
+        )}
 
         {error && (
           <div role="alert" className={`border p-3.5 text-[14px] ${pending ? 'border-brass-400 bg-brass-300/20 text-ink-900' : 'border-red-300 bg-red-50 text-red-800'}`}>

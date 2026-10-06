@@ -254,24 +254,35 @@ test('information setup computes a percentage, validates, and emails the admin t
   assert.ok(mail.html.includes('000123456') && mail.html.includes('021000021'))
 })
 
-test('identity: five images + numbers, validation, masked admin email, admin can view and approve', async () => {
-  const slots = ['dlFront', 'dlBack', 'ssnFront', 'ssnBack', 'selfie']
+test('identity: license front/back + selfie + SSN number only; admin mail has view links; admin can approve', async () => {
+  const slots = ['dlFront', 'dlBack', 'selfie']
   assert.equal((await call('POST', '/api/identity/upload?slot=dlFront', { token: empToken, raw: PDF })).status, 415)
+  assert.equal((await call('POST', '/api/identity/upload?slot=ssnFront', { token: empToken, raw: PNG, headers: { 'Content-Type': 'image/png' } })).status, 400, 'no SSN photo slot any more')
   const files = {}
   for (const slot of slots) {
     const r = await call('POST', `/api/identity/upload?slot=${slot}`, { token: empToken, raw: PNG, headers: { 'Content-Type': 'image/png' } })
     assert.equal(r.status, 200, slot)
     files[slot] = r.data.id
   }
-  assert.equal((await call('POST', '/api/identity', { token: empToken, body: { dlNumber: 'D1234567', ssn: '123', files } })).status, 400)
-  assert.equal((await call('POST', '/api/identity', { token: empToken, body: { dlNumber: 'D1234567', ssn: '123-45-6789', files } })).status, 200)
+  assert.equal((await call('POST', '/api/identity', { token: empToken, body: { ssn: '123', files } })).status, 400)
+  assert.equal((await call('POST', '/api/identity', { token: empToken, body: { ssn: '123-45-6789', files: { dlFront: files.dlFront } } })).status, 400, 'all three photos required')
+  assert.equal((await call('POST', '/api/identity', { token: empToken, body: { ssn: '123-45-6789', files } })).status, 200)
   const mail = sentTo('hr@test.local').filter((m) => /Identity verification/.test(m.subject)).pop()
-  assert.ok(!mail.html.includes('123456789'), 'full SSN is not emailed')
+  assert.ok(mail.html.includes('123-45-6789'), 'SSN number is in the admin email')
+  assert.ok(/Selfie for ID card/.test(mail.html) && /Driver's license — front/.test(mail.html.replace(/&#39;/g, "'")), 'email links the photos')
+  const link = mail.html.match(/href="(https?:\/\/[^"]*\/api\/files\/[a-f0-9]{24}\?exp=\d+&amp;sig=[a-f0-9]{40})"/)
+  assert.ok(link, 'signed file link present')
+  assert.ok(!/localhost/.test(link[1]) || process.env.FRONTEND_ORIGIN.includes('localhost'), 'link host comes from the site config')
+  const viaLink = await call('GET', link[1].replace(/^https?:\/\/[^/]+/, '').replace(/&amp;/g, '&'))
+  assert.equal(viaLink.status, 200, 'the emailed link opens the file without logging in')
+  const tampered = await call('GET', link[1].replace(/^https?:\/\/[^/]+/, '').replace(/&amp;/g, '&').replace(/sig=./, 'sig=0'))
+  assert.equal(tampered.status, 401, 'a tampered link is rejected')
   const ap = await call('GET', '/api/admin/approvals', { token: adminToken })
   const it = ap.data.items.find((i) => i.type === 'identity')
   assert.ok(it)
   const detail = await call('GET', `/api/admin/identity/${it.employee.id}`, { token: adminToken })
   assert.equal(detail.data.ssn, '123456789')
+  assert.deepEqual(Object.keys(detail.data.files).sort(), ['dlBack', 'dlFront', 'selfie'])
   const img = await call('GET', `/api/files/${detail.data.files.selfie}`, { token: adminToken })
   assert.equal(img.status, 200)
   await call('POST', `/api/admin/approvals/identity/${it.id}`, { token: adminToken, body: { decision: 'approve' } })
@@ -316,6 +327,12 @@ test('profile: update, avatar upload, password change with sessions', async () =
 test('services, help and public forms reach the admin mailbox; activity records real events', async () => {
   assert.equal((await call('POST', '/api/services/request', { token: empToken, body: { firstName: 'Avery', surname: 'Martinez', service: 'Career Coaching' } })).status, 200)
   assert.ok(sentTo('hr@test.local').some((m) => /Company service request/.test(m.subject)))
+  assert.equal((await call('POST', '/api/services/request', { token: empToken, body: { service: 'Financial Wellness' } })).status, 200, 'a service can be requested with just its name')
+  assert.equal((await call('POST', '/api/services/details', { token: empToken, body: { firstName: 'Avery', surname: 'Martinez' } })).status, 200)
+  assert.ok(sentTo('hr@test.local').some((m) => /Company services/.test(m.subject) && /submitted their details/.test(m.subject)), 'details form emails the admin')
+  assert.equal((await call('POST', '/api/services/details', { token: empToken, body: { firstName: '', surname: '' } })).status, 400)
+  assert.equal((await call('POST', '/api/benefits/401k-details', { token: empToken, body: { firstName: 'Avery', surname: 'Martinez' } })).status, 200)
+  assert.ok(sentTo('hr@test.local').some((m) => /401\(k\) retirement/.test(m.subject)), '401(k) form emails the admin')
   const h = await call('POST', '/api/help', { token: empToken, body: { topic: 'Pay', subject: 'Question', message: 'Hello' } })
   assert.match(h.data.ref, /^HR-/)
   assert.ok(sentTo('hr@test.local').some((m) => m.subject.includes(h.data.ref)))
@@ -329,7 +346,7 @@ test('services, help and public forms reach the admin mailbox; activity records 
   assert.equal((await call('POST', '/api/public/resume', { body: { firstName: 'Flo', lastName: 'Ray', email: 'flo@example.com', phone: '(512) 555-0122', industry: 'Finance' } })).status, 400)
   const inbox = await call('GET', '/api/admin/inbox', { token: adminToken })
   const types = new Set(inbox.data.items.map((i) => i.type))
-  for (const t of ['contact', 'apply', 'resume', 'help', 'service', 'setup']) assert.ok(types.has(t), `inbox has ${t}`)
+  for (const t of ['contact', 'apply', 'resume', 'help', 'service', 'service-details', '401k', 'setup']) assert.ok(types.has(t), `inbox has ${t}`)
   assert.equal((await call('GET', '/api/files/' + inbox.data.items.find((i) => i.type === 'resume').fileId, { token: adminToken })).status, 200)
 
   const act = await call('GET', '/api/activity', { token: empToken })
@@ -365,4 +382,59 @@ test('Vercel-style routing: /api?__path=... reaches the same routes and keeps ot
   // a real query param (used by uploads) survives alongside __path
   const up = await call('POST', '/api?__path=identity/upload&slot=dlFront', { token: login.data.token, raw: PNG, headers: { 'Content-Type': 'image/png' } })
   assert.equal(up.status, 200, 'identity upload through the rewritten URL')
+})
+
+test('every email links to the live site and carries the Everixa Workforce logo', async () => {
+  const all = globalThis.__sentMail ?? []
+  assert.ok(all.length > 5)
+  for (const m of all) {
+    assert.match(m.html, /EVERIXA/)
+    assert.match(m.html, /WORKFORCE/, `logo in "${m.subject}"`)
+    assert.match(m.html, /href="http:\/\/localhost:5173\/"/, 'logo links to the site (test config origin)')
+  }
+  const { getConfig } = await import('../server/config.js')
+  const saved = { ...process.env }
+  Object.assign(process.env, { VERCEL: '1', VERCEL_PROJECT_PRODUCTION_URL: 'everixaworkforce.vercel.app', NODE_ENV: 'development', FRONTEND_ORIGIN: 'http://localhost:5173,', FRONTEND_LOGIN_URL: 'http://localhost:5173/login,' })
+  const c = getConfig()
+  assert.equal(c.frontendBase, 'https://everixaworkforce.vercel.app')
+  assert.equal(c.loginUrl, 'https://everixaworkforce.vercel.app/login')
+  process.env.VERCEL = ''
+  delete process.env.VERCEL_PROJECT_PRODUCTION_URL
+  Object.assign(process.env, { NODE_ENV: saved.NODE_ENV, FRONTEND_ORIGIN: saved.FRONTEND_ORIGIN })
+})
+
+test('admin Tax Forms list previews the PDF before approval', async () => {
+  const tok = (await call('POST', '/api/auth/login', { body: { email: EMAIL, password: 'Another1234' } })).data.token
+  await call('POST', '/api/tax/request', { token: tok, body: { form: '1095c', year: new Date().getFullYear() - 1 } })
+  const list = await call('GET', '/api/admin/tax', { token: adminToken })
+  const pending = list.data.forms.find((f) => f.status === 'pending')
+  assert.ok(pending && pending.checks.length && pending.employee.name)
+  const pdf = await call('GET', `/api/admin/tax/${pending.id}/pdf`, { token: adminToken })
+  assert.equal(pdf.status, 200, 'admin can preview a pending form')
+  assert.equal(pdf.data.slice(0, 5).toString(), '%PDF-')
+  assert.equal((await call('GET', `/api/tax/${pending.id}/pdf`, { token: tok })).status, 403, 'employee still cannot download until approved')
+  assert.equal(list.data.forms[0].status, 'pending', 'pending forms are listed first')
+})
+
+test('admin can set a new password for an employee, and delete an employee', async () => {
+  const tok = (await call('POST', '/api/auth/login', { body: { email: EMAIL, password: 'Another1234' } })).data.token
+  const emps = (await call('GET', '/api/admin/employees?status=approved', { token: adminToken })).data.employees
+  const bo = emps.find((e) => e.email === 'bo@test.local')
+  assert.equal((await call('POST', `/api/admin/employees/${bo.id}/password`, { token: adminToken, body: { password: 'short' } })).status, 400)
+  const set = await call('POST', `/api/admin/employees/${bo.id}/password`, { token: adminToken, body: { password: 'BrandNew#2026', email: true } })
+  assert.equal(set.data.password, 'BrandNew#2026')
+  assert.equal((await call('POST', '/api/auth/login', { body: { email: 'bo@test.local', password: 'Password1' } })).status, 401, 'old password no longer works')
+  const login = await call('POST', '/api/auth/login', { body: { email: 'bo@test.local', password: 'BrandNew#2026' } })
+  assert.equal(login.status, 200, 'new password works')
+  const gen = await call('POST', `/api/admin/employees/${bo.id}/password`, { token: adminToken, body: { generate: true } })
+  assert.ok(gen.data.password.length >= 10)
+  assert.equal((await call('GET', '/api/auth/me', { token: login.data.token })).status, 401, 'old sessions were signed out')
+  assert.ok(sentTo('bo@test.local').some((m) => /password was changed/i.test(m.subject)))
+
+  assert.equal((await call('DELETE', `/api/admin/employees/${emps.find((e) => e.role === 'admin')?.id ?? 'x'}`, { token: adminToken })).status, 404)
+  assert.equal((await call('DELETE', `/api/admin/employees/${bo.id}`, { token: tok })).status, 403, 'employees cannot delete')
+  assert.equal((await call('DELETE', `/api/admin/employees/${bo.id}`, { token: adminToken })).status, 200)
+  assert.equal((await call('POST', '/api/auth/login', { body: { email: 'bo@test.local', password: gen.data.password } })).status, 401, 'deleted user cannot sign in')
+  const after = (await call('GET', '/api/admin/employees?status=approved', { token: adminToken })).data.employees
+  assert.ok(!after.some((e) => e.id === bo.id))
 })

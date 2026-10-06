@@ -2,6 +2,7 @@ import { useScrollReveal } from '../hooks/useScrollReveal'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/Tabs'
 import PageHeaderImage from '../components/PageHeaderImage'
 import { SectionHead, CtaBand } from '../components/Editorial'
+import WageTable from '../components/WageTable'
 import candidatesHero from '../assets/stock/candidates-remote.jpg'
 
 function PageHeader() {
@@ -9,9 +10,9 @@ function PageHeader() {
     <PageHeaderImage
       image={candidatesHero}
       label="For Candidates"
-      title="A recruiter who actually"
-      highlight="understands your work"
-      subtitle="We do not read resumes with a keyword highlighter. We read them with years of field and consulting experience behind us."
+      title="Find real work you can"
+      highlight="do from home"
+      subtitle="Whatever your age or experience, we will match you with a friendly, flexible work-from-home job and an approved hourly wage you can count on."
       cta="View Open Positions"
       ctaHref="/jobs"
     />
@@ -22,7 +23,7 @@ function ProcessSection() {
   const ref = useScrollReveal('.reveal')
   const steps = [
     { title: 'Submit Your Profile',    body: 'Share your resume and career goals. We\'ll review within 48 hours and reach out if there\'s a strong match or upcoming opportunity.' },
-    { title: 'Technical Consultation', body: 'We conduct a real conversation about your experience - not a scripted intake form. We need to understand your expertise to represent you well.' },
+    { title: 'A Friendly Conversation', body: 'We chat about your experience, your skills and the hours that suit your life - not a scripted intake form. New to working from home? That is fine too.' },
     { title: 'Curated Introductions',  body: 'We only introduce you to roles that genuinely match your skills, career goals, and compensation requirements. No shotgun approach.' },
     { title: 'Offer & Onboarding',     body: 'We coach you through interviews, negotiate on your behalf, and check in at 30, 60, and 90 days to ensure you\'re set up for success.' },
   ]
@@ -69,27 +70,17 @@ function ResourcesSection() {
   const ref = useScrollReveal('.reveal')
 
   const resumeTips = [
-    { tip: 'Lead with your technical expertise', body: 'Environmental employers scan for specific skills: site characterization, NEPA, 404 permitting, AERMOD. Put these front and center in a skills section above your work history.' },
-    { tip: 'Quantify field experience',          body: 'Don\'t say "conducted site assessments." Say "completed 40+ Phase I and Phase II ESAs for commercial and industrial clients across Oregon and Washington."' },
-    { tip: 'List certifications prominently',    body: 'PG, PE, PWS, CHMM, and other credentials should be visible at the top of your resume. Don\'t bury them at the bottom.' },
-    { tip: 'Tailor to the discipline',           body: 'A remediation resume looks different than an EHS resume. Customize your summary and skills to the specific role and sector you\'re targeting.' },
+    { tip: 'Lead with what you do well',     body: 'Put your best skills first: typing speed, friendly phone manner, attention to detail, organization. Employers hiring for remote roles look for these straight away.' },
+    { tip: 'Show real examples',             body: 'Instead of "good with customers", say "answered 60+ customer calls a day and kept a 95% happy-customer rating."' },
+    { tip: 'Mention your home setup',        body: 'A quick line such as "Dedicated home office, reliable high-speed internet, headset and laptop" shows you are ready to start.' },
+    { tip: 'Every kind of experience counts', body: 'Raising a family, volunteering, running a household or helping a neighbor all build real skills. Include anything that shows you are dependable.' },
   ]
 
   const interviewTips = [
-    { tip: 'Know the regulatory landscape',       body: 'Research the primary regulations governing the role: RCRA, CWA, NEPA, CAA, etc. Know how they apply to the company\'s sector.' },
-    { tip: 'Prepare project case studies',        body: 'Have 3-4 detailed examples of complex projects you\'ve led or contributed to, including challenges, approach, and outcome.' },
-    { tip: 'Ask technical questions',             body: 'Asking about the specific tools, software, and methods the team uses signals genuine interest and technical engagement.' },
-    { tip: 'Discuss regulatory relationships',    body: 'For senior roles, discuss your experience working directly with EPA, state agencies, or Army Corps. This is a differentiator.' },
-  ]
-
-  const salaries = [
-    ['Administrative Assistant',       'Entry (0-3 yrs)', '$41,000 – $44,000'],
-    ['Payroll Specialist',             'Entry (0-3 yrs)', '$50,000 – $65,000'],
-    ['Customer Service Representative', 'Entry (0-3 yrs)', '$39,000 - $43,000'],
-    ['EHS Manager',                    'Entry (0-3 yrs)', '$85,000 - $115,000'],
-    ['Data Entry Clerk',               'Entry (0-3 yrs)', '$35,000 – $45,000'],
-    ['Medical Specialist',             'Entry (0-3 yrs)', '$45,000 - $60,000'],
-    ['Sales & Business Development',   'Entry (0-3 yrs)', '$55,000 – $75,000'],
+    { tip: 'Test your tech first',         body: 'Check your camera, microphone and internet a few minutes before a video interview, and sit somewhere quiet with good light.' },
+    { tip: 'Share how you stay on track',  body: 'Employers want to hear how you organize your day at home. A simple routine or to-do list is a great answer.' },
+    { tip: 'Prepare a couple of stories',  body: 'Have two short examples ready of a time you solved a problem or helped someone. Keep each one under a minute.' },
+    { tip: 'Ask about the first week',     body: 'Ask about training, who your team lead will be and how you will be supported. It shows you are keen and thoughtful.' },
   ]
 
   return (
@@ -98,43 +89,21 @@ function ResourcesSection() {
         <SectionHead
           index="02"
           label="Career Resources"
-          title={<>Tools to help you <em className="text-brass-700">land the role.</em></>}
+          title={<>Tools to help you <em className="text-brass-700">land the job.</em></>}
         />
         <div className="reveal">
           <Tabs defaultValue="resume">
             <TabsList>
               <TabsTrigger value="resume">Resume Tips</TabsTrigger>
               <TabsTrigger value="interview">Interview Prep</TabsTrigger>
-              <TabsTrigger value="salary">Salary Guide</TabsTrigger>
+              <TabsTrigger value="salary">Approved Wages</TabsTrigger>
             </TabsList>
 
             <TabsContent value="resume"><TipList items={resumeTips} /></TabsContent>
             <TabsContent value="interview"><TipList items={interviewTips} /></TabsContent>
 
             <TabsContent value="salary">
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[34rem] text-left text-[15px]">
-                  <thead>
-                    <tr className="border-b border-ink-900/15 text-[11px] uppercase tracking-[0.16em] text-ink-600">
-                      <th scope="col" className="py-5 pr-4 font-semibold">Role</th>
-                      <th scope="col" className="py-5 pr-4 font-semibold">Experience</th>
-                      <th scope="col" className="py-5 font-semibold">Salary Range</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {salaries.map(([role, exp, salary]) => (
-                      <tr key={role} className="border-b border-ink-900/10">
-                        <td className="py-5 pr-4 font-display text-[1.3rem] text-ink-900">{role}</td>
-                        <td className="py-5 pr-4 text-ink-600">{exp}</td>
-                        <td className="py-5 font-semibold text-ink-800">{salary}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="mt-6 max-w-2xl text-[13px] leading-relaxed text-ink-600">
-                Ranges reflect Pacific Northwest market rates. Compensation varies by location, firm size, and specialization. Contact us for a personalized salary discussion.
-              </p>
+              <div className="pt-6"><WageTable /></div>
             </TabsContent>
           </Tabs>
         </div>

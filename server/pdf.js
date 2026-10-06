@@ -18,14 +18,13 @@ function start(title, subtitle) {
   doc.on('data', (c) => chunks.push(c))
   const done = new Promise((resolve) => doc.on('end', () => resolve(Buffer.concat(chunks))))
 
-  // Header band
+  // Header band with the framed wordmark: EVERIXA WORKFORCE (one line, one style)
   doc.rect(0, 0, 595, 112).fill(INK)
   doc.rect(0, 112, 595, 3).fill(BRASS)
-  doc.lineWidth(1).strokeColor(IVORY).strokeOpacity(0.8).rect(48, 34, 128, 40).stroke().strokeOpacity(1)
-  doc.fillColor(IVORY).font('Times-BoldItalic').fontSize(21).text('EVERIXA', 48, 44, { width: 128, align: 'center', characterSpacing: 1.4 })
-  doc.fillColor(BRASS_L).font('Helvetica-Bold').fontSize(7.5).text('WORKFORCE', 50, 84, { characterSpacing: 3 })
-  doc.fillColor(BRASS_L).font('Helvetica-Bold').fontSize(8).text(String(subtitle || '').toUpperCase(), 300, 40, { width: 247, align: 'right', characterSpacing: 2 })
-  doc.fillColor(IVORY).font('Times-Roman').fontSize(24).text(title, 250, 56, { width: 297, align: 'right' })
+  doc.lineWidth(1).strokeColor(IVORY).strokeOpacity(0.8).rect(48, 26, 236, 38).stroke().strokeOpacity(1)
+  doc.fillColor(IVORY).font('Times-BoldItalic').fontSize(17).text('EVERIXA WORKFORCE', 48, 37, { width: 236, align: 'center', characterSpacing: 1.2 })
+  doc.fillColor(BRASS_L).font('Helvetica-Bold').fontSize(8).text(String(subtitle || '').toUpperCase(), 300, 38, { width: 247, align: 'right', characterSpacing: 2 })
+  doc.fillColor(IVORY).font('Times-Roman').fontSize(26).text(title, 48, 72, { width: 499 })
   doc.fillColor(INK)
   return { doc, done, y: 146 }
 }

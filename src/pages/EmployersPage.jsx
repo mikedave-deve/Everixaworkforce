@@ -3,6 +3,7 @@ import { useScrollReveal, useCounterAnimation } from '../hooks/useScrollReveal'
 import { stats } from '../data'
 import PageHeaderImage from '../components/PageHeaderImage'
 import { SectionHead, CtaBand } from '../components/Editorial'
+import WageTable from '../components/WageTable'
 import employersHero from '../assets/stock/employers-handshake.jpg'
 
 function PageHeader() {
@@ -10,9 +11,9 @@ function PageHeader() {
     <PageHeaderImage
       image={employersHero}
       label="For Employers"
-      title="Hire environmental talent"
+      title="Hire work-from-home talent"
       highlight="with confidence"
-      subtitle="We're not a generalist staffing agency that happens to send environmental resumes. We're the firm that environmental organizations call first."
+      subtitle="Friendly, reliable remote team members for customer support, data entry, bookkeeping, administration and more, all paid at approved hourly wages."
       cta="Start Hiring Today"
       ctaHref="/contact"
     />
@@ -24,23 +25,23 @@ function HiringSolutions() {
   const solutions = [
     {
       title: 'Direct Placement',
-      body: 'We identify, screen, and present qualified permanent hires within 7-10 days. All candidates are technically vetted by a team member with relevant environmental experience.',
-      features: ['90-day placement guarantee', 'Technical screening included', 'Salary benchmarking support'],
+      body: 'We find, screen and introduce permanent work-from-home hires within 7-10 days. Every candidate has been interviewed by our team and checked for a ready home-office setup.',
+      features: ['90-day placement guarantee', 'Friendly phone screening included', 'Approved hourly wage guidance'],
     },
     {
-      title: 'Contract Staffing',
-      body: 'Mobilize skilled contractors within 48-72 hours. We manage payroll, workers\' comp, and compliance - you get productive professionals with zero administrative overhead.',
-      features: ['Rapid deployment', 'W-2 employment handled', 'Contract-to-hire options'],
+      title: 'Flexible & Part-Time Staffing',
+      body: 'Get trained remote help within 48-72 hours for busy seasons, evening cover or short projects. We handle payroll, workers\' comp and paperwork so you do not have to.',
+      features: ['Fast start', 'W-2 employment handled', 'Contract-to-hire options'],
     },
     {
-      title: 'Executive Search',
-      body: 'Retained search for director through C-suite roles. We map the market, approach passive candidates confidentially, and validate leadership competencies.',
-      features: ['Confidential retained model', 'Market mapping included', 'Leadership assessments'],
+      title: 'Virtual Team Building',
+      body: 'Need a whole support desk or back-office team? We recruit, organize and onboard a full remote team, with a team lead and a simple plan for the first 30 days.',
+      features: ['Right-sized for your workload', 'Team lead included', 'Regular check-ins'],
     },
     {
-      title: 'Workforce Consulting',
-      body: 'Struggling to attract environmental talent? We analyze your employer brand, compensation structure, and hiring process to identify what\'s holding you back.',
-      features: ['Compensation benchmarking', 'Job description optimization', 'Diversity hiring strategy'],
+      title: 'Remote Workforce Consulting',
+      body: 'Unsure how to hire, pay or manage people who work from home? We share plain, practical advice on wages, job descriptions and keeping remote teams happy.',
+      features: ['Hourly wage benchmarking', 'Simple job descriptions', 'Remote onboarding checklists'],
     },
   ]
 
@@ -50,8 +51,8 @@ function HiringSolutions() {
         <SectionHead
           index="01"
           label="Hiring Solutions"
-          title={<>Built for environmental <em className="text-brass-700">organizations.</em></>}
-          lede="Every engagement is customized to your timeline, budget, and technical requirements."
+          title={<>Built for teams that <em className="text-brass-700">work remotely.</em></>}
+          lede="Every engagement is tailored to your schedule, budget and the work you need done."
         />
         <div className="grid border-t border-ink-900/15 md:grid-cols-2">
           {solutions.map((sol, i) => (
@@ -81,12 +82,12 @@ function HiringSolutions() {
 function WhyChooseUs() {
   const ref = useScrollReveal('.reveal')
   const reasons = [
-    { title: 'Sector Exclusivity',    body: '100% of our placements are in the environmental sector. Zero generalism.' },
-    { title: 'Technical Credibility', body: 'Our consultants hold degrees and experience in environmental fields.' },
-    { title: 'Speed Without Sacrifice', body: 'Average 18 days to offer without compromising candidate quality.' },
-    { title: 'Transparent Partnership', body: 'No resume dumps. Regular status updates. Honest candidate assessments.' },
-    { title: 'Nationwide Network',    body: '38-state reach with 12,000+ environmental professionals in our active pipeline.' },
-    { title: 'Proven Retention',      body: '94% of our placements remain with client firms 1 year post-hire.' },
+    { title: 'Remote Experts',        body: 'Work from home is all we do. We know what makes remote team members successful.' },
+    { title: 'Ready-to-Start People', body: 'Every candidate has a computer, reliable internet and a quiet place to work.' },
+    { title: 'Speed Without Sacrifice', body: 'Average 18 days to offer, without lowering the quality of the people we introduce.' },
+    { title: 'Honest Partnership',    body: 'No resume dumps. Regular updates. Honest feedback on every candidate.' },
+    { title: 'Nationwide Network',    body: 'Reach in 38 states, with thousands of remote-ready people in our active pipeline.' },
+    { title: 'Proven Retention',      body: '94% of our placements stay with their employer one year after starting.' },
   ]
   return (
     <section className="section-wrapper bg-cream-100" ref={ref}>
@@ -94,10 +95,10 @@ function WhyChooseUs() {
         <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
           <div className="reveal lg:sticky lg:top-32 lg:self-start">
             <p className="eyebrow mb-6"><span className="font-num text-[13px] font-medium normal-case tracking-[0.08em]">02</span>Why Everixa</p>
-            <h2 className="section-title mb-8">Why leading firms <em className="text-brass-700">choose us.</em></h2>
+            <h2 className="section-title mb-8">Why employers <em className="text-brass-700">choose us.</em></h2>
             <p className="section-subtitle">
               Three hundred-plus organizations rely on Everixa Workforce as their
-              first call for environmental talent - not their last resort.
+              first call for remote talent, not their last resort.
             </p>
           </div>
           <ul className="border-t border-ink-900/15">
@@ -109,6 +110,23 @@ function WhyChooseUs() {
             ))}
           </ul>
         </div>
+      </div>
+    </section>
+  )
+}
+
+function WageSection() {
+  const ref = useScrollReveal('.reveal')
+  return (
+    <section className="section-wrapper bg-cream-50" ref={ref}>
+      <div className="container-main">
+        <SectionHead
+          index="03"
+          label="Approved wages"
+          title={<>Approved hourly wages for <em className="text-brass-700">U.S. employers.</em></>}
+          lede="Clear, fair wage ranges for every remote role we place, so you can budget with confidence and candidates know what to expect."
+        />
+        <div className="reveal"><WageTable /></div>
       </div>
     </section>
   )
@@ -143,6 +161,7 @@ export default function EmployersPage() {
       <PageHeader />
       <HiringSolutions />
       <WhyChooseUs />
+      <WageSection />
       <MetricsSection />
       <CtaBand
         title={<>Ready to find your next <em className="text-brass-700">great hire?</em></>}

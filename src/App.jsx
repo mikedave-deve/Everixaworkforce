@@ -40,6 +40,7 @@ import AdminApprovals from "./pages/admin/AdminApprovals";
 import AdminEmployees from "./pages/admin/AdminEmployees";
 import AdminMissions from "./pages/admin/AdminMissions";
 import AdminPay from "./pages/admin/AdminPay";
+import AdminTax from "./pages/admin/AdminTax";
 import AdminShipments from "./pages/admin/AdminShipments";
 import AdminDocuments from "./pages/admin/AdminDocuments";
 import AdminInbox from "./pages/admin/AdminInbox";
@@ -108,6 +109,7 @@ export default function App() {
           <Route path="employees" element={<AdminEmployees />} />
           <Route path="missions" element={<AdminMissions />} />
           <Route path="pay" element={<AdminPay />} />
+          <Route path="tax" element={<AdminTax />} />
           <Route path="shipments" element={<AdminShipments />} />
           <Route path="documents" element={<AdminDocuments />} />
           <Route path="inbox" element={<AdminInbox />} />

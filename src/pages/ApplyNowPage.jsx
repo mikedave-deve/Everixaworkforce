@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { CheckCircle2, Briefcase, Clock, User, Mail, Phone, Calendar, MapPin, FileText, ChevronDown } from 'lucide-react'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageHeaderImage from '../components/PageHeaderImage'
+import { jobs } from '../data'
 import { api } from '../lib/api'
 import applyHero from '../assets/stock/candidates-remote.jpg'
 
@@ -153,13 +154,7 @@ function ApplicationForm() {
               className={`${inputClass} pl-10 appearance-none`}
             >
               <option value="" disabled>Select a position…</option>
-              <option value="environmental-pm">Environmental Project Manager</option>
-              <option value="customer-service">Customer Service Representative</option>
-              <option value="accounts-payable">Accounts Payable Clerk</option>
-              <option value="data-entry">Data Entry Clerk</option>
-              <option value="payroll-specialist">Payroll Specialist</option>
-              <option value="hr-coordinator">HR Coordinator</option>
-              <option value="office-admin">Office Administrator</option>
+              {[...new Set(jobs.map((j) => j.title))].map((t) => <option key={t} value={t}>{t}</option>)}
               <option value="other">Other / Open to Opportunities</option>
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
@@ -218,7 +213,7 @@ function ApplicationForm() {
         <textarea
           id="message" name="message" rows={4}
           className={`${inputClass} resize-none`}
-          placeholder="Tell us about your background, goals, preferred work environment, or anything else that would help us find the right fit…"
+          placeholder="Tell us about your background, goals, preferred hours, or anything else that would help us find the right fit…"
         />
       </div>
 

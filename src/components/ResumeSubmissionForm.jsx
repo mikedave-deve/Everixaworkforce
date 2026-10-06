@@ -8,15 +8,14 @@ const inputClass = 'field'
 const labelClass = 'mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700'
 
 const INDUSTRIES = [
-  'Technology',
-  'Finance',
-  'Healthcare',
-  'Marketing',
-  'Human Resources',
-  'Engineering',
   'Customer Support',
-  'Sales',
-  'Administration',
+  'Data Entry',
+  'Bookkeeping & Accounting',
+  'Administrative Support',
+  'Payroll & HR',
+  'Medical Billing',
+  'Sales Support',
+  'IT Help Desk',
   'Other',
 ]
 

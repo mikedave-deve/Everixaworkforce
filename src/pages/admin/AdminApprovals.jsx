@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Check, AlertTriangle, X, Eye } from 'lucide-react'
+import { Check, AlertTriangle, X, Eye, FileText } from 'lucide-react'
 import { PageHead, Panel, Pill, EmptyState, Loading, ErrorState, AuthImage, useAction, useToast } from '../../components/portal/ui'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../components/ui/Sheet'
 import { api, openFile, useApi } from '../../lib/api'
@@ -13,7 +13,7 @@ const REC = {
   reject: { tone: 'danger', label: 'Recommended: reject', hint: 'A check failed — a reason is pre-filled for you.' },
 }
 const CHECK_ICON = { ok: [Check, 'text-emerald-700', 'bg-emerald-100'], warn: [AlertTriangle, 'text-amber-700', 'bg-amber-100'], fail: [X, 'text-red-700', 'bg-red-100'] }
-const IMAGE_LABELS = { dlFront: "Driver's license · front", dlBack: "Driver's license · back", ssnFront: 'Social Security card · front', ssnBack: 'Social Security card · back', selfie: 'Selfie' }
+const IMAGE_LABELS = { dlFront: "Driver's license · front", dlBack: "Driver's license · back", selfie: 'Selfie for ID card' }
 
 function IdentityViewer({ userId, onClose }) {
   const { data, error } = useApi(userId ? `/admin/identity/${userId}` : null)
@@ -27,8 +27,7 @@ function IdentityViewer({ userId, onClose }) {
           </SheetHeader>
           {!data ? (error ? <ErrorState error={error} /> : <Loading />) : (
             <>
-              <dl className="mb-6 grid grid-cols-2 gap-4 border border-ink-900/10 bg-white p-5 text-[15px]">
-                <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Driver's license no.</dt><dd className="mt-1 font-semibold tabular-nums text-ink-900">{data.dlNumber}</dd></div>
+              <dl className="mb-6 grid grid-cols-1 gap-4 border border-ink-900/10 bg-white p-5 text-[15px]">
                 <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Social Security no.</dt><dd className="mt-1 font-semibold tabular-nums text-ink-900">{data.ssn.replace(/^(\d{3})(\d{2})(\d{4})$/, '$1-$2-$3')}</dd></div>
               </dl>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -50,7 +49,7 @@ function IdentityViewer({ userId, onClose }) {
   )
 }
 
-function ApprovalCard({ item, onDone, openIdentity }) {
+export function ApprovalCard({ item, onDone, openIdentity }) {
   const notify = useToast()
   const [rejecting, setRejecting] = useState(false)
   const [note, setNote] = useState(item.suggestedNote)
@@ -107,6 +106,7 @@ function ApprovalCard({ item, onDone, openIdentity }) {
       ) : (
         <div className="mt-5 flex flex-wrap gap-3">
           {item.type === 'identity' && <button onClick={() => openIdentity(item.employee.id)} className="btn-outline"><Eye size={16} /> View documents</button>}
+          {item.type === 'tax' && <button onClick={() => openFile(`/admin/tax/${item.id}/pdf`)} className="btn-outline"><FileText size={16} /> Preview the PDF</button>}
           <button onClick={approve} disabled={approving} className="btn-primary"><Check size={16} /> Approve</button>
           <button onClick={() => setRejecting(true)} className="btn-outline">Reject…</button>
         </div>

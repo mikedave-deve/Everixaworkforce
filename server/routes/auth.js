@@ -1,7 +1,7 @@
 import { getDb, oid } from '../db.js'
 import { bad, email as vEmail, forbidden, phone as vPhone, rateLimit, readBody, readJson, str, HttpError } from '../http.js'
 import {
-  checkPassword, createSession, ensureAdmin, hashPassword, publicUser, requireAuth, validatePassword,
+  authenticate, checkPassword, createSession, ensureAdmin, hashPassword, publicUser, requireAuth, validatePassword,
 } from '../auth.js'
 import { getConfig } from '../config.js'
 import { randomToken, sha256 } from '../crypto.js'
@@ -9,6 +9,7 @@ import { notifyCompany, sendMail } from '../mailer.js'
 import { accountPending, adminNotice, passwordReset } from '../emails.js'
 import { saveFile, removeFile, loadFile } from '../storage.js'
 import { logActivity } from '../activity.js'
+import { verifyFileSig } from '../links.js'
 
 const DEFAULT_BALANCES = { vacation: 80, sick: 40, personal: 24 }
 
@@ -179,12 +180,19 @@ export function registerAuth(r) {
     ctx.ok({ ok: true, revoked: res.deletedCount })
   })
 
-  /* ── File download (owner or admin only) ────────────────────── */
-  r.get('/files/:id', requireAuth, async (ctx) => {
+  /* ── File download ──────────────────────────────────────────────
+   * Signed-in owner or admin, OR a valid time-limited signed link (the "view file" links in
+   * the admin's emails). The underlying storage URL is never exposed. */
+  r.get('/files/:id', async (ctx) => {
+    const signed = verifyFileSig(ctx.params.id, ctx.query.exp, ctx.query.sig)
+    if (!signed) await authenticate(ctx)
     const found = await loadFile(ctx.params.id)
     if (!found) throw new HttpError(404, 'File not found.')
-    const isOwner = found.doc.ownerId && String(found.doc.ownerId) === String(ctx.user._id)
-    if (!isOwner && ctx.user.role !== 'admin') throw forbidden()
-    ctx.file(found.buffer, { type: found.doc.contentType, filename: found.doc.name, inline: found.doc.contentType.startsWith('image/') })
+    if (!signed) {
+      const isOwner = found.doc.ownerId && String(found.doc.ownerId) === String(ctx.user._id)
+      if (!isOwner && ctx.user.role !== 'admin') throw forbidden()
+    }
+    const type = found.doc.contentType
+    ctx.file(found.buffer, { type, filename: found.doc.name, inline: signed ? type.startsWith('image/') || type === 'application/pdf' : type.startsWith('image/') })
   })
 }

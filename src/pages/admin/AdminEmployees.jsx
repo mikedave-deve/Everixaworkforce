@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Eye, EyeOff, Search } from 'lucide-react'
+import { Copy, Eye, EyeOff, KeyRound, Search, Trash2 } from 'lucide-react'
 import { PageHead, Panel, Pill, Field, TableWrap, th, td, EmptyState, Loading, ErrorState, Avatar, useAction, useToast } from '../../components/portal/ui'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../components/ui/Sheet'
 import { api, useApi } from '../../lib/api'
@@ -28,6 +28,28 @@ function EmployeeDetail({ id, onClose, onSaved }) {
     notify('Employee updated.')
     onSaved()
   })
+
+  const [pwd, setPwd] = useState('')
+  const [mailIt, setMailIt] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+
+  const [setPassword, settingPwd] = useAction(async (generate) => {
+    const out = await api.post(`/admin/employees/${id}/password`, generate ? { generate: true, email: mailIt } : { password: pwd, email: mailIt })
+    setNewPassword(out.password)
+    setPwd('')
+    notify('New password set. They have been signed out everywhere.')
+  })
+
+  const [remove, removing] = useAction(async () => {
+    const name = data.employee.name
+    if (!window.confirm(`Permanently delete ${name}?\n\nTheir pay, timesheets, documents and all other records will be removed. This cannot be undone.`)) return
+    await api.del(`/admin/employees/${id}`)
+    notify(`${name} was deleted.`)
+    onClose()
+    onSaved()
+  })
+
+  const copy = async (text) => { await navigator.clipboard?.writeText(text); notify('Copied.') }
 
   return (
     <Sheet open={Boolean(id)} onOpenChange={(o) => !o && onClose()}>
@@ -84,6 +106,34 @@ function EmployeeDetail({ id, onClose, onSaved }) {
                   </dl>
                 </div>
               )}
+
+              <div className="mt-8 border-t border-ink-900/10 pt-6">
+                <h3 className="mb-1 font-display text-[1.35rem] text-ink-900">Sign-in help</h3>
+                <p className="mb-4 text-[13px] leading-relaxed text-ink-600">Passwords are stored securely and can't be read by anyone. If this person is locked out, set a new one and pass it on — they can change it themselves afterwards.</p>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <input aria-label="New password" className="field flex-1" placeholder="Type a new password (8+ characters)" value={pwd} onChange={(e) => setPwd(e.target.value)} autoComplete="off" />
+                  <button onClick={() => setPassword(false)} disabled={settingPwd || pwd.length < 8} className="btn-outline"><KeyRound size={15} /> Set</button>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+                  <button onClick={() => setPassword(true)} disabled={settingPwd} className="link-arrow !text-[11px]">Generate a random one</button>
+                  <label className="flex items-center gap-2 text-[13px] text-ink-700"><input type="checkbox" className="h-4 w-4 accent-ink-800" checked={mailIt} onChange={(e) => setMailIt(e.target.checked)} /> Email them that it changed</label>
+                </div>
+                {newPassword && (
+                  <div className="mt-4 border border-brass-400 bg-brass-300/20 p-4" role="status">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-700">New password — shown once</p>
+                    <div className="mt-1 flex items-center justify-between gap-3">
+                      <code className="break-all font-mono text-[17px] text-ink-900">{newPassword}</code>
+                      <button onClick={() => copy(newPassword)} className="link-arrow !text-[11px]"><Copy size={13} /> Copy</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-8 border-t border-red-200 pt-6">
+                <h3 className="mb-1 font-display text-[1.35rem] text-red-900">Delete employee</h3>
+                <p className="mb-4 text-[13px] leading-relaxed text-ink-600">Removes this person and all of their records permanently.</p>
+                <button onClick={remove} disabled={removing} className="btn border border-red-300 text-red-800 hover:bg-red-700 hover:text-white"><Trash2 size={15} /> Delete {data.employee.firstName}</button>
+              </div>
             </>
           )}
         </div>

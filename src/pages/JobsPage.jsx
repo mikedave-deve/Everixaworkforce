@@ -15,10 +15,10 @@ function PageHeader() {
   return (
     <PageHeaderImage
       image={jobsHero}
-      label="Career Opportunities"
-      title="Find your next"
-      highlight="career role"
-      subtitle="Browse roles across various industries, engineering, compliance, and beyond. Updated weekly with curated opportunities from trusted clients."
+      label="Work-from-home jobs"
+      title="Find a job you can"
+      highlight="do from home"
+      subtitle="Every role is fully remote and shows its approved hourly wage. No commute, flexible hours and training provided. Updated weekly."
     />
   )
 }
@@ -28,7 +28,7 @@ function JobRow({ job }) {
     <li className="border-b border-ink-900/15">
       <Link
         to="/submit-resume"
-        className="group grid gap-x-10 gap-y-4 py-9 transition-colors hover:bg-ink-100/50 md:grid-cols-[1.2fr_1fr_11rem] md:items-center md:px-4"
+        className="group grid gap-x-10 gap-y-4 py-9 transition-colors hover:bg-ink-100/50 md:grid-cols-[1.1fr_1.2fr_11rem] md:items-start md:px-4"
       >
         <div>
           <p className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-600">
@@ -43,14 +43,23 @@ function JobRow({ job }) {
         </div>
 
         <div>
-          <p className="line-clamp-2 max-w-md text-[15px] leading-relaxed text-ink-700/80">{job.description}</p>
+          <p className="max-w-md text-[15px] leading-relaxed text-ink-800">{job.description}</p>
+          <p className="mb-1.5 mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">What you'll do</p>
+          <ul className="max-w-md space-y-1 text-[14px] leading-snug text-ink-700/85">
+            {job.duties.map((d) => (
+              <li key={d} className="flex items-start gap-2.5"><span aria-hidden="true" className="mt-[7px] h-1 w-1 shrink-0 rotate-45 bg-brass-500" />{d}</li>
+            ))}
+          </ul>
           <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-ink-600">
             {job.tags.map((tag) => <li key={tag}>#{tag}</li>)}
           </ul>
         </div>
 
         <div className="flex items-center justify-between gap-6 md:flex-col md:items-end md:gap-4">
-          <span className="font-display text-xl text-ink-900">{job.salary}</span>
+          <div className="md:text-right">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-600">Approved wage</p>
+            <p className="mt-0.5 font-display text-[1.45rem] leading-tight text-ink-900">{job.wage}</p>
+          </div>
           <span className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-ink-700">
             Apply now
             <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -138,7 +147,7 @@ export default function JobsPage() {
               <input
                 id="job-search"
                 type="search"
-                placeholder="Job title, skill, or keyword..."
+                placeholder="Job title or keyword, e.g. customer support"
                 value={query}
                 onChange={(e) => { setQuery(e.target.value); setPage(1) }}
                 className="field !py-3 pl-11"

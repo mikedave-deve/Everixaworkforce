@@ -155,12 +155,11 @@ export async function listApprovals(db) {
     const ssn = decrypt(i.ssnEnc)
     const badSsn = /^(\d)\1{8}$/.test(ssn) || ssn.startsWith('000') || ssn.startsWith('666') || ssn.startsWith('9') || ssn.slice(3, 5) === '00' || ssn.slice(5) === '0000'
     const checks = [
-      Object.keys(i.files ?? {}).length === 5 ? ok('All 5 images uploaded', "Licence front/back, SSN card front/back, selfie") : fail('Missing images'),
-      /^[A-Za-z0-9]{4,20}$/.test(decrypt(i.dlEnc)) ? ok("Driver's license number format looks valid") : fail("Driver's license number looks invalid"),
+      Object.keys(i.files ?? {}).length === 3 ? ok('All 3 photos uploaded', "Driver's license front & back, selfie for ID card") : fail('Missing photos'),
       badSsn ? fail('SSN is not a possible valid number') : ok('SSN passes basic validity rules'),
-      warn('Compare the images with the numbers', 'Open the documents and confirm the name and numbers match'),
+      warn("Compare the photos with the employee's details", "Open the photos and confirm the name matches and the selfie matches the license"),
     ]
-    const rec = item({ type: 'identity', doc: { _id: u._id }, user: u, title: 'Identity verification', summary: `Licence ${'••••' + i.dlLast4} · SSN ${'••••' + i.ssnLast4}`, at: i.submittedAt, checks, suggestedNote: 'The documents provided could not be verified. Please resubmit clear photos.' })
+    const rec = item({ type: 'identity', doc: { _id: u._id }, user: u, title: 'Identity verification', summary: `SSN ${'••••' + i.ssnLast4} · license photos + selfie`, at: i.submittedAt, checks, suggestedNote: 'The documents provided could not be verified. Please resubmit clear photos.' })
     out.push(rec)
   }
 

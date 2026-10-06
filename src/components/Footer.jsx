@@ -17,9 +17,9 @@ const footerLinks = {
   ],
   Employers: [
     { label: 'Hiring Solutions', href: '/employers' },
-    { label: 'Permanent Staffing', href: '/services' },
-    { label: 'Contract Staffing', href: '/services' },
-    { label: 'Executive Search', href: '/services' },
+    { label: 'Remote Placement', href: '/services' },
+    { label: 'Flexible Staffing', href: '/services' },
+    { label: 'Virtual Team Building', href: '/services' },
   ],
 }
 

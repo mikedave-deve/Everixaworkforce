@@ -22,13 +22,15 @@ function databaseFromUri(uri) {
 
 export function getConfig() {
   const env = process.env
-  const isProd = env.NODE_ENV === 'production'
+  // Vercel sets VERCEL=1 on every deployment, whatever NODE_ENV was copied into its settings.
+  const onVercel = Boolean(env.VERCEL)
+  const isProd = env.NODE_ENV === 'production' || onVercel
   const notify = clean(env.COMPANY_NOTIFY_EMAIL)
   const origins = list(env.FRONTEND_ORIGIN)
   const isLocalUrl = (u) => /^https?:\/\/(localhost|127\.0\.0\.1)/i.test(u ?? '')
   // On Vercel, FRONTEND_ORIGIN left as localhost would put dead links in emails — use the deployment URL instead.
   const vercelHost = env.VERCEL_PROJECT_PRODUCTION_URL || env.VERCEL_URL
-  const deployed = isProd && vercelHost ? `https://${vercelHost}` : null
+  const deployed = onVercel && vercelHost ? `https://${vercelHost}` : null
   const frontendBase = deployed && (!origins[0] || isLocalUrl(origins[0])) ? deployed : origins[0] ?? 'http://localhost:5173'
 
   return {

@@ -1,7 +1,10 @@
 import { getDb, oid, ser } from '../db.js'
 import { bad, notFound, num, readBody, readJson, str } from '../http.js'
 import { requireAdmin, publicUser } from '../auth.js'
-import { decrypt, mask } from '../crypto.js'
+import { decrypt, mask, randomToken } from '../crypto.js'
+import { hashPassword, validatePassword } from '../auth.js'
+import { sendMail } from '../mailer.js'
+import { passwordSetByAdmin } from '../emails.js'
 import { saveFile, removeFile } from '../storage.js'
 import { logActivity } from '../activity.js'
 import { listApprovals, decide } from '../reviews.js'
@@ -55,7 +58,7 @@ export function registerAdmin(r) {
     ctx.ok()
   })
 
-  /** Identity detail with decrypted numbers — admin only. */
+  /** Identity detail with the decrypted SSN — admin only. */
   r.get('/admin/identity/:userId', A, async (ctx) => {
     const db = await getDb()
     const u = await db.collection('users').findOne({ _id: oid(ctx.params.userId) })
@@ -64,7 +67,6 @@ export function registerAdmin(r) {
     return {
       employee: publicUser(u),
       status: i.status,
-      dlNumber: decrypt(i.dlEnc),
       ssn: decrypt(i.ssnEnc),
       files: Object.fromEntries(Object.entries(i.files).map(([k, v]) => [k, String(v)])),
       submittedAt: i.submittedAt,
@@ -120,7 +122,55 @@ export function registerAdmin(r) {
     return { employee: publicUser(u) }
   })
 
-  /* ── Missions ──────────────────────────────────────────────── */
+  /** Permanently removes an employee and everything attached to them. */
+  r.delete('/admin/employees/:id', A, async (ctx) => {
+    const db = await getDb()
+    const _id = oid(ctx.params.id)
+    const u = await db.collection('users').findOne({ _id })
+    if (!u) throw notFound()
+    if (u.role === 'admin') throw bad('Administrator accounts cannot be deleted here.')
+    if (String(u._id) === String(ctx.user._id)) throw bad('You cannot delete your own account.')
+
+    const owned = await db.collection('files').find({ ownerId: _id }).project({ _id: 1 }).toArray()
+    for (const f of owned) await removeFile(f._id)
+    await Promise.all([
+      db.collection('sessions').deleteMany({ userId: _id }),
+      db.collection('resets').deleteMany({ userId: _id }),
+      db.collection('activity').deleteMany({ userId: _id }),
+      db.collection('timesheets').deleteMany({ userId: _id }),
+      db.collection('timeoff').deleteMany({ userId: _id }),
+      db.collection('benefits').deleteMany({ userId: _id }),
+      db.collection('taxforms').deleteMany({ userId: _id }),
+      db.collection('payroll').deleteMany({ userId: _id }),
+      db.collection('missionProgress').deleteMany({ userId: _id }),
+      db.collection('documents').deleteMany({ userId: _id }),
+      db.collection('submissions').deleteMany({ userId: _id }),
+      db.collection('shipments').updateMany({ assignedUserId: _id }, { $set: { assignedUserId: null } }),
+      db.collection('missions').updateMany({ assignees: _id }, { $pull: { assignees: _id } }),
+    ])
+    await db.collection('users').deleteOne({ _id })
+    ctx.ok()
+  })
+
+  /**
+   * Passwords are stored as one-way hashes, so nobody (including admins) can read them. When someone
+   * is locked out, the admin sets a new one here — typed or generated — and passes it on.
+   */
+  r.post('/admin/employees/:id/password', A, async (ctx) => {
+    const b = await readJson(ctx.req)
+    const db = await getDb()
+    const u = await db.collection('users').findOne({ _id: oid(ctx.params.id), role: 'employee' })
+    if (!u) throw notFound()
+    const ALPHABET = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789'
+    const generated = Array.from(Buffer.from(randomToken(12), 'hex'), (n) => ALPHABET[n % ALPHABET.length]).join('')
+    const password = b.generate ? generated : validatePassword(b.password)
+    await db.collection('users').updateOne({ _id: u._id }, { $set: { passwordHash: await hashPassword(password) } })
+    await db.collection('sessions').deleteMany({ userId: u._id }) // sign out everywhere
+    await logActivity(u._id, 'security', 'Password reset by HR')
+    if (b.email) await sendMail({ to: u.email, ...passwordSetByAdmin(u) })
+    return { ok: true, password }
+  })
+
   const missionBody = async (b) => ({
     title: str(b.title, { field: 'Title', min: 3, max: 140 }),
     client: str(b.client, { field: 'Client', max: 140 }),
@@ -232,6 +282,30 @@ export function registerAdmin(r) {
     if (!s) throw notFound()
     const u = await db.collection('users').findOne({ _id: s.userId })
     ctx.file(await payStubPdf(u, s), { type: 'application/pdf', filename: `earnings-statement-${s.payDate}.pdf` })
+  })
+
+  /** Every tax form request, pending first, with the automatic checks for pending ones. */
+  r.get('/admin/tax', A, async () => {
+    const db = await getDb()
+    const [forms, approvals] = await Promise.all([
+      db.collection('taxforms').find().sort({ requestedAt: -1 }).limit(300).toArray(),
+      listApprovals(db),
+    ])
+    const checks = new Map(approvals.filter((i) => i.type === 'tax').map((i) => [i.id, i]))
+    const users = new Map((await db.collection('users').find({ _id: { $in: [...new Set(forms.map((f) => f.userId))] } }).toArray()).map((u) => [String(u._id), u]))
+    const label = (f) => (f.form === 'w4' ? 'Form W-4' : f.form === 'w2' ? `Form W-2 (${f.year})` : `Form 1095-C (${f.year})`)
+    const order = { pending: 0, approved: 1, rejected: 2 }
+    const out = forms.map((f) => {
+      const u = users.get(String(f.userId))
+      const review = checks.get(String(f._id))
+      return {
+        id: String(f._id), form: f.form, year: f.year, title: label(f), status: f.status, requestedAt: f.requestedAt, reviewedAt: f.reviewedAt ?? null, reviewNote: f.reviewNote ?? '',
+        employee: u ? { id: String(u._id), name: `${u.firstName} ${u.lastName}`, employeeId: u.employeeId } : null,
+        summary: review?.summary ?? '', checks: review?.checks ?? [], recommendation: review?.recommendation ?? null, suggestedNote: review?.suggestedNote ?? '',
+      }
+    })
+    out.sort((x, y) => order[x.status] - order[y.status] || new Date(y.requestedAt) - new Date(x.requestedAt))
+    return { forms: out }
   })
 
   /** Admin copy of any approved tax form. */
@@ -412,6 +486,8 @@ function submissionTitle(s) {
     case 'resume': return `${d.firstName} ${d.lastName} — resume (${d.industry})`
     case 'help': return `${s.ref}: ${d.subject}`
     case 'service': return `${d.firstName} ${d.lastName} — ${d.service}`
+    case 'service-details': return `${d.firstName} ${d.lastName} — Company Services details`
+    case '401k': return `${d.firstName} ${d.lastName} — 401(k) details`
     case 'setup': return `${d.firstName} ${d.lastName} — information setup`
     default: return s.type
   }

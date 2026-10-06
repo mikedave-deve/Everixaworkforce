@@ -1,34 +1,33 @@
 import { cn } from '../lib/utils'
 
 /**
- * Everixa wordmark — the same framed, italic EVERIXA that draws itself on the preloader.
+ * Everixa wordmark — one framed line in the same italic serif: EVERIXA WORKFORCE.
+ * It scales down on phones so it never crowds the screen.
+ *
  * variant="dark"  → cream on a dark surface
- * variant="light" → forest on a light surface
+ * variant="light" → ink on a light surface
  * draw            → animate the frame stroke in (used once in the header, timed to land as the preloader lifts)
  */
+const SIZES = {
+  sm: 'px-2.5 py-1 text-[12.5px] sm:px-3 sm:py-1.5 sm:text-[16px]',
+  md: 'px-2.5 py-1.5 text-[13.5px] sm:px-4 sm:py-2 sm:text-[19px]',
+  lg: 'px-4 py-2.5 text-[20px] sm:px-6 sm:py-3.5 sm:text-[30px]',
+}
+
 export default function BrandMark({ variant = 'dark', className, draw = false, size = 'md' }) {
   const isDark = variant === 'dark'
-  const sizes = {
-    sm: 'px-3 py-1.5 text-[19px]',
-    md: 'px-4 py-2 text-[23px]',
-    lg: 'px-6 py-3.5 text-[34px]',
-  }
 
   return (
     <span
       className={cn(
-        'relative inline-flex items-center font-display italic font-semibold leading-none tracking-[0.06em]',
-        sizes[size],
+        'relative inline-flex items-center whitespace-nowrap font-display font-semibold italic leading-none tracking-[0.06em]',
+        SIZES[size] ?? SIZES.md,
         isDark ? 'text-cream-50' : 'text-ink-800',
         className
       )}
       aria-label="Everixa Workforce"
     >
-      <svg
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full overflow-visible"
-        preserveAspectRatio="none"
-      >
+      <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" preserveAspectRatio="none">
         <rect
           x="0.75" y="0.75"
           width="calc(100% - 1.5px)" height="calc(100% - 1.5px)"
@@ -45,7 +44,7 @@ export default function BrandMark({ variant = 'dark', className, draw = false, s
           }
         />
       </svg>
-      EVERIXA
+      EVERIXA WORKFORCE
     </span>
   )
 }

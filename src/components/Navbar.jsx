@@ -114,7 +114,7 @@ export default function Navbar() {
             <BrandMark variant="dark" draw />
           </Link>
 
-          <div className="hidden items-center lg:flex">
+          <div className="hidden items-center xl:flex">
             {navLinks.map((link) =>
               link.children ? (
                 <DesktopDropdown key={link.label} link={link} pathname={pathname} />
@@ -130,7 +130,7 @@ export default function Navbar() {
             )}
           </div>
 
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden items-center gap-3 xl:flex">
             <Link
               to={portalHref}
               className="px-3 py-2 text-[14px] text-cream-50/85 transition-colors hover:text-cream-50"
@@ -147,7 +147,7 @@ export default function Navbar() {
 
           <button
             type="button"
-            className="-mr-2 p-2 text-cream-50 lg:hidden"
+            className="-mr-2 p-2 text-cream-50 xl:hidden"
             onClick={() => setMobileOpen((o) => !o)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
@@ -162,7 +162,7 @@ export default function Navbar() {
       {/* Mobile: full-height sheet */}
       <div
         className={cn(
-          'on-dark fixed inset-0 z-40 overflow-y-auto bg-ink-950 pt-[76px] transition-[opacity,visibility] duration-300 lg:hidden',
+          'on-dark fixed inset-0 z-40 overflow-y-auto bg-ink-950 pt-[76px] transition-[opacity,visibility] duration-300 xl:hidden',
           mobileOpen ? 'visible opacity-100' : 'invisible opacity-0'
         )}
       >

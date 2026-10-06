@@ -6,7 +6,7 @@ import { fmtDateTime } from '../../lib/format'
 import { adminChanged } from '../../lib/admin'
 import { cn } from '../../lib/utils'
 
-const TYPES = { contact: 'Contact form', apply: 'Applications', resume: 'Resumes', help: 'HR requests', service: 'Services', setup: 'Info setup' }
+const TYPES = { contact: 'Contact form', apply: 'Applications', resume: 'Resumes', help: 'HR requests', service: 'Services', 'service-details': 'Service details', '401k': '401(k) details', setup: 'Info setup' }
 const LABELS = {
   firstName: 'First name', lastName: 'Last name', fullName: 'Full name', email: 'Email', phone: 'Phone', inquiryType: 'Inquiry', company: 'Company', message: 'Message',
   dob: 'Date of birth', address: 'Address', jobPosition: 'Position', additionalInfo: 'Additional info', availability: 'Availability', workDuration: 'Duration',

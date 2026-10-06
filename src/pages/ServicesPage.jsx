@@ -16,7 +16,7 @@ function PageHeader() {
       label="What We Offer"
       title="Staffing solutions that"
       highlight="match your scale"
-      subtitle="From single contract placements to full workforce strategies, our services are built around the unique demands of the environmental sector."
+      subtitle="From a single part-time hire to a whole remote team, our services are built around people who work from home, and the employers who hire them."
     />
   )
 }
@@ -57,12 +57,12 @@ function ServicesDetail() {
 function ProcessSection() {
   const ref = useScrollReveal('.reveal')
   const steps = [
-    { n: '01', title: 'Discovery Call',         body: 'We learn your organization, culture, required technical competencies, and timeline. No generic intake forms.' },
-    { n: '02', title: 'Search & Screening',     body: 'We search our network, conduct technical phone screens, and validate credentials before you see any resume.' },
-    { n: '03', title: 'Curated Shortlist',      body: 'You receive 3-5 thoroughly vetted candidates - not a dump of 30 semi-qualified profiles.' },
-    { n: '04', title: 'Interview Coordination', body: 'We schedule, brief candidates, and provide interview frameworks tailored to the role\'s technical demands.' },
-    { n: '05', title: 'Offer & Close',          body: 'We facilitate offer negotiations, handle counteroffers, and ensure a smooth close with both parties.' },
-    { n: '06', title: 'Onboarding Support',     body: '30/60/90-day check-ins with placed candidates and clients ensure the placement sticks.' },
+    { n: '01', title: 'Discovery Call',         body: 'We learn about your business, the work to be done, the hours you need covered and your budget. No long forms.' },
+    { n: '02', title: 'Search & Screening',     body: 'We search our network, talk with each candidate by phone, and check their skills and home-office setup before you see a single resume.' },
+    { n: '03', title: 'Curated Shortlist',      body: 'You receive 3-5 carefully chosen candidates, not a pile of 30 profiles to sort through.' },
+    { n: '04', title: 'Interview Coordination', body: 'We schedule the video or phone interviews, brief the candidates and give you simple interview questions for the role.' },
+    { n: '05', title: 'Offer & Close',          body: 'We help with the offer, agree the approved hourly wage and make sure both sides are happy before the first day.' },
+    { n: '06', title: 'Onboarding Support',     body: '30/60/90-day check-ins with new team members and with you help the placement stick.' },
   ]
   return (
     <section className="on-dark grain relative bg-ink-900 py-24 md:py-32" ref={ref}>
@@ -93,12 +93,12 @@ function ProcessSection() {
 function FAQSection() {
   const ref = useScrollReveal('.reveal')
   const faqs = [
-    { q: 'What is your typical time-to-fill for a permanent placement?', a: 'For most roles, we present an initial shortlist within 7-10 business days. Our average time-to-offer is 18 business days, significantly faster than the 42-day industry average.' },
-    { q: 'Do you work with clients nationwide or only in the Pacific Northwest?', a: 'We place candidates across the continental U.S. Our core hubs are Portland, Seattle, and San Francisco, but we have successfully completed searches in 38 states.' },
-    { q: 'What is your placement guarantee for direct hires?', a: 'All direct placement engagements include a 90-day guarantee. If a placed candidate leaves for any reason within 90 days, we conduct a full replacement search at no additional fee.' },
-    { q: 'How do you screen candidates for technical competency?', a: 'Every candidate undergoes a structured phone screen conducted by a team member with relevant field experience. We evaluate both technical knowledge and communication skills needed for the role.' },
-    { q: 'Do you offer payroll and benefits administration for contract workers?', a: 'Yes. All contract placements are W-2 employees of Everixa Workforce. We handle payroll, workers\' compensation, unemployment insurance, and can include health benefits.' },
-    { q: 'How are your fees structured?', a: 'Direct placement fees are a percentage of the candidate\'s first-year base salary, negotiated based on role complexity. Contract staffing is billed at an hourly bill rate inclusive of our margin.' },
+    { q: 'How quickly can I get someone started?', a: 'For most roles we present a shortlist within 7-10 business days. Part-time and flexible roles can often start within 48-72 hours.' },
+    { q: 'Can people really work from anywhere in the U.S.?', a: 'Yes. All of our roles are work from home and we place people across the continental U.S. We handle payroll and paperwork for each state.' },
+    { q: 'What is your placement guarantee for direct hires?', a: 'All direct placements include a 90-day guarantee. If a placed team member leaves for any reason within 90 days, we run a replacement search at no extra fee.' },
+    { q: 'How do you check candidates before you introduce them?', a: 'Every candidate has a friendly phone conversation with our team. We check their skills, their availability and that they have a computer, internet and a quiet place to work.' },
+    { q: 'Do you handle payroll for part-time and contract workers?', a: 'Yes. Contract and part-time team members are W-2 employees of Everixa Workforce. We handle payroll, taxes and workers\' compensation, and can include health benefits.' },
+    { q: 'How are your fees structured?', a: 'Direct placement fees are a percentage of the first-year pay, agreed in advance. Contract staffing is billed at an hourly rate that includes our fee. Wages follow the approved hourly ranges.' },
   ]
   return (
     <section className="section-wrapper bg-cream-50" ref={ref}>

@@ -3,6 +3,7 @@ import { bad, email as vEmail, phone as vPhone, rateLimit, readBody, readJson, s
 import { notifyCompany } from '../mailer.js'
 import { adminNotice } from '../emails.js'
 import { saveFile } from '../storage.js'
+import { signedFileUrl } from '../links.js'
 
 /** Website forms (Contact, Apply Now, Submit Resume) — no login, rate-limited, honeypot-protected. */
 async function record(type, data, fileId) {
@@ -91,8 +92,9 @@ export function registerPublic(r) {
     await notifyCompany(adminNotice({
       eyebrow: 'Resume submission',
       title: `${data.firstName} ${data.lastName} submitted a resume`,
-      intro: 'The resume file can be downloaded from the admin portal inbox.',
+      intro: 'The resume is linked below and also available in the admin portal inbox.',
       fields: [['Name', `${data.firstName} ${data.lastName}`], ['Email', data.email], ['Phone', data.phone], ['Industry', data.industry], ['Resume file', data.fileName], ['Message', data.message]],
+      files: [{ label: `Open resume (${data.fileName})`, url: signedFileUrl(b.fileId) }],
       link: '/admin/inbox',
     }))
     ctx.ok({ ok: true, success: true })

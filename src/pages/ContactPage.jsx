@@ -110,7 +110,7 @@ function ContactForm() {
         <div>
           <label htmlFor="company" className={labelClass}>Company / Organization</label>
           <input id="company" name="company" type="text" autoComplete="organization"
-                 className="field" placeholder="Acme Environmental" />
+                 className="field" placeholder="Acme Inc." />
         </div>
       </div>
 

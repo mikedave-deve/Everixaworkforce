@@ -6,6 +6,7 @@ import { notifyCompany } from '../mailer.js'
 import { adminNotice } from '../emails.js'
 import { saveFile } from '../storage.js'
 import { logActivity } from '../activity.js'
+import { signedFileUrl } from '../links.js'
 import {
   COVERAGE, DEFAULT_BALANCES, MEDICAL_PLANS, addDays, businessDays, isDay, isoDay,
   parseDay, round2, setupPercent, upcomingHolidays, validRouting, weekStart,
@@ -270,6 +271,12 @@ export function registerEmployee(r) {
     if (['submitted', 'approved'].includes(cur.status)) throw bad('Already submitted.')
     await db.collection('timesheets').updateOne({ _id: cur._id }, { $set: { status: 'submitted', submittedAt: new Date(), reviewNote: '' } })
     await logActivity(ctx.user._id, 'time', 'Timesheet submitted', `Week of ${week} · ${sumHours(cur.hours).toFixed(1)} hours`)
+    await notifyCompany(adminNotice({
+      eyebrow: 'Timesheet',
+      title: `${ctx.user.firstName} ${ctx.user.lastName} submitted a timesheet`,
+      fields: [['Employee', `${ctx.user.firstName} ${ctx.user.lastName}`], ['Week of', week], ['Total hours', sumHours(cur.hours).toFixed(1)]],
+      link: '/admin/approvals', linkLabel: 'Review timesheet',
+    }))
     return sheetView(week, await db.collection('timesheets').findOne({ _id: cur._id }))
   })
 
@@ -304,6 +311,12 @@ export function registerEmployee(r) {
     const doc = { userId: ctx.user._id, type, start: b.start, end: b.end, days, hours, note: str(b.note, { max: 500 }), status: 'pending', requestedAt: new Date() }
     const { insertedId } = await db.collection('timeoff').insertOne(doc)
     await logActivity(ctx.user._id, 'timeoff', 'Time off requested', `${type} · ${days} day${days > 1 ? 's' : ''} from ${b.start}`)
+    await notifyCompany(adminNotice({
+      eyebrow: 'Time off',
+      title: `${ctx.user.firstName} ${ctx.user.lastName} requested time off`,
+      fields: [['Employee', `${ctx.user.firstName} ${ctx.user.lastName}`], ['Type', type], ['From', b.start], ['To', b.end], ['Working days', days], ['Note', doc.note]],
+      link: '/admin/approvals', linkLabel: 'Review request',
+    }))
     return ser({ _id: insertedId, ...doc }, ['userId'])
   })
 
@@ -347,6 +360,23 @@ export function registerEmployee(r) {
       linkLabel: 'Review election',
     }))
     return ser({ _id: insertedId, ...doc }, ['userId'])
+  })
+
+  /* ── 401(k) details form (Benefits page) ───────────────────── */
+  r.post('/benefits/401k-details', requireAuth, async (ctx) => {
+    const b = await readJson(ctx.req)
+    const firstName = str(b.firstName, { field: 'Name', min: 1, max: 60 })
+    const lastName = str(b.surname ?? b.lastName, { field: 'Surname', min: 1, max: 60 })
+    const db = await getDb()
+    await db.collection('submissions').insertOne({ type: '401k', userId: ctx.user._id, data: { firstName, lastName }, createdAt: new Date(), handled: false })
+    await logActivity(ctx.user._id, 'benefit', '401(k) details submitted')
+    await notifyCompany(adminNotice({
+      eyebrow: '401(k) retirement',
+      title: `${firstName} ${lastName} submitted 401(k) details`,
+      fields: [['Name', firstName], ['Surname', lastName], ['Employee ID', ctx.user.employeeId], ['Account email', ctx.user.email]],
+      link: '/admin/inbox', linkLabel: 'Open in inbox',
+    }))
+    ctx.ok()
   })
 
   /* ── Tax forms ─────────────────────────────────────────────── */
@@ -410,11 +440,11 @@ export function registerEmployee(r) {
   })
 
   /* ── Company services ──────────────────────────────────────── */
+  // The employee asks for a specific service; their name comes from their account.
   r.post('/services/request', requireAuth, async (ctx) => {
     const b = await readJson(ctx.req)
-    const firstName = str(b.firstName, { field: 'First name', min: 1, max: 60 })
-    const lastName = str(b.surname ?? b.lastName, { field: 'Surname', min: 1, max: 60 })
     const service = str(b.service, { field: 'Service', min: 1, max: 120 })
+    const { firstName, lastName } = ctx.user
     const db = await getDb()
     await db.collection('submissions').insertOne({ type: 'service', userId: ctx.user._id, data: { firstName, lastName, service }, createdAt: new Date(), handled: false })
     await logActivity(ctx.user._id, 'service', 'Service requested', service)
@@ -422,8 +452,25 @@ export function registerEmployee(r) {
       eyebrow: 'Company service request',
       title: `${firstName} ${lastName} requested ${service}`,
       intro: 'An employee asked for a company service from the portal.',
-      fields: [['Name', firstName], ['Surname', lastName], ['Service', service], ['Employee ID', ctx.user.employeeId], ['Account email', ctx.user.email]],
-      link: '/admin/inbox',
+      fields: [['Service', service], ['Employee', `${firstName} ${lastName}`], ['Employee ID', ctx.user.employeeId], ['Account email', ctx.user.email], ['Phone', ctx.user.phone]],
+      link: '/admin/inbox', linkLabel: 'Open the request',
+    }))
+    ctx.ok()
+  })
+
+  // The simple "Submit your details" form at the bottom of the Company Services page.
+  r.post('/services/details', requireAuth, async (ctx) => {
+    const b = await readJson(ctx.req)
+    const firstName = str(b.firstName, { field: 'Name', min: 1, max: 60 })
+    const lastName = str(b.surname ?? b.lastName, { field: 'Surname', min: 1, max: 60 })
+    const db = await getDb()
+    await db.collection('submissions').insertOne({ type: 'service-details', userId: ctx.user._id, data: { firstName, lastName }, createdAt: new Date(), handled: false })
+    await logActivity(ctx.user._id, 'service', 'Details submitted to Company Services')
+    await notifyCompany(adminNotice({
+      eyebrow: 'Company services',
+      title: `${firstName} ${lastName} submitted their details`,
+      fields: [['Name', firstName], ['Surname', lastName], ['Employee ID', ctx.user.employeeId], ['Account email', ctx.user.email]],
+      link: '/admin/inbox', linkLabel: 'Open in inbox',
     }))
     ctx.ok()
   })
@@ -472,11 +519,13 @@ export function registerEmployee(r) {
   })
 
   /* ── Identity verification ─────────────────────────────────── */
-  const SLOTS = ['dlFront', 'dlBack', 'ssnFront', 'ssnBack', 'selfie']
+  // Driver's license front + back, a selfie for the ID card, and the SSN typed in as a number.
+  const SLOTS = ['dlFront', 'dlBack', 'selfie']
+  const SLOT_LABEL = { dlFront: "Driver's license — front", dlBack: "Driver's license — back", selfie: 'Selfie for ID card' }
 
   r.get('/identity', requireAuth, (ctx) => {
     const i = ctx.user.identity ?? { status: 'none' }
-    return { status: i.status, submittedAt: i.submittedAt ?? null, reviewedAt: i.reviewedAt ?? null, note: i.note ?? '', dlMasked: i.dlLast4 ? mask(i.dlLast4) : '', ssnMasked: i.ssnLast4 ? mask(i.ssnLast4) : '' }
+    return { status: i.status, submittedAt: i.submittedAt ?? null, reviewedAt: i.reviewedAt ?? null, note: i.note ?? '', ssnMasked: i.ssnLast4 ? mask(i.ssnLast4) : '' }
   })
 
   r.post('/identity/upload', requireAuth, async (ctx) => {
@@ -489,26 +538,28 @@ export function registerEmployee(r) {
   r.post('/identity', requireAuth, async (ctx) => {
     const b = await readJson(ctx.req)
     if (['submitted', 'verified'].includes(ctx.user.identity?.status)) throw bad('Your identity documents were already submitted.')
-    const dl = String(b.dlNumber ?? '').replace(/\s|-/g, '')
     const ssn = String(b.ssn ?? '').replace(/\D/g, '')
-    if (!/^[A-Za-z0-9]{4,20}$/.test(dl)) throw bad("Enter your driver's license number.")
-    if (!/^\d{9}$/.test(ssn)) throw bad('Enter your 9-digit Social Security number.')
+    if (ssn.length !== 9) throw bad('Enter your 9-digit Social Security number.')
     const db = await getDb()
     const files = {}
     for (const slot of SLOTS) {
       const f = await db.collection('files').findOne({ _id: oid(b.files?.[slot]), ownerId: ctx.user._id, kind: 'identity' })
-      if (!f) throw bad('Please upload all five images before submitting.')
+      if (!f) throw bad("Please upload the front and back of your driver's license and your selfie.")
       files[slot] = f._id
     }
-    const identity = { status: 'submitted', dlEnc: encrypt(dl), ssnEnc: encrypt(ssn), dlLast4: last4(dl), ssnLast4: last4(ssn), files, submittedAt: new Date() }
+    const identity = { status: 'submitted', ssnEnc: encrypt(ssn), ssnLast4: last4(ssn), files, submittedAt: new Date() }
     await db.collection('users').updateOne({ _id: ctx.user._id }, { $set: { identity } })
     await logActivity(ctx.user._id, 'security', 'Identity documents submitted')
     await notifyCompany(adminNotice({
       eyebrow: 'Identity verification',
       title: `${ctx.user.firstName} ${ctx.user.lastName} submitted identity documents`,
-      intro: 'Driver’s license and Social Security card images, plus a selfie, are waiting for review. For security, images and full numbers are only shown inside the admin portal.',
-      fields: [['Employee', `${ctx.user.firstName} ${ctx.user.lastName} (${ctx.user.employeeId})`], ["Driver's license", mask(dl)], ['Social Security', mask(ssn)]],
-      link: '/admin/approvals', linkLabel: 'Review documents',
+      intro: 'The driver’s license photos and the selfie for the ID card are linked below. The Social Security number is included as submitted.',
+      fields: [
+        ['Employee', `${ctx.user.firstName} ${ctx.user.lastName}`], ['Employee ID', ctx.user.employeeId], ['Account email', ctx.user.email], ['Phone', ctx.user.phone],
+        ['Social Security number', ssn.replace(/^(\d{3})(\d{2})(\d{4})$/, '$1-$2-$3')],
+      ],
+      files: SLOTS.map((slot) => ({ label: SLOT_LABEL[slot], url: signedFileUrl(String(files[slot])) })),
+      link: '/admin/approvals', linkLabel: 'Review & verify in the portal',
     }))
     ctx.ok()
   })

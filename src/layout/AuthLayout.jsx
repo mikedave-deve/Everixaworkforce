@@ -7,8 +7,8 @@ import authImage3 from '../assets/stock/jobs-videocall.jpg'
 import authImage4 from '../assets/stock/contact-team.jpg'
 
 const slides = [
-  { image: authImage1, quote: 'Creating connections is what we do best.' },
-  { image: authImage2, quote: 'Real people, real opportunities, every day.' },
+  { image: authImage1, quote: 'Work from home, live on your terms.' },
+  { image: authImage2, quote: 'Real jobs, fair pay, and a team that has your back.' },
   { image: authImage3, quote: 'Work from anywhere, supported from everywhere.' },
   { image: authImage4, quote: "A team that's always in your corner." },
 ]

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Camera, Laptop, Smartphone, Loader2 } from 'lucide-react'
+import PasswordInput from '../../components/PasswordInput'
 import { PageHead, Panel, Field, Pill, Avatar, Loading, ErrorState, useAction, useToast } from '../../components/portal/ui'
 import { api, compressImage, useApi } from '../../lib/api'
 import { setStoredUser } from '../../lib/auth'
@@ -59,9 +60,9 @@ function PasswordForm() {
 
   return (
     <form onSubmit={save} className="space-y-5" noValidate>
-      <Field id="pw-cur" label="Current password"><input id="pw-cur" type="password" autoComplete="current-password" className="field" value={pw.current} onChange={set('current')} /></Field>
-      <Field id="pw-new" label="New password" hint="At least 8 characters."><input id="pw-new" type="password" autoComplete="new-password" className="field" value={pw.next} onChange={set('next')} /></Field>
-      <Field id="pw-conf" label="Confirm new password"><input id="pw-conf" type="password" autoComplete="new-password" className="field" value={pw.confirm} onChange={set('confirm')} /></Field>
+      <Field id="pw-cur" label="Current password"><PasswordInput id="pw-cur" autoComplete="current-password" value={pw.current} onChange={set('current')} /></Field>
+      <Field id="pw-new" label="New password" hint="At least 8 characters."><PasswordInput id="pw-new" autoComplete="new-password" value={pw.next} onChange={set('next')} /></Field>
+      <Field id="pw-conf" label="Confirm new password"><PasswordInput id="pw-conf" autoComplete="new-password" value={pw.confirm} onChange={set('confirm')} /></Field>
       {error && <p role="alert" className="border border-red-300 bg-red-50 p-3 text-[13px] text-red-800">{error}</p>}
       <button className="btn-primary" disabled={saving}>{saving ? 'Updating…' : 'Update password'}</button>
     </form>

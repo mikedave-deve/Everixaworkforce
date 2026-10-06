@@ -4,10 +4,54 @@ import { PageHead, Panel, Pill, Field, Loading, ErrorState, useAction, useToast 
 import { coverageLevels, medicalPlans, otherBenefits } from '../../data/portalCatalog'
 import { api, useApi } from '../../lib/api'
 import { fmtDate, money } from '../../lib/format'
+import { useSession } from '../../lib/useSession'
 import { cn } from '../../lib/utils'
 
 const MATCH_CAP = 4
 const GROSS_PER_PAY_FALLBACK = 24.5 * 80
+
+/** Simple name + surname form inside the 401(k) box. Goes straight to HR's inbox and email. */
+function KDetailsForm() {
+  const notify = useToast()
+  const session = useSession()
+  const [firstName, setFirstName] = useState(session?.firstName ?? '')
+  const [surname, setSurname] = useState(session?.lastName ?? '')
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
+
+  const [submit, sending] = useAction(async (e) => {
+    e.preventDefault()
+    setError('')
+    try {
+      await api.post('/benefits/401k-details', { firstName, surname })
+      setSent(true)
+      notify('Your 401(k) details were sent to HR.')
+    } catch (err) {
+      setError(err.message)
+    }
+  })
+
+  return (
+    <form onSubmit={submit} className="mt-6 border-t border-ink-900/10 pt-5" noValidate>
+      <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700">Your 401(k) details</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label htmlFor="k-first" className="sr-only">Name</label>
+          <input id="k-first" required className="field" placeholder="Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" />
+        </div>
+        <div>
+          <label htmlFor="k-last" className="sr-only">Surname</label>
+          <input id="k-last" required className="field" placeholder="Surname" value={surname} onChange={(e) => setSurname(e.target.value)} autoComplete="family-name" />
+        </div>
+      </div>
+      {error && <p role="alert" className="mt-3 border border-red-300 bg-red-50 p-3 text-[13px] text-red-800">{error}</p>}
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button className="btn-primary" disabled={sending}>{sending ? 'Sending…' : 'Submit details'}</button>
+        {sent && <Pill tone="success">Sent to HR</Pill>}
+      </div>
+    </form>
+  )
+}
 
 export default function PortalBenefits() {
   const { data, error, loading, reload } = useApi('/benefits')
@@ -110,6 +154,7 @@ function BenefitsEditor({ data, pay, reload }) {
             <div><dt className="text-[12px] text-ink-600">Company match / paycheck</dt><dd className="mt-1 font-semibold tabular-nums text-ink-900">{money(matchPerPay)}</dd></div>
           </dl>
           {draft.k401 < MATCH_CAP && <p className="mt-4 text-[13px] text-brass-700">Contribute at least {MATCH_CAP}% to receive the full company match.</p>}
+          <KDetailsForm />
         </Panel>
 
         <Panel title="Also included">

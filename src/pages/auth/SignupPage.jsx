@@ -2,11 +2,20 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { User, Mail, Lock, Phone, ArrowRight, Loader2, MailCheck } from 'lucide-react'
 import AuthLayout from '../../layout/AuthLayout'
+import PasswordInput from '../../components/PasswordInput'
 import { signup } from '../../lib/auth'
 
 const labelClass = 'mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700'
 
 function IconField({ id, label, icon: Icon, ...input }) {
+  if (input.type === 'password') {
+    return (
+      <div>
+        <label htmlFor={id} className={labelClass}>{label}</label>
+        <PasswordInput id={id} icon={Icon} required {...input} />
+      </div>
+    )
+  }
   return (
     <div>
       <label htmlFor={id} className={labelClass}>{label}</label>

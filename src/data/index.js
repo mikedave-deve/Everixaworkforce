@@ -1,112 +1,165 @@
-
-
 // ─────────────────────────────────────────────
-//  JOBS DATA
+//  JOBS DATA — all roles are work from home
+//  `wage` is the approved hourly wage range for U.S. employers.
 // ─────────────────────────────────────────────
+const REMOTE = 'Remote — Work from Home'
+
 export const jobs = [
   {
     id: 1,
-    title: 'Environmental Project Manager',
+    title: 'Customer Support Representative',
     company: 'Everixa Workforce',
-    location: 'Portland, OR',
+    location: REMOTE,
     type: 'Full-Time',
-    category: 'Management',
-    salary: '$85,000 - $105,000',
-    posted: '2 days ago',
-    description:
-      'Lead multi-disciplinary environmental remediation projects from assessment through closure. Coordinate with regulatory agencies and client stakeholders.',
-    tags: ['NEPA', 'Remediation', 'PMP'],
+    category: 'Customer Support',
+    wage: '$17 – $22 / hour',
+    posted: '1 day ago',
+    description: 'Help customers by phone, chat and email from your home office. Friendly, patient people do best here.',
+    duties: ['Answer customer questions kindly and clearly', 'Fix simple problems or pass them to the right team', 'Keep notes on every conversation'],
+    tags: ['Work from home', 'Training provided', 'No degree needed'],
   },
   {
     id: 2,
-    title: 'Customer Service Representative',
-    company: 'Pacific Basin Consulting',
-    location: 'Remote, USA',
+    title: 'Data Entry Clerk',
+    company: 'Everixa Workforce',
+    location: REMOTE,
     type: 'Part-Time',
-    category: 'Customer Service',
-    salary: '$35 - $80',
-    posted: '3 days ago',
-    description:
-      'Handles customer inquiries, resolves complaints, and provides product or service information.',
-    tags: ['Geology', 'Phase II ESA', 'GIS'],
+    category: 'Data Entry',
+    wage: '$15 – $19 / hour',
+    posted: '2 days ago',
+    description: 'Type information into our online system accurately. Great for anyone who likes quiet, steady work.',
+    duties: ['Enter records and forms into the system', 'Check your work for mistakes', 'Meet simple daily targets'],
+    tags: ['Work from home', 'Flexible hours', 'Beginner friendly'],
   },
   {
     id: 3,
-    title: 'Accounts Payable Clerk',
-    company: 'NorthWest Industrial',
-    location: 'Remote, USA',
-    type: 'Contract',
+    title: 'Bookkeeper',
+    company: 'Everixa Workforce',
+    location: REMOTE,
+    type: 'Part-Time',
     category: 'Bookkeeping',
-    salary: '$25 - $70/hr',
-    posted: '1 day ago',
-    description:
-      'Manages invoices, processes payments, and maintains accurate financial documentation.',
-    tags: ['OSHA', 'ISO 14001', 'Auditing'],
+    wage: '$22 – $30 / hour',
+    posted: '3 days ago',
+    description: 'Keep small-business accounts tidy and up to date: invoices, bills and bank records.',
+    duties: ['Record daily income and spending', 'Match bank statements to the books', 'Prepare simple monthly reports'],
+    tags: ['Work from home', 'Experience helpful', 'Flexible hours'],
   },
   {
     id: 4,
-    title: 'Data Entry Clerk',
-    company: 'Columbia Basin Ecology',
-    location: 'Remote / Field',
-    type: 'Seasonal',
-    category: 'Data Entry',
-    salary: '$35 - $90/hr',
-    posted: '5 days ago',
-    description:
-      'Perform wetland delineations, jurisdictional determinations, and mitigation monitoring under 404/401 permits.',
-    tags: ['Wetlands', 'Section 404', 'Botany'],
+    title: 'Administrative Assistant',
+    company: 'Everixa Workforce',
+    location: REMOTE,
+    type: 'Full-Time',
+    category: 'Administrative',
+    wage: '$18 – $24 / hour',
+    posted: '1 day ago',
+    description: 'Support a busy team from home: manage calendars, emails, documents and day-to-day requests.',
+    duties: ['Organize calendars and meetings', 'Reply to emails and prepare documents', 'Keep files and to-do lists in order'],
+    tags: ['Work from home', 'Great for organizers', 'Training provided'],
   },
   {
     id: 5,
-    title: 'Payroll Specialist',
-    company: 'ClearSky Technologies',
-    location: 'Remote, USA',
-    type: 'Contract',
-    category: 'Payroll',
-    salary: '$35 - $80',
-    posted: '1 week ago',
-    description:
-      'Responsible for processing employee payroll, ensuring accurate wage calculations, tax deductions, and compliance with company policies.',
-    tags: ['AERMOD', 'Title V', 'GHG Reporting'],
+    title: 'Virtual Receptionist',
+    company: 'Everixa Workforce',
+    location: REMOTE,
+    type: 'Part-Time',
+    category: 'Administrative',
+    wage: '$16 – $20 / hour',
+    posted: '4 days ago',
+    description: 'Be the friendly voice of a business. Greet callers, take messages and direct calls.',
+    duties: ['Answer calls with a warm greeting', 'Take clear messages', 'Send callers to the right person'],
+    tags: ['Work from home', 'Part-time friendly', 'No experience needed'],
   },
   {
     id: 6,
-    title: 'Payroll Administrator',
-    company: 'CleanSite Solutions',
-    location: 'Remote, USA',
-    type: 'Contract',
-    category: 'Payroll',
-    salary: '35 - $80/hr',
-    posted: '4 days ago',
-    description:
-      'Manages payroll records, verifies employee hours, and assists with payroll reporting and compliance tasks.',
-    tags: ['LNAPL', 'Groundwater', 'Field Work'],
+    title: 'Chat Support Agent',
+    company: 'Everixa Workforce',
+    location: REMOTE,
+    type: 'Part-Time',
+    category: 'Customer Support',
+    wage: '$16 – $20 / hour',
+    posted: '5 days ago',
+    description: 'Answer customers by live chat in the evenings or on weekends. Quick typing and a kind tone are all you need.',
+    duties: ['Chat with customers and answer questions', 'Use ready-made replies when helpful', 'Log each chat'],
+    tags: ['Work from home', 'Evenings & weekends', 'Beginner friendly'],
   },
   {
     id: 7,
-    title: 'Bookkeeper',
-    company: 'Cascade Energy Group',
-    location: 'Remote, USA',
-    type: 'Contract',
-    category: 'Bookkeeping',
-    salary: '$30 - $75/hr',
-    posted: '6 days ago',
-    description:
-      'Maintains financial records, tracks expenses, and reconciles accounts for businesses.',
-    tags: ['RCRA', 'CWA', 'Reporting'],
+    title: 'Payroll Specialist',
+    company: 'Everixa Workforce',
+    location: REMOTE,
+    type: 'Full-Time',
+    category: 'Payroll',
+    wage: '$24 – $32 / hour',
+    posted: '1 week ago',
+    description: 'Make sure people are paid correctly and on time. You will check hours, pay and simple tax details.',
+    duties: ['Check hours and pay for each pay period', 'Fix pay questions from employees', 'Keep payroll records tidy'],
+    tags: ['Work from home', 'Experience helpful', 'Steady schedule'],
   },
   {
     id: 8,
-    title: 'IT Support',
-    company: 'GeoData Northwest',
-    location: 'Remote, USA',
-    type: 'Contract',
-    category: 'I.T',
-    salary: '$30 - $82/hr',
+    title: 'Medical Billing Clerk',
+    company: 'Everixa Workforce',
+    location: REMOTE,
+    type: 'Full-Time',
+    category: 'Medical Billing',
+    wage: '$20 – $27 / hour',
+    posted: '6 days ago',
+    description: 'Prepare and send bills for clinics and follow up on payments. Training on the systems is provided.',
+    duties: ['Prepare bills for patient visits', 'Follow up on unpaid claims', 'Keep patient information private'],
+    tags: ['Work from home', 'Training provided', 'Steady schedule'],
+  },
+  {
+    id: 9,
+    title: 'Appointment Scheduler',
+    company: 'Everixa Workforce',
+    location: REMOTE,
+    type: 'Part-Time',
+    category: 'Administrative',
+    wage: '$16 – $20 / hour',
+    posted: '1 week ago',
+    description: 'Book, move and confirm appointments for clients by phone and email.',
+    duties: ['Book and confirm appointments', 'Send friendly reminders', 'Update the calendar'],
+    tags: ['Work from home', 'Flexible hours', 'No experience needed'],
+  },
+  {
+    id: 10,
+    title: 'Order Processing Clerk',
+    company: 'BrightCart Online',
+    location: REMOTE,
+    type: 'Part-Time',
+    category: 'Data Entry',
+    wage: '$15 – $19 / hour',
     posted: '2 weeks ago',
-    description:
-      'Provides technical assistance, troubleshoots systems, and maintains company hardware and software.',
-    tags: ['ArcGIS', 'QGIS', 'Python'],
+    description: 'Check online orders, update the system and make sure every order is ready to ship.',
+    duties: ['Review new online orders', 'Update order status', 'Contact customers about missing details'],
+    tags: ['Work from home', 'Flexible hours', 'Beginner friendly'],
+  },
+  {
+    id: 11,
+    title: 'Accounts Payable Clerk',
+    company: 'Summit Home Services',
+    location: REMOTE,
+    type: 'Contract',
+    category: 'Bookkeeping',
+    wage: '$22 – $28 / hour',
+    posted: '2 weeks ago',
+    description: 'Enter and pay supplier bills on time and keep clear records of every payment.',
+    duties: ['Enter supplier bills', 'Schedule payments', 'Answer supplier questions'],
+    tags: ['Work from home', 'Experience helpful', 'Contract'],
+  },
+  {
+    id: 12,
+    title: 'Transcriptionist',
+    company: 'ClearNote Media',
+    location: REMOTE,
+    type: 'Contract',
+    category: 'Data Entry',
+    wage: '$16 – $22 / hour',
+    posted: '3 weeks ago',
+    description: 'Listen to recordings and type out what you hear. Choose your own hours.',
+    duties: ['Listen to audio and type it out', 'Proofread for spelling and names', 'Deliver on the agreed day'],
+    tags: ['Work from home', 'Choose your hours', 'Contract'],
   },
 ]
 
@@ -115,125 +168,125 @@ export const jobs = [
 // ─────────────────────────────────────────────
 export const services = [
   {
-    id: 'direct-placement',
-    title: 'Direct Placement',
+    id: 'remote-placement',
+    title: 'Remote Direct Placement',
     icon: '',
-    shortDesc: 'Permanent hires aligned with your long-term team vision.',
+    shortDesc: 'Permanent work-from-home hires who fit your team.',
     description:
-      'Our direct placement service identifies, vets, and presents qualified environmental professionals for permanent roles - from entry-level technicians to senior executives. We handle the search so you can focus on your mission.',
+      'We find, check and introduce people for permanent work-from-home roles, from customer support to bookkeeping. You meet only people who are ready to start and happy to work remotely.',
     items: [
-      'Full candidate lifecycle management',
-      'Cultural and technical fit assessment',
-      'Reference and credential verification',
-      'Salary benchmarking and negotiation support',
+      'Simple, friendly screening of every candidate',
+      'Home-office and internet readiness check',
+      'Wage guidance using approved hourly ranges',
+      'Help with offers and a smooth first week',
       '90-day placement guarantee',
     ],
   },
   {
-    id: 'contract-staffing',
-    title: 'Contract Staffing',
+    id: 'flexible-staffing',
+    title: 'Flexible & Part-Time Staffing',
     icon: '',
-    shortDesc: 'Flexible talent for project-based or seasonal needs.',
+    shortDesc: 'Part-time, evening and seasonal remote help when you need it.',
     description:
-      'Scale your workforce precisely when you need it. Our contract staffing solutions provide experienced environmental professionals for short-term projects, seasonal peaks, and specialized engagements.',
+      'Need extra hands for a busy season, evening coverage or a short project? We provide trained remote team members on flexible schedules, and handle payroll for you.',
     items: [
-      'Rapid deployment within 48-72 hours',
-      'Payroll and benefits administration',
-      'Workers\' compensation coverage',
-      'Contract-to-hire conversion options',
-      'Multi-state compliance management',
+      'Ready to start within 48–72 hours',
+      'Part-time, evening and weekend options',
+      'Payroll and paperwork handled by Everixa',
+      'Contract-to-hire if it is a great fit',
+      'Scale up or down as your needs change',
     ],
   },
   {
-    id: 'executive-search',
-    title: 'Executive Search',
+    id: 'virtual-teams',
+    title: 'Virtual Team Building',
     icon: '',
-    shortDesc: 'Retained search for director, VP, and C-suite roles.',
+    shortDesc: 'A whole remote support or back-office team, set up for you.',
     description:
-      'Leadership in the environmental sector requires rare combinations of technical mastery and business acumen. Our retained executive search practice uncovers candidates who are not on job boards.',
+      'We build full work-from-home teams, such as a support desk, a data team or an admin pool, with a team lead, clear roles and a simple plan for the first 30 days.',
     items: [
-      'Confidential, retained search model',
-      'Market mapping and competitive intelligence',
-      'Leadership competency assessments',
-      'Onboarding integration planning',
-      'Board-level placement expertise',
+      'Right-sized team for your workload',
+      'Clear roles and a simple onboarding plan',
+      'Team lead matched to your style',
+      'Regular check-ins with a named contact',
+      'Training on your tools and processes',
     ],
   },
   {
     id: 'consulting',
-    title: 'Workforce Consulting',
+    title: 'Remote Workforce Consulting',
     icon: '',
-    shortDesc: 'Strategic hiring, compensation, and team structure analysis.',
+    shortDesc: 'Advice on pay, hiring and managing remote teams.',
     description:
-      'Beyond individual hires - we help organizations design hiring systems, understand compensation trends, and build employer brand strategies to attract top environmental talent.',
+      'Not sure how to hire, pay or manage people who work from home? We share plain, practical advice based on years of placing remote workers across the U.S.',
     items: [
-      'Compensation and benefits benchmarking',
-      'Organizational structure design',
-      'Diversity and inclusion hiring strategy',
-      'Job description architecture',
-      'Campus and early-career pipeline development',
+      'Hourly wage benchmarking for remote roles',
+      'Clear, simple job descriptions',
+      'Remote onboarding checklists',
+      'Tips for keeping remote teams engaged',
+      'Support for hiring across states',
     ],
   },
 ]
 
 // ─────────────────────────────────────────────
-//  INDUSTRIES DATA
+//  INDUSTRIES DATA — where you can work from home
 // ─────────────────────────────────────────────
 export const industries = [
   {
-    id: 'remediation',
+    id: 'customer-support',
+    title: 'Customer Support',
+    icon: '',
+    description: 'Answer questions and solve problems by phone, chat and email, helping customers feel looked after.',
+    color: 'bg-ink-50 border-ink-200',
+  },
+  {
+    id: 'admin',
     title: 'Administrative & Office Support',
     icon: '',
-    description: 'Provides essential workplace support through organization, coordination, and day-to-day office management that keeps businesses running efficiently.',
-    color: 'bg-ink-50 border-ink-200',
-  },
-  {
-    id: 'energy',
-    title: 'Accounting & Finance',
-    icon: '',
-    description: 'Manages financial records, payroll, budgeting, and compliance to ensure organizations maintain accurate and responsible financial operations.',
+    description: 'Keep schedules, emails, documents and day-to-day tasks running smoothly for busy teams.',
     color: 'bg-cream-50 border-cream-300',
   },
   {
-    id: 'consulting',
+    id: 'data-entry',
+    title: 'Data Entry & Records',
+    icon: '',
+    description: 'Enter and check information accurately, a good fit for people who like focused, steady work.',
+    color: 'bg-ink-50 border-ink-200',
+  },
+  {
+    id: 'bookkeeping',
+    title: 'Bookkeeping & Accounting',
+    icon: '',
+    description: 'Track income, bills and payments for small and mid-sized businesses.',
+    color: 'bg-cream-50 border-cream-300',
+  },
+  {
+    id: 'healthcare-admin',
     title: 'Healthcare Administration',
     icon: '',
-    description: 'Supports medical facilities by managing patient records, billing, scheduling, and administrative operations that enable healthcare professionals to focus on patient care',
+    description: 'Medical billing, scheduling and records support for clinics, done securely from home.',
     color: 'bg-ink-50 border-ink-200',
   },
   {
-    id: 'water',
-    title: 'Customer Service',
+    id: 'payroll-hr',
+    title: 'Payroll & HR Support',
     icon: '',
-    description: 'Focuses on assisting customers, resolving issues, and maintaining positive relationships that enhance brand trust and customer satisfaction.',
+    description: 'Help people get paid correctly and on time, and support the teams that look after employees.',
     color: 'bg-cream-50 border-cream-300',
   },
   {
-    id: 'ehs',
-    title: 'Sales & Business Development',
+    id: 'sales-support',
+    title: 'Sales Support',
     icon: '',
-    description: 'Drives company growth by building client relationships, generating revenue opportunities, and expanding market presence.',
+    description: 'Follow up with new enquiries, book calls and keep customer lists organized.',
     color: 'bg-ink-50 border-ink-200',
   },
   {
-    id: 'ecology',
-    title: 'Human Resources',
+    id: 'it-help-desk',
+    title: 'IT Help Desk',
     icon: '',
-    description: 'Handles workforce management including recruitment, employee relations, training, and organizational development.',
-    color: 'bg-cream-50 border-cream-300',
-  },
-  {
-    id: 'geoscience',
-    title: 'IT & Technology',
-    icon: '',
-    description: 'Supports digital infrastructure, software systems, cybersecurity, and technical operations that power modern business environments.',
-    color: 'bg-ink-50 border-ink-200',
-  },
-  {
-    id: 'municipal',
-    title: 'Logistics & Supply Chain',
-    icon: '',
-    description: 'Coordinates the movement, storage, and delivery of goods to ensure products reach customers efficiently and on time.',
+    description: 'Walk people through everyday tech problems step by step. Patience matters more than jargon.',
     color: 'bg-cream-50 border-cream-300',
   },
 ]
@@ -245,38 +298,38 @@ export const testimonials = [
   {
     id: 1,
     quote:
-      "Everixa Workforce consistently delivers candidates who genuinely understand both the technical and regulatory dimensions of our work. They've placed four of our key project managers - all exceptional hires.",
+      'Everixa found us customer support agents who were ready from day one. They all work from home, they are friendly with our customers, and nearly every one of them has stayed.',
     name: 'Dr. Rebecca Holt',
     title: 'Director of Operations',
-    company: 'Pacific Basin Environmental',
+    company: 'Pacific Basin Support Services',
     initials: 'RH',
   },
   {
     id: 2,
     quote:
-      "When our Phase II team needed to triple in size before a major field season, Everixa mobilized eight qualified technicians in under a week. Quality didn't suffer for speed.",
+      'We needed to triple our support team before the holiday rush. Everixa had eight trained remote agents working within a week, and the quality never dropped.',
     name: 'Marcus Chen',
-    title: 'VP of Field Services',
-    company: 'SteelBridge Consulting Group',
+    title: 'VP of Customer Care',
+    company: 'SteelBridge Retail Group',
     initials: 'MC',
   },
   {
     id: 3,
     quote:
-      "I was skeptical that a recruiter could find someone with both the RCRA expertise and leadership skills we needed. Everixa proved me wrong - our new Compliance Director is outstanding.",
-    name: 'Amanda Torres',
-    title: 'Chief Environmental Officer',
-    company: 'Cascade Manufacturing',
-    initials: 'AT',
+      'As a mom of two, a normal commute was impossible. Everixa matched me with a data entry role I do from my kitchen table, on hours that fit around school. It changed our family life.',
+    name: 'Linda Ortiz',
+    title: 'Data Entry Clerk',
+    company: 'Everixa Workforce',
+    initials: 'LO',
   },
   {
     id: 4,
     quote:
-      "As a candidate, the experience was refreshingly human. They took time to understand my career goals, not just match keywords on a resume. I'm in the best role of my career.",
-    name: 'James Whitfield',
-    title: 'Senior Hydrogeologist',
-    company: 'GreenPath Solutions',
-    initials: 'JW',
+      'I retired and wanted something part-time that kept me busy. They found me a bookkeeping job from home, explained everything simply, and I have never felt like a beginner.',
+    name: 'Robert Hayes',
+    title: 'Part-Time Bookkeeper',
+    company: 'Everixa Workforce',
+    initials: 'RH',
   },
 ]
 
@@ -284,61 +337,60 @@ export const testimonials = [
 //  STATS DATA
 // ─────────────────────────────────────────────
 export const stats = [
-  { value: 1400, suffix: '+', label: 'Placements Made', description: 'Successful hires across 18 years' },
-  { value: 94, suffix: '%', label: 'Retention Rate', description: '1-year post-placement retention' },
-  { value: 320, suffix: '+', label: 'Client Partners', description: 'Firms who hire through us repeatedly' },
-  { value: 18, suffix: ' yrs', label: 'Industry Focus', description: 'Exclusively environmental sector' },
+  { value: 1400, suffix: '+', label: 'Placements Made', description: 'People placed in new roles over 18 years' },
+  { value: 94, suffix: '%', label: 'Retention Rate', description: 'Still in their role after one year' },
+  { value: 320, suffix: '+', label: 'Client Partners', description: 'Employers who hire through us again and again' },
+  { value: 18, suffix: ' yrs', label: 'Remote Experience', description: 'Helping people work from home' },
 ]
 
 // ─────────────────────────────────────────────
 //  TEAM DATA
 // ─────────────────────────────────────────────
 export const team = [
-  {
-    id: 1,
-    name: 'Catherine Moore',
-    title: 'Founder & CEO',
-    bio: 'Former environmental engineer with 12 years in the field before founding Everixa Workforce. Catherine built the firm on the principle that great hiring starts with technical fluency.',
-    initials: 'CM',
-  },
-  {
-    id: 2,
-    name: 'David Park',
-    title: 'Director of Candidate Relations',
-    bio: 'With a background in ecology and environmental consulting, David brings deep sector knowledge to every candidate conversation. He leads our science and natural resources practice.',
-    initials: 'DP',
-  },
-  {
-    id: 3,
-    name: 'Serena Yamamoto',
-    title: 'Client Development Manager',
-    bio: 'Serena specializes in executive search and workforce consulting for mid-to-large environmental firms. She has led over 200 director and C-level placements.',
-    initials: 'SY',
-  },
-  {
-    id: 4,
-    name: 'Omar Khalil',
-    title: 'EHS & Compliance Practice Lead',
-    bio: 'Former EHS manager at a Fortune 500 company, Omar leads our industrial compliance and health & safety staffing practice with unmatched sector credibility.',
-    initials: 'OK',
-  },
+  { id: 1, name: 'Catherine Moore', title: 'Founder & CEO', bio: 'Catherine started Everixa to prove that good work does not have to mean a long commute.', initials: 'CM' },
+  { id: 2, name: 'David Park', title: 'Director of Candidate Relations', bio: 'David talks with every new candidate and finds the work-from-home role that fits their life.', initials: 'DP' },
+  { id: 3, name: 'Serena Yamamoto', title: 'Client Development Manager', bio: 'Serena helps employers build friendly, reliable remote teams.', initials: 'SY' },
+  { id: 4, name: 'Omar Khalil', title: 'Remote Operations Lead', bio: 'Omar makes sure every new remote team member has what they need to succeed.', initials: 'OK' },
 ]
 
 // ─────────────────────────────────────────────
 //  TIMELINE DATA
 // ─────────────────────────────────────────────
 export const timeline = [
-  { year: '2006', event: 'Everixa Workforce founded in Portland, OR with a focus on environmental consulting placements.' },
-  { year: '2010', event: 'Expanded into EHS and compliance staffing; grew to a team of 12 specialists.' },
-  { year: '2014', event: 'Launched executive search practice. Completed first C-suite placement.' },
-  { year: '2018', event: 'Opened offices in Seattle and San Francisco. Surpassed 500 active client accounts.' },
-  { year: '2022', event: 'Introduced renewable energy staffing vertical in response to surging market demand.' },
-  { year: '2024', event: 'Reached 1,400 cumulative placements. Named a Top Environmental Staffing Firm by Green Business Journal.' },
+  { year: '2006', event: 'Everixa Workforce founded in Portland, OR to help people find flexible, work-from-home jobs.' },
+  { year: '2010', event: 'Grew our customer support and administrative teams to a group of 12 specialists.' },
+  { year: '2014', event: 'Launched virtual team building so employers could hire whole remote teams at once.' },
+  { year: '2018', event: 'Opened support hubs in Seattle and San Francisco. Surpassed 500 active client accounts.' },
+  { year: '2022', event: 'Added bookkeeping, payroll and medical billing roles for people working from home.' },
+  { year: '2024', event: 'Reached 1,400 placements, nearly all fully remote.' },
 ]
 
 // ─────────────────────────────────────────────
-//  JOB CATEGORIES (filter options)
+//  WORK FROM HOME — write-up content
 // ─────────────────────────────────────────────
-export const jobCategories = ['All', 'Management', 'Science', 'EHS', 'Engineering', 'Field', 'Compliance', 'Technology']
-export const jobTypes = ['All Types', 'Full-Time', 'Contract', 'Part-Time', 'Seasonal']
-export const jobLocations = ['All Locations', 'Portland, OR', 'Seattle, WA', 'San Francisco, CA', 'Sacramento, CA', 'Remote / Field', 'Boise, ID', 'Olympia, WA', 'Tacoma, WA']
+export const wfhReasons = [
+  { title: 'No commute', body: 'Get your time, your fuel money and your mornings back.' },
+  { title: 'Flexible hours', body: 'Part-time and full-time options that fit around family, school and life.' },
+  { title: 'Fair, approved pay', body: 'Every role lists an approved hourly wage, so you know what to expect before you apply.' },
+  { title: 'Training provided', body: 'Many roles need no experience. We show you the tools and walk you through the first week.' },
+]
+
+export const wfhAudiences = [
+  { who: 'Parents', note: 'Work around school runs and nap times.' },
+  { who: 'Students', note: 'Earn between classes, from your dorm or home.' },
+  { who: 'Career changers', note: 'Try a new field without leaving your house.' },
+  { who: 'Retirees', note: 'Stay active with relaxed, part-time work.' },
+  { who: 'Caregivers', note: 'Earn an income while you care for someone you love.' },
+]
+
+export const wfhNeeds = ['A computer or laptop', 'A reliable internet connection', 'A quiet corner to work in']
+
+/** Approved hourly wage ranges, one row per role (built from the jobs above). */
+export const wageGuide = [...new Map(jobs.map((j) => [j.title, { role: j.title, wage: j.wage, type: j.type, category: j.category }])).values()]
+
+// ─────────────────────────────────────────────
+//  FILTER OPTIONS
+// ─────────────────────────────────────────────
+export const jobCategories = ['All', ...new Set(jobs.map((j) => j.category))]
+export const jobTypes = ['All Types', 'Full-Time', 'Part-Time', 'Contract']
+export const jobLocations = ['All Locations', REMOTE]

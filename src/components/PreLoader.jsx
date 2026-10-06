@@ -55,18 +55,18 @@ export default function PreLoader({ onFinish }) {
       aria-label="Loading Everixa Workforce"
     >
       <div ref={boxRef} className="flex flex-col items-center opacity-0 translate-y-2">
-        <div className="relative">
-          <svg width="220" height="90" viewBox="0 0 220 90" className="overflow-visible" aria-hidden="true">
+        <div className="relative w-[min(24rem,86vw)]">
+          <svg viewBox="0 0 380 90" className="block w-full overflow-visible" aria-hidden="true">
             <rect
               ref={rectRef}
-              x="1" y="1" width="218" height="88"
+              x="1" y="1" width="378" height="88"
               fill="none" stroke="currentColor" strokeWidth="1.5"
               className="text-ink-700"
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-display italic text-3xl font-semibold tracking-wide text-ink-700">
-              EVERIXA
+            <span className="whitespace-nowrap font-display text-[clamp(1.15rem,5.6vw,1.9rem)] font-semibold italic leading-none tracking-wide text-ink-700">
+              EVERIXA WORKFORCE
             </span>
           </div>
         </div>

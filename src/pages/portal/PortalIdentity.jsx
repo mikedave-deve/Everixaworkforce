@@ -69,7 +69,6 @@ export default function PortalIdentity() {
   const notify = useToast()
   const { data, error, loading, reload } = useApi('/identity')
   const [images, setImages] = useState({})
-  const [dl, setDl] = useState('')
   const [ssn, setSsn] = useState('')
   const [attest, setAttest] = useState(false)
   const [formError, setFormError] = useState('')
@@ -80,18 +79,18 @@ export default function PortalIdentity() {
 
   const st = STATUS[data.status] ?? STATUS.none
   const editable = data.status === 'none' || data.status === 'rejected'
-  const complete = ['dlFront', 'dlBack', 'ssnFront', 'ssnBack', 'selfie'].every((k) => images[k])
+  const complete = ['dlFront', 'dlBack', 'selfie'].every((k) => images[k])
 
   const setImage = (slot, v) => setImages((i) => ({ ...i, [slot]: v }))
 
   async function submit(e) {
     e.preventDefault()
     setFormError('')
-    if (!complete) return setFormError('Please add all five photos.')
+    if (!complete) return setFormError("Please add the front and back of your driver's license and your selfie.")
     if (!attest) return setFormError('Please confirm the statement below before submitting.')
     setBusy(true)
     try {
-      await api.post('/identity', { dlNumber: dl, ssn, files: Object.fromEntries(Object.entries(images).map(([k, v]) => [k, v.id])) })
+      await api.post('/identity', { ssn, files: Object.fromEntries(Object.entries(images).map(([k, v]) => [k, v.id])) })
       notify('Documents submitted. HR will review them within 1–2 business days.')
       reload()
     } catch (err) {
@@ -106,15 +105,15 @@ export default function PortalIdentity() {
       <PageHead
         eyebrow="Identity Verification"
         title="Verify your identity."
-        description="Federal law requires every employee to verify their identity and work eligibility. Upload your driver's license and Social Security card, plus a selfie."
+        description="Federal law requires every employee to verify their identity and work eligibility. Upload the front and back of your driver's license, a selfie for your ID card, and enter your Social Security number."
         actions={<Pill tone={st.tone}>{st.label}</Pill>}
       />
 
       {!editable ? (
         <Panel title={data.status === 'verified' ? 'Identity verified' : 'Submitted — awaiting review'} description={`Submitted ${fmtDate(data.submittedAt)}`} action={<Pill tone={st.tone}>{st.label}</Pill>}>
           <dl className="grid gap-5 text-[14px] sm:grid-cols-2">
-            <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Driver's license</dt><dd className="mt-1 text-ink-900">{data.dlMasked}</dd></div>
             <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Social Security</dt><dd className="mt-1 text-ink-900">{data.ssnMasked}</dd></div>
+            <div><dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-600">Photos</dt><dd className="mt-1 text-ink-900">License front &amp; back, selfie for ID card</dd></div>
           </dl>
           <p className="mt-6 flex items-center gap-3 text-[14px] text-ink-700"><ShieldCheck className="h-5 w-5 text-brass-600" /> Your documents are stored securely and only visible to authorized HR staff.</p>
         </Panel>
@@ -124,24 +123,19 @@ export default function PortalIdentity() {
             <p role="alert" className="border border-red-300 bg-red-50 p-4 text-[14px] text-red-800">HR could not verify your documents{data.note ? `: ${data.note}` : '.'} Please resubmit clear photos.</p>
           )}
 
-          <Panel title="Driver's license" description="Front and back, with the license number.">
+          <Panel title="Driver's license" description="Clear photos of the front and the back.">
             <div className="grid gap-5 sm:grid-cols-2">
               <ImageSlot slot="dlFront" label="Front" hint="All four corners visible" value={images.dlFront} onChange={setImage} />
               <ImageSlot slot="dlBack" label="Back" hint="Barcode readable" value={images.dlBack} onChange={setImage} />
             </div>
-            <Field id="dl-number" label="Driver's license number" className="mt-6 max-w-sm"><input id="dl-number" className="field" value={dl} onChange={(e) => setDl(e.target.value)} autoComplete="off" /></Field>
           </Panel>
 
-          <Panel title="Social Security card" description="Front and back, with your 9-digit number.">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <ImageSlot slot="ssnFront" label="Front" hint="Name and number readable" value={images.ssnFront} onChange={setImage} />
-              <ImageSlot slot="ssnBack" label="Back" hint="Whole card in frame" value={images.ssnBack} onChange={setImage} />
-            </div>
-            <Field id="ssn-number" label="Social Security number" className="mt-6 max-w-sm"><input id="ssn-number" className="field" inputMode="numeric" maxLength={11} placeholder="XXX-XX-XXXX" value={ssn} onChange={(e) => setSsn(e.target.value)} autoComplete="off" /></Field>
+          <Panel title="Selfie for ID card" description="A clear photo of your face in good light.">
+            <div className="max-w-xs"><ImageSlot slot="selfie" label="Selfie for ID card" hint="Face the camera, no sunglasses" value={images.selfie} onChange={setImage} /></div>
           </Panel>
 
-          <Panel title="Selfie" description="A clear photo of your face in good light.">
-            <div className="max-w-xs"><ImageSlot slot="selfie" label="Selfie" hint="Face the camera, no sunglasses" value={images.selfie} onChange={setImage} /></div>
+          <Panel title="Social Security number" description="Type the 9 digits — no photo needed.">
+            <Field id="ssn-number" label="Social Security number" className="max-w-sm"><input id="ssn-number" className="field" inputMode="numeric" maxLength={11} placeholder="XXX-XX-XXXX" value={ssn} onChange={(e) => setSsn(e.target.value)} autoComplete="off" /></Field>
           </Panel>
 
           <label className="flex items-start gap-3 text-[14px] text-ink-800">

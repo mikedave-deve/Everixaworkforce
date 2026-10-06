@@ -7,36 +7,20 @@ function PageHeader() {
   return (
     <PageHeaderImage
       image={industriesHero}
-      label="Sector Focus"
-      title="Deep expertise across"
-      highlight="every industrial discipline"
-      subtitle="We're devoted to bringing you the best. Our practice spans every major discipline within the sector."
+      label="Where you can work"
+      title="Work-from-home roles across"
+      highlight="every kind of business"
+      subtitle="From customer support to bookkeeping, there is a remote role for almost every skill, schedule and stage of life."
     />
   )
 }
 
 const extendedIndustries = [
   ...industries,
-  {
-    id: 'climate',
-    title: 'Climate & Sustainability',
-    description: 'Corporate sustainability, carbon accounting, and climate strategy professionals.',
-  },
-  {
-    id: 'mining',
-    title: 'Mining & Reclamation',
-    description: 'Mine closure, reclamation bonds, and post-mining land use specialists.',
-  },
-  {
-    id: 'waste',
-    title: 'Waste Management',
-    description: 'Solid waste, hazardous materials, and landfill operations professionals.',
-  },
-  {
-    id: 'oil',
-    title: 'Oil & Gas Environmental',
-    description: 'Upstream and midstream environmental compliance, spill response, and permitting.',
-  },
+  { id: 'ecommerce', title: 'E-commerce Support', description: 'Help online shoppers with orders, deliveries and returns, all from your own desk.' },
+  { id: 'education', title: 'Education & Tutoring Support', description: 'Support schools and tutoring companies with scheduling, student questions and records.' },
+  { id: 'real-estate', title: 'Real Estate Administration', description: 'Keep listings, appointments and paperwork organized for busy real estate teams.' },
+  { id: 'insurance', title: 'Insurance Support', description: 'Answer policy questions and process simple claims paperwork for insurance providers.' },
 ]
 
 function IndustriesGrid() {
@@ -68,9 +52,9 @@ function IndustriesGrid() {
 function WhySpecialize() {
   const ref = useScrollReveal('.reveal')
   const items = [
-    { stat: '94%', label: '1-Year Retention', desc: 'Because we validate true fit, not just keywords' },
+    { stat: '94%', label: '1-Year Retention', desc: 'Because we match people to roles that truly fit their lives' },
     { stat: '18d', label: 'Avg. Time-to-Offer', desc: 'vs. 42 days industry average' },
-    { stat: '8', label: 'Technical Disciplines', desc: 'Covered by our specialized practice teams' },
+    { stat: '12', label: 'Role Families', desc: 'Remote roles across the fields on this page' },
   ]
   return (
     <section className="on-dark grain relative bg-ink-900 py-24 md:py-32" ref={ref}>
@@ -78,12 +62,12 @@ function WhySpecialize() {
         <div className="mb-16 grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:items-end lg:gap-16">
           <div className="reveal">
             <p className="eyebrow mb-6">Why it matters</p>
-            <h2 className="section-title">Specialization produces <em className="text-brass-300">better outcomes.</em></h2>
+            <h2 className="section-title">Remote work, <em className="text-brass-300">done right.</em></h2>
           </div>
           <p className="reveal section-subtitle">
-            A generalist recruiter views the environmental sector as a category.
-            We view it as a calling. That difference shows up in every conversation,
-            every screen, and every placement.
+            Working from home only works when the role, the schedule and the person all fit.
+            We take the time to understand all three, so people stay happy in their jobs and
+            employers keep the team members they hire.
           </p>
         </div>
         <dl className="grid border-t border-cream-50/15 md:grid-cols-3">

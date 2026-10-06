@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Check, ArrowRight, Pause, PackageCheck, AlertTriangle } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { fmtDate, fmtDateTime } from '../../lib/format'
+import BrandMark from '../BrandMark'
 
 /**
  * Delivery tracker. Green while a shipment is moving, red (with the admin's reason)
@@ -65,7 +66,7 @@ export default function ShipmentTracker({ shipment: s }) {
     <article className="overflow-hidden border border-ink-900/10 bg-white" aria-label={`Shipment ${s.tracking}`}>
       {/* Banner */}
       <div className="on-dark grain relative flex h-24 items-center justify-between overflow-hidden bg-gradient-to-r from-ink-950 via-ink-900 to-ink-800 px-6 sm:px-8">
-        <span className="relative inline-flex border border-cream-50/70 px-4 py-2 font-display text-[19px] font-semibold italic tracking-[0.07em] text-cream-50">EVERIXA</span>
+        <BrandMark variant="dark" size="sm" />
         <div className="relative flex items-center gap-3 text-right">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-brass-300">Courier</p>
