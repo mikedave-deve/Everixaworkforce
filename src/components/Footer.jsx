@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { ArrowUpRight, Mail, Phone, MapPin } from 'lucide-react'
 import BrandMark from './BrandMark'
 import { offices } from '../data'
@@ -59,7 +59,7 @@ export default function Footer() {
                 <li key={o.city} className="flex items-start gap-3"><MapPin size={15} className="mt-0.5 shrink-0 text-brass-300" />{o.address}, {o.city}, {o.state} {o.zip}</li>
               ))}
               <li><a href="tel:+18632433789" className="flex items-center gap-3 hover:text-cream-50"><Phone size={15} className="shrink-0 text-brass-300" />(863) 243-3789</a></li>
-              <li><a href="mailto:info@everixaworkforce.com" className="flex items-center gap-3 hover:text-cream-50"><Mail size={15} className="shrink-0 text-brass-300" />info@everixaworkforce.com</a></li>
+              <li><a href="mailto:admin.everixaworkforce@gmail.com" className="flex items-center gap-3 hover:text-cream-50"><Mail size={15} className="shrink-0 text-brass-300" />admin.everixaworkforce@gmail.com</a></li>
             </ul>
           </div>
 

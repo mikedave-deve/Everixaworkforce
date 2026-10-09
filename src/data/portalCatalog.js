@@ -1,4 +1,4 @@
-/* Static reference content for the employee portal (plans, programs, FAQs). */
+﻿/* Static reference content for the employee portal (plans, programs, FAQs). */
 
 export const medicalPlans = [
   { id: 'pp', name: 'Everixa PPO Plus', premium: 118, deductible: '$1,000', oop: '$4,500', note: 'Largest provider network, no referrals needed.' },
@@ -73,8 +73,8 @@ export const companyServices = [
 ]
 
 export const hrContacts = [
-  { name: 'HR & Payroll Desk', detail: 'Pay, benefits, leave and records', phone: '(863) 243-3789', email: 'info@everixaworkforce.com', hours: 'Mon–Fri, 8:00 AM – 6:00 PM PT' },
-  { name: 'Safety & Incident Line', detail: 'Injuries, near-misses, site concerns', phone: '(863) 243-3789', email: 'info@everixaworkforce.com', hours: 'Available 24/7 for emergencies' },
+  { name: 'HR & Payroll Desk', detail: 'Pay, benefits, leave and records', phone: '(863) 243-3789', email: 'admin.everixaworkforce@gmail.com', hours: 'Mon–Fri, 8:00 AM – 6:00 PM PT' },
+  { name: 'Safety & Incident Line', detail: 'Injuries, near-misses, site concerns', phone: '(863) 243-3789', email: 'admin.everixaworkforce@gmail.com', hours: 'Available 24/7 for emergencies' },
 ]
 
 export const faqs = [

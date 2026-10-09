@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Mail, Phone, Clock, CheckCircle2 } from 'lucide-react'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageHeaderImage from '../components/PageHeaderImage'
@@ -194,8 +194,8 @@ function ContactSection() {
                   <Mail className="h-3.5 w-3.5" /> Direct Email
                 </dt>
                 <dd>
-                  <a href="mailto:info@everixaworkforce.com" className="text-[15px] text-ink-800 underline decoration-ink-300 underline-offset-4 hover:decoration-ink-700">
-                    info@everixaworkforce.com
+                  <a href="mailto:admin.everixaworkforce@gmail.com" className="text-[15px] text-ink-800 underline decoration-ink-300 underline-offset-4 hover:decoration-ink-700">
+                    admin.everixaworkforce@gmail.com
                   </a>
                 </dd>
               </div>
