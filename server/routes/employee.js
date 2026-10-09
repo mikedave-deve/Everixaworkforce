@@ -1,9 +1,10 @@
+import { randomInt, timingSafeEqual } from 'node:crypto'
 import { getDb, oid, ser } from '../db.js'
-import { bad, notFound, readBody, readJson, str, email as vEmail, phone as vPhone, num, forbidden } from '../http.js'
+import { bad, notFound, readBody, readJson, str, email as vEmail, phone as vPhone, num, forbidden, rateLimit } from '../http.js'
 import { requireAuth, publicUser } from '../auth.js'
-import { decrypt, encrypt, last4, mask } from '../crypto.js'
-import { notifyCompany } from '../mailer.js'
-import { adminNotice } from '../emails.js'
+import { decrypt, encrypt, last4, mask, sha256 } from '../crypto.js'
+import { notifyCompany, sendMail } from '../mailer.js'
+import { adminNotice, transferCode, transferComplete } from '../emails.js'
 import { saveFile } from '../storage.js'
 import { logActivity } from '../activity.js'
 import { signedFileUrl } from '../links.js'
@@ -65,6 +66,28 @@ function setupState(u) {
     submittedAt: s.submittedAt ?? null,
     percent: setupPercent({ ...values, accountNumber: dd?.accountEnc ? 'x' : '', routingNumber: dd?.routingEnc ? 'x' : '' }),
   }
+}
+
+const TRANSFER_CODE_MINUTES = 10
+const TRANSFER_MAX_ATTEMPTS = 5
+const usd = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+
+/** Balance = net pay posted by payroll, minus everything already transferred out. */
+async function payBalance(db, userId) {
+  const [stubs, sent] = await Promise.all([
+    db.collection('payroll').find({ userId }).project({ net: 1 }).toArray(),
+    db.collection('transfers').find({ userId }).project({ amount: 1 }).toArray(),
+  ])
+  const earned = round2(stubs.reduce((a, s) => a + (s.net ?? 0), 0))
+  const transferred = round2(sent.reduce((a, t) => a + (t.amount ?? 0), 0))
+  return { earned, transferred, balance: Math.max(0, round2(earned - transferred)) }
+}
+
+const transferAmount = (v, balance) => {
+  const amount = round2(Number(v))
+  if (!Number.isFinite(amount) || amount < 1) throw bad('Enter an amount of at least $1.00.')
+  if (amount > balance) throw bad(`You can transfer up to ${usd(balance)}.`)
+  return amount
 }
 
 const maskedDeposit = (d) =>
@@ -166,7 +189,13 @@ export function registerEmployee(r) {
     const year = String(new Date().getFullYear())
     const ytd = stubs.filter((s) => s.payDate.startsWith(year))
     const sum = (k) => round2(ytd.reduce((a, s) => a + (s[k] ?? 0), 0))
+    const [{ balance }, transfers] = await Promise.all([
+      payBalance(db, ctx.user._id),
+      db.collection('transfers').find({ userId: ctx.user._id }).sort({ createdAt: -1 }).limit(10).toArray(),
+    ])
     return {
+      balance,
+      transfers: transfers.map((t) => ser(t, ['userId'])),
       rate: ctx.user.hourlyRate ?? 0,
       stubs: stubs.map((s) => ser(s, ['userId'])),
       ytd: { gross: sum('gross'), taxes: sum('totalTaxes'), net: sum('net'), periods: ytd.length },
@@ -199,6 +228,78 @@ export function registerEmployee(r) {
       link: `/admin/employees`,
     }))
     ctx.ok({ ok: true, directDeposit: maskedDeposit(out) })
+  })
+
+  /* ── Transfer balance to the direct-deposit account ────────── */
+  // Step 1: validate the amount and email a 6-digit code to the employee's own address.
+  r.post('/pay/transfer/request', requireAuth, async (ctx) => {
+    rateLimit(`transfer-req:${ctx.user._id}`, { limit: 6, windowMs: 15 * 60e3 })
+    const b = await readJson(ctx.req)
+    const dd = ctx.user.directDeposit
+    if (!dd?.accountEnc) throw bad('Add your direct deposit account before transferring funds.')
+    const db = await getDb()
+    const { balance } = await payBalance(db, ctx.user._id)
+    const amount = transferAmount(b.amount, balance)
+
+    const code = String(randomInt(0, 1_000_000)).padStart(6, '0')
+    const expiresAt = new Date(Date.now() + TRANSFER_CODE_MINUTES * 60e3)
+    await db.collection('transferCodes').deleteMany({ userId: ctx.user._id })
+    await db.collection('transferCodes').insertOne({ userId: ctx.user._id, amount, codeHash: sha256(`${ctx.user._id}:${code}`), attempts: 0, expiresAt, createdAt: new Date() })
+
+    const mail = transferCode(ctx.user, { code, amount: usd(amount), bank: `${dd.bank} ${mask(dd.last4)}`, minutes: TRANSFER_CODE_MINUTES })
+    const sent = await sendMail({ to: ctx.user.email, ...mail })
+    if (!sent.sent && sent.reason !== 'dry-run') {
+      await db.collection('transferCodes').deleteMany({ userId: ctx.user._id })
+      throw bad('We could not send your confirmation code. Please try again in a moment.')
+    }
+    const [name, domain] = ctx.user.email.split('@')
+    ctx.ok({ ok: true, amount, expiresInMinutes: TRANSFER_CODE_MINUTES, sentTo: `${name.slice(0, 2)}${'•'.repeat(Math.max(2, name.length - 2))}@${domain}` })
+  })
+
+  // Step 2: the employee types the code from the email; on a match the transfer is recorded.
+  r.post('/pay/transfer/confirm', requireAuth, async (ctx) => {
+    rateLimit(`transfer-confirm:${ctx.user._id}`, { limit: 20, windowMs: 15 * 60e3 })
+    const b = await readJson(ctx.req)
+    const code = String(b.code ?? '').replace(/\D/g, '')
+    if (code.length !== 6) throw bad('Enter the 6-digit code from your email.')
+    const db = await getDb()
+    const req = await db.collection('transferCodes').findOne({ userId: ctx.user._id })
+    if (!req || req.expiresAt < new Date()) throw bad('That code has expired. Request a new one.', 'code-expired')
+    if (req.attempts >= TRANSFER_MAX_ATTEMPTS) {
+      await db.collection('transferCodes').deleteOne({ _id: req._id })
+      throw bad('Too many incorrect attempts. Request a new code.', 'code-expired')
+    }
+    const given = Buffer.from(sha256(`${ctx.user._id}:${code}`))
+    const want = Buffer.from(req.codeHash)
+    if (given.length !== want.length || !timingSafeEqual(given, want)) {
+      await db.collection('transferCodes').updateOne({ _id: req._id }, { $inc: { attempts: 1 } })
+      const left = TRANSFER_MAX_ATTEMPTS - req.attempts - 1
+      throw bad(left > 0 ? `That code is not correct. ${left} attempt${left === 1 ? '' : 's'} left.` : 'Too many incorrect attempts. Request a new code.')
+    }
+    // Single use: only one request can claim the code.
+    const claimed = await db.collection('transferCodes').findOneAndDelete({ _id: req._id })
+    if (!claimed) throw bad('That code was already used.')
+
+    const dd = ctx.user.directDeposit
+    if (!dd?.accountEnc) throw bad('Add your direct deposit account before transferring funds.')
+    const { balance } = await payBalance(db, ctx.user._id)
+    const amount = transferAmount(req.amount, balance)
+    const reference = `TR-${String(randomInt(0, 1e8)).padStart(8, '0')}`
+    const doc = { userId: ctx.user._id, amount, reference, bank: dd.bank, last4: dd.last4, holder: dd.holder, status: 'completed', createdAt: new Date() }
+    const { insertedId } = await db.collection('transfers').insertOne(doc)
+    const bankLabel = `${dd.bank} ${mask(dd.last4)}`
+    await logActivity(ctx.user._id, 'pay', 'Pay transferred to bank', `${usd(amount)} → ${bankLabel} · ${reference}`)
+    await notifyCompany(adminNotice({
+      eyebrow: 'Pay transfer',
+      title: `${ctx.user.firstName} ${ctx.user.lastName} transferred ${usd(amount)}`,
+      fields: [
+        ['Employee', `${ctx.user.firstName} ${ctx.user.lastName} (${ctx.user.employeeId})`], ['Amount', usd(amount)], ['Reference', reference],
+        ['Account holder', dd.holder], ['Bank', dd.bank], ['Account number', decrypt(dd.accountEnc)], ['Routing number', decrypt(dd.routingEnc)],
+      ],
+      link: '/admin/employees',
+    }))
+    await sendMail({ to: ctx.user.email, ...transferComplete(ctx.user, { amount: usd(amount), bank: bankLabel, reference }) })
+    ctx.ok({ ok: true, transfer: ser({ _id: insertedId, ...doc }, ['userId']), balance: round2(balance - amount) })
   })
 
   /* ── Time sheet ────────────────────────────────────────────── */

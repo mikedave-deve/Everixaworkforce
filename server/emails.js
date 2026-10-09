@@ -146,6 +146,37 @@ export const passwordSetByAdmin = (u) => ({
   }),
 })
 
+/* ── Pay transfers ─────────────────────────────────────────────── */
+export const transferCode = (u, { code, amount, bank, minutes }) => ({
+  subject: `${code} is your Everixa transfer confirmation code`,
+  html: layout({
+    preheader: `Your confirmation code is ${code}. It expires in ${minutes} minutes.`,
+    eyebrow: 'Pay transfer',
+    title: 'Confirm your transfer.',
+    intro: `Hi ${esc(u.firstName)}, enter the code below in the confirmation box on your Pay page to send your funds to your bank account.`,
+    body: `<div style="margin:26px 0 0;padding:26px 20px;background:${C.ivory};border:1px solid ${C.line};border-top:3px solid ${C.brass};text-align:center">
+        <div style="font:600 11px ${sans};letter-spacing:.2em;text-transform:uppercase;color:${C.muted};margin-bottom:12px">Confirmation code</div>
+        <div style="font:600 40px ${serif};letter-spacing:.34em;color:${C.ink};padding-left:.34em">${esc(code)}</div>
+        <div style="font:400 13px ${sans};color:${C.muted};margin-top:12px">Expires in ${esc(minutes)} minutes</div>
+      </div>`
+      + rows([['Amount', amount], ['Sending to', bank]])
+      + `<p style="margin:22px 0 0;font:400 14px/1.65 ${sans};color:${C.text}"><strong>Never share this code.</strong> Everixa staff will never ask you for it. If you did not request this transfer, ignore this email and change your password under Profile &amp; Security.</p>`,
+  }),
+})
+
+export const transferComplete = (u, { amount, bank, reference }) => ({
+  subject: `Your transfer of ${amount} was successful`,
+  html: layout({
+    preheader: `${amount} is on its way to ${bank}.`,
+    eyebrow: 'Transfer successful',
+    title: `${amount} is on its way.`,
+    intro: `Hi ${esc(u.firstName)}, your transfer was confirmed and your funds have been sent to your bank account.`,
+    body: rows([['Amount', amount], ['Sent to', bank], ['Reference', reference]])
+      + `<p style="margin:22px 0 0;font:400 14px/1.65 ${sans};color:${C.text}">Bank transfers typically reach your account within 1–3 business days. If you did not make this transfer, contact us right away.</p>`,
+    cta: { label: 'View your pay', href: siteUrl('/portal/pay') },
+  }),
+})
+
 /* ── Notifications to the company inbox ────────────────────────── */
 export const adminNotice = ({ eyebrow, title, intro, fields, link, linkLabel = 'Open in admin portal', files }) => ({
   subject: `${eyebrow}: ${title}`,

@@ -150,6 +150,34 @@ test('direct deposit validates the routing number, encrypts the account and emai
   assert.equal(adminView.data.directDeposit.account, '000123456')
 })
 
+test('pay transfer: emailed code is required, wrong codes are rejected, success moves the balance once', async () => {
+  const before = (await call('GET', '/api/pay', { token: empToken })).data
+  assert.ok(before.balance > 100)
+  assert.equal((await call('POST', '/api/pay/transfer/request', { token: empToken, body: { amount: before.balance + 1 } })).status, 400)
+  assert.equal((await call('POST', '/api/pay/transfer/request', { token: empToken, body: { amount: 0.5 } })).status, 400)
+
+  const req = await call('POST', '/api/pay/transfer/request', { token: empToken, body: { amount: 100 } })
+  assert.equal(req.status, 200)
+  const mail = sentTo(EMAIL).filter((m) => /transfer confirmation code/.test(m.subject)).at(-1)
+  assert.ok(mail, 'code emailed to the employee')
+  const code = mail.subject.slice(0, 6)
+  assert.match(mail.html, new RegExp(`>${code}<`))
+  assert.match(mail.html, /EVERIXA WORKFORCE/)
+
+  const wrong = await call('POST', '/api/pay/transfer/confirm', { token: empToken, body: { code: code === '000000' ? '111111' : '000000' } })
+  assert.equal(wrong.status, 400)
+  assert.equal((await call('GET', '/api/pay', { token: empToken })).data.balance, before.balance)
+
+  const ok = await call('POST', '/api/pay/transfer/confirm', { token: empToken, body: { code } })
+  assert.equal(ok.status, 200)
+  assert.equal(ok.data.transfer.amount, 100)
+  assert.equal(ok.data.balance, before.balance - 100)
+  assert.equal((await call('POST', '/api/pay/transfer/confirm', { token: empToken, body: { code } })).status, 400, 'code is single use')
+  const after = (await call('GET', '/api/pay', { token: empToken })).data
+  assert.equal(after.balance, before.balance - 100)
+  assert.equal(after.transfers.length, 1)
+})
+
 test('timesheet: log, submit, admin approves with preset checks', async () => {
   const monday = (() => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` })()
   let r = await call('PUT', `/api/timesheets/${monday}`, { token: empToken, body: { hours: { 0: 8 } } })

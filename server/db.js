@@ -58,6 +58,8 @@ async function ensureIndexes(db) {
   await db.collection('payroll').createIndex({ userId: 1, payDate: -1 })
   await db.collection('timesheets').createIndex({ userId: 1, week: 1 }, { unique: true })
   await db.collection('resets').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+  await db.collection('transferCodes').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+  await db.collection('transfers').createIndex({ userId: 1, createdAt: -1 })
 }
 
 export async function closeDb() {

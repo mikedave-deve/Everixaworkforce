@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Download, Landmark } from 'lucide-react'
 import { PageHead, Panel, Stat, TableWrap, th, td, Pill, Field, EmptyState, Loading, ErrorState, useAction, useToast } from '../../components/portal/ui'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../components/ui/Sheet'
+import TransferDialog from '../../components/portal/TransferDialog'
 import { api, downloadFile, useApi } from '../../lib/api'
 import { fmtDate, money } from '../../lib/format'
 
@@ -61,6 +62,7 @@ export default function PortalPay() {
   const { data, error, loading, reload } = useApi('/pay')
   const [selected, setSelected] = useState(null)
   const [formOpen, setFormOpen] = useState(false)
+  const [transferOpen, setTransferOpen] = useState(false)
 
   const [download, downloading] = useAction(async (stub) => {
     await downloadFile(`/pay/${stub.id}/pdf`, `earnings-statement-${stub.payDate}.pdf`)
@@ -70,7 +72,7 @@ export default function PortalPay() {
   if (loading) return <Loading />
   if (error) return <ErrorState error={error} onRetry={reload} />
 
-  const { stubs, ytd, directDeposit } = data
+  const { stubs, ytd, directDeposit, balance = 0, transfers = [] } = data
 
   return (
     <div>
@@ -116,6 +118,29 @@ export default function PortalPay() {
         </Panel>
 
         <div className="space-y-6">
+          <Panel title="Available balance" tone="dark">
+            <p className="font-num text-[2.6rem] leading-none text-cream-50">{money(balance)}</p>
+            <p className="mt-2 text-[13px] text-cream-100/65">Net pay posted by payroll, minus transfers you’ve made.</p>
+            <button
+              onClick={() => setTransferOpen(true)}
+              disabled={!directDeposit || balance < 1}
+              className="btn-light mt-5 w-full disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Transfer to bank
+            </button>
+            {!directDeposit && <p className="mt-3 text-[12px] text-brass-300">Add a direct deposit account to enable transfers.</p>}
+            {transfers.length > 0 && (
+              <ul className="mt-5 divide-y divide-cream-50/10 border-t border-cream-50/15 text-[13px]">
+                {transfers.slice(0, 3).map((t) => (
+                  <li key={t.id} className="flex justify-between gap-3 py-2.5">
+                    <span className="text-cream-100/70">{fmtDate(t.createdAt, { month: 'short', day: 'numeric' })} · {t.reference}</span>
+                    <span className="tabular-nums text-cream-50">−{money(t.amount)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+
           <Panel title="Direct deposit">
             {directDeposit ? (
               <div className="flex items-center gap-3">
@@ -132,6 +157,14 @@ export default function PortalPay() {
           </Panel>
         </div>
       </div>
+
+      <TransferDialog
+        open={transferOpen}
+        onClose={() => setTransferOpen(false)}
+        balance={balance}
+        bank={directDeposit ? `${directDeposit.bank} ${directDeposit.accountMasked}` : ''}
+        onDone={reload}
+      />
 
       <Sheet open={formOpen} onOpenChange={setFormOpen}>
         <SheetContent side="right" className="w-full max-w-md overflow-y-auto bg-cream-50 p-0 sm:max-w-md">
