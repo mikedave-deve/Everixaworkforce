@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, Mail, Phone, MapPin } from 'lucide-react'
 import BrandMark from './BrandMark'
+import { offices } from '../data'
 
 const footerLinks = {
   Company: [
@@ -54,7 +55,9 @@ export default function Footer() {
               We believe great placements change lives — and companies.
             </p>
             <ul className="mt-7 space-y-3 text-[14px] text-cream-100/75">
-              <li className="flex items-start gap-3"><MapPin size={15} className="mt-0.5 shrink-0 text-brass-300" />1200 Forest Way, Suite 400, Austin TX 78701</li>
+              {offices.map((o) => (
+                <li key={o.city} className="flex items-start gap-3"><MapPin size={15} className="mt-0.5 shrink-0 text-brass-300" />{o.address}, {o.city}, {o.state} {o.zip}</li>
+              ))}
               <li><a href="tel:+18632433789" className="flex items-center gap-3 hover:text-cream-50"><Phone size={15} className="shrink-0 text-brass-300" />(863) 243-3789</a></li>
               <li><a href="mailto:info@everixaworkforce.com" className="flex items-center gap-3 hover:text-cream-50"><Mail size={15} className="shrink-0 text-brass-300" />info@everixaworkforce.com</a></li>
             </ul>

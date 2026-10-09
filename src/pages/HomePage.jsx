@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import gsap from 'gsap'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, MapPin, Phone } from 'lucide-react'
 
-import { services, industries, testimonials, stats, jobs, wfhReasons, wfhAudiences, wfhNeeds } from '../data'
+import { services, industries, testimonials, stats, jobs, wfhReasons, wfhAudiences, wfhNeeds, offices } from '../data'
 import { useScrollReveal, useCounterAnimation } from '../hooks/useScrollReveal'
 import { SectionHead, CtaBand, Marquee } from '../components/Editorial'
 import ceoImage from '../assets/CEO.jpeg'
+import teamLogoImage from '../assets/everixa 1.jpg'
+import officeTeamImage from '../assets/everixa 2.jpg'
+import celebrationImage from '../assets/everixa 3.jpg'
+import eventBoothImage from '../assets/everixa 4.jpg'
 
 // ─── Hero background: looping footage on capable screens, still photo otherwise ──
 function useHeroVideoAllowed() {
@@ -68,6 +72,11 @@ function Hero() {
     >
       <HeroBackdrop />
 
+      <figure data-fade className="absolute right-[max(2rem,calc((100vw-80rem)/2+2rem))] top-32 hidden w-[17rem] rotate-2 border-[10px] border-cream-50 bg-cream-50 shadow-2xl xl:block">
+        <img src={teamLogoImage} alt="The Everixa Workforce team" className="aspect-[4/5] w-full object-cover" loading="eager" />
+        <figcaption className="px-1 pb-1 pt-3 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-800">The Everixa team</figcaption>
+      </figure>
+
       <div className="container-main relative pb-12 pt-36 md:pb-16">
         <p data-fade className="eyebrow mb-8">Work-from-home jobs · Since 2006</p>
 
@@ -127,6 +136,10 @@ function WorkFromHomeSection() {
           </div>
 
           <div className="reveal">
+            <figure className="relative mb-12">
+              <img src={officeTeamImage} alt="The Everixa team celebrating together in the office" className="aspect-[4/3] w-full object-cover shadow-xl" loading="lazy" />
+              <figcaption className="on-dark absolute -bottom-5 left-5 bg-ink-900 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-brass-300">Real people. Real support.</figcaption>
+            </figure>
             <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-brass-700">For every stage of life</p>
             <ul className="border-t border-ink-900/15">
               {wfhAudiences.map((a) => (
@@ -167,6 +180,7 @@ function FeaturedJobs() {
           lede="Every role is fully work from home and shows its approved hourly wage, so there are no surprises."
           action={<Link to="/jobs" className="link-arrow">See all remote jobs <ArrowRight size={14} /></Link>}
         />
+        <div>
         <ul className="border-t border-ink-900/15">
           {featured.map((job) => (
             <li key={job.id} className="reveal border-b border-ink-900/15">
@@ -184,6 +198,65 @@ function FeaturedJobs() {
             </li>
           ))}
         </ul>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── Culture banner ────────────────────────────────────────────────────────
+function CultureBanner() {
+  return (
+    <section className="on-dark relative isolate overflow-hidden bg-ink-950">
+      <img src={celebrationImage} alt="The Everixa team celebrating behind illuminated EVERIXA letters" className="absolute inset-0 -z-10 h-full w-full object-cover object-[center_35%]" loading="lazy" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink-950/90 via-ink-950/55 to-ink-950/10" />
+      <div className="container-main flex min-h-[32rem] items-end py-16 md:min-h-[40rem] md:py-24">
+        <div className="max-w-xl">
+          <p className="eyebrow mb-6">Life at Everixa</p>
+          <h2 className="section-title text-cream-50">A team that <em className="text-brass-300">celebrates you.</em></h2>
+          <p className="mt-6 text-[16px] leading-relaxed text-cream-100/80">
+            Behind every placement is a group of people who genuinely care. Join a workplace where wins are shared and every voice counts.
+          </p>
+          <Link to="/staff" className="btn-light mt-8">Meet the Team <ArrowRight size={16} /></Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── In person: events + offices ───────────────────────────────────────────
+function MeetUsSection() {
+  const ref = useScrollReveal('.reveal')
+  return (
+    <section className="section-wrapper bg-cream-50" ref={ref}>
+      <div className="container-main">
+        <div className="grid items-center gap-14 lg:grid-cols-[1fr_1fr] lg:gap-24">
+          <div className="reveal order-2 lg:order-1">
+            <p className="eyebrow mb-6"><span className="font-num text-[13px] font-medium normal-case tracking-[0.08em]">08</span>Meet us in person</p>
+            <h2 className="section-title mb-8">Find us at an event, <em className="text-brass-700">or at our door.</em></h2>
+            <p className="mb-8 max-w-lg text-[16px] leading-relaxed text-ink-700/85">
+              We attend career fairs and host open conversations all year. Scan the code at our booth, or visit one of our offices.
+            </p>
+            <ul className="border-t border-ink-900/15">
+              {offices.map((o) => (
+                <li key={o.city} className="flex items-start gap-4 border-b border-ink-900/15 py-4">
+                  <MapPin size={16} className="mt-1 shrink-0 text-brass-600" />
+                  <div>
+                    <p className="font-display text-xl leading-tight text-ink-900">
+                      {o.city}, {o.state}
+                      {o.primary && <span className="ml-3 align-middle text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">HQ</span>}
+                    </p>
+                    <p className="text-[14px] text-ink-700/80">{o.address}, {o.city}, {o.state} {o.zip}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <a href="tel:+18632433789" className="link-arrow mt-8"><Phone size={14} /> (863) 243-3789</a>
+          </div>
+          <figure className="reveal order-1 lg:order-2">
+            <img src={eventBoothImage} alt="The Everixa Workforce team at a career fair booth" className="aspect-[4/5] w-full object-cover shadow-xl" loading="lazy" />
+          </figure>
+        </div>
       </div>
     </section>
   )
@@ -399,8 +472,10 @@ export default function HomePage() {
       <ServicesPreview />
       <StatsSection />
       <IndustriesPreview />
+      <CultureBanner />
       <TestimonialsSection />
       <EmployeeRecognitionSection />
+      <MeetUsSection />
       <CtaBand
         eyebrow="Ready to start?"
         title={<>The right hire <em className="text-brass-700">changes everything.</em></>}

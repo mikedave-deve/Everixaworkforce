@@ -356,11 +356,17 @@ export const team = [
 // ─────────────────────────────────────────────
 //  TIMELINE DATA
 // ─────────────────────────────────────────────
+export const offices = [
+  { city: 'Chicago',       state: 'IL', address: '110 N Wacker Drive',   zip: '60606', primary: true },
+  { city: 'San Francisco', state: 'CA', address: '101 California Street', zip: '94111' },
+  { city: 'Boston',        state: 'MA', address: '1 Federal Street',      zip: '02110' },
+]
+
 export const timeline = [
-  { year: '2006', event: 'Everixa Workforce founded in Portland, OR to help people find flexible, work-from-home jobs.' },
+  { year: '2006', event: 'Everixa Workforce founded in Chicago, IL to help people find flexible, work-from-home jobs.' },
   { year: '2010', event: 'Grew our customer support and administrative teams to a group of 12 specialists.' },
   { year: '2014', event: 'Launched virtual team building so employers could hire whole remote teams at once.' },
-  { year: '2018', event: 'Opened support hubs in Seattle and San Francisco. Surpassed 500 active client accounts.' },
+  { year: '2018', event: 'Opened offices in San Francisco and Boston. Surpassed 500 active client accounts.' },
   { year: '2022', event: 'Added bookkeeping, payroll and medical billing roles for people working from home.' },
   { year: '2024', event: 'Reached 1,400 placements, nearly all fully remote.' },
 ]

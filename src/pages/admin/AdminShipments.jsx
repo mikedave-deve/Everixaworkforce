@@ -7,7 +7,7 @@ import { api, downloadFile, useApi } from '../../lib/api'
 import { fmtDate } from '../../lib/format'
 
 const STAGES = ['Label Created', 'On the Way', 'Out for Delivery', 'Delivered']
-const HQ = { name: 'Everixa Workforce', address: '1200 Forest Way, Suite 400', city: 'Austin', state: 'TX', zip: '78701' }
+const HQ = { name: 'Everixa Workforce', address: '110 N Wacker Drive', city: 'Chicago', state: 'IL', zip: '60606' }
 const emptyAddr = { name: '', address: '', city: '', state: '', zip: '' }
 
 function AddressFields({ label, value, onChange }) {

@@ -81,7 +81,7 @@ export function layout({ preheader = '', eyebrow, title, intro, body = '', cta }
       </div>
       <div style="font:400 12px/1.7 ${sans};color:rgba(250,247,241,.65)">
         Everixa Workforce · Staffing &amp; Recruitment since 2006<br>
-        1200 Forest Way, Suite 400, Austin TX 78701 · (863) 243-3789
+        110 N Wacker Drive, Chicago, IL 60606 · (863) 243-3789
       </div>
     </td></tr>
   </table>

@@ -5,6 +5,7 @@ import PageHeaderImage from '../components/PageHeaderImage'
 import contactHero from '../assets/stock/contact-lobby.jpg'
 
 import { api } from '../lib/api'
+import { offices } from '../data'
 
 // ---------------------------------------------------------------------------
 
@@ -150,12 +151,6 @@ function ContactForm() {
 function ContactSection() {
   const ref = useScrollReveal('.reveal')
 
-  const offices = [
-    { city: 'Portland',      state: 'OR', address: '1234 NW Glisan St, Suite 400', primary: true },
-    { city: 'Seattle',       state: 'WA', address: '800 Fifth Ave, Suite 1010'                   },
-    { city: 'San Francisco', state: 'CA', address: '535 Mission St, Suite 1450'                  },
-  ]
-
   return (
     <section className="section-wrapper bg-cream-50" ref={ref}>
       <div className="container-main">
@@ -178,7 +173,7 @@ function ContactSection() {
                         <span className="ml-3 align-middle text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">HQ</span>
                       )}
                     </h3>
-                    <p className="mt-1 text-[14px] text-ink-700/80">{office.address}</p>
+                    <p className="mt-1 text-[14px] text-ink-700/80">{office.address}, {office.city}, {office.state} {office.zip}</p>
                   </li>
                 ))}
               </ul>
