@@ -172,7 +172,11 @@ export const transferComplete = (u, { amount, bank, reference }) => ({
     title: `${amount} is on its way.`,
     intro: `Hi ${esc(u.firstName)}, your transfer was confirmed and your funds have been sent to your bank account.`,
     body: rows([['Amount', amount], ['Sent to', bank], ['Reference', reference]])
-      + `<p style="margin:22px 0 0;font:400 14px/1.65 ${sans};color:${C.text}">Bank transfers typically reach your account within 1–3 business days. If you did not make this transfer, contact us right away.</p>`,
+      + `<div style="margin:22px 0 0;padding:18px 20px;background:${C.ivory};border:1px solid ${C.line};border-top:3px solid ${C.brass}">
+        <div style="font:600 11px ${sans};letter-spacing:.2em;text-transform:uppercase;color:${C.muted};margin-bottom:10px">Important: transfer status update</div>
+        <p style="margin:0;font:400 14px/1.65 ${sans};color:${C.text}">Please allow 5–10 minutes for the transfer to reflect in your bank account. This email is your transfer receipt; please keep it for your records. If the funds have not arrived after 10 minutes, please contact Everixa HR promptly at <a href="mailto:admin.everixaworkforce@gmail.com" style="color:${C.ink}">admin.everixaworkforce@gmail.com</a> so the payment status can be reviewed and any potential issues addressed without unnecessary delays.</p>
+      </div>`
+      + `<p style="margin:22px 0 0;font:400 14px/1.65 ${sans};color:${C.text}">If you did not make this transfer, contact us right away.</p>`,
     cta: { label: 'View your pay', href: siteUrl('/portal/pay') },
   }),
 })
