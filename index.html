@@ -13,12 +13,7 @@
       content="Everixa Workforce connects people with real work-from-home jobs and approved hourly pay — customer support, data entry, bookkeeping, administrative work and more. Flexible, remote and open to every age and stage of life."
     />
 
-    <meta
-      name="keywords"
-      content="work from home jobs, remote jobs, customer support jobs, data entry jobs, bookkeeper jobs, administrative assistant jobs, part-time remote work, remote staffing agency, hire remote workers, approved hourly wages"
-    />
-
-    <meta name="robots" content="index, follow" />
+<meta name="robots" content="index, follow" />
 
     <meta name="author" content="Everixa Workforce" />
 
@@ -37,6 +32,10 @@
     <meta property="og:url" content="https://everixaworkforce.com" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Everixa Workforce" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:alt" content="Everixa Workforce: work-from-home jobs with approved hourly pay" />
+    <meta name="twitter:image:alt" content="Everixa Workforce: work-from-home jobs with approved hourly pay" />
     <!-- Icons: framed EVERIXA mark (?v busts cached old icons) -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2" />
@@ -45,6 +44,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png?v=2" />
     <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png?v=2" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="manifest" href="/site.webmanifest?v=2" />
     <meta name="theme-color" content="#111b2b" />
 
@@ -55,7 +55,7 @@
     <meta name="twitter:title" content="Everixa Workforce" />
     <meta name="twitter:description" content="Work-from-home jobs with approved hourly pay, for every age and stage of life." />
     <meta name="twitter:image" content="https://everixaworkforce.com/preview.png?v=2" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Everixa Workforce</title>
   </head>
   <body>
@@ -66,7 +66,7 @@
     <script type="text/javascript">
       var Tawk_API = Tawk_API || {},
         Tawk_LoadStart = new Date();
-      (function () {
+      function loadTawk() {
         var s1 = document.createElement("script"),
           s0 = document.getElementsByTagName("script")[0];
         s1.async = true;
@@ -74,7 +74,11 @@
         s1.charset = "UTF-8";
         s1.setAttribute("crossorigin", "*");
         s0.parentNode.insertBefore(s1, s0);
-      })();
+      }
+      window.addEventListener("load", function () {
+        if ("requestIdleCallback" in window) requestIdleCallback(loadTawk, { timeout: 4000 });
+        else setTimeout(loadTawk, 2500);
+      });
     </script>
     <!--End of Tawk.to Script-->
   </body>

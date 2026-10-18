@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Check } from 'lucide-react'
-import { services } from '../data'
+import { services, serviceFaqs as faqs } from '../data'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent
@@ -92,14 +92,6 @@ function ProcessSection() {
 
 function FAQSection() {
   const ref = useScrollReveal('.reveal')
-  const faqs = [
-    { q: 'How quickly can I get someone started?', a: 'For most roles we present a shortlist within 7-10 business days. Part-time and flexible roles can often start within 48-72 hours.' },
-    { q: 'Can people really work from anywhere in the U.S.?', a: 'Yes. All of our roles are work from home and we place people across the continental U.S. We handle payroll and paperwork for each state.' },
-    { q: 'What is your placement guarantee for direct hires?', a: 'All direct placements include a 90-day guarantee. If a placed team member leaves for any reason within 90 days, we run a replacement search at no extra fee.' },
-    { q: 'How do you check candidates before you introduce them?', a: 'Every candidate has a friendly phone conversation with our team. We check their skills, their availability and that they have a computer, internet and a quiet place to work.' },
-    { q: 'Do you handle payroll for part-time and contract workers?', a: 'Yes. Contract and part-time team members are W-2 employees of Everixa Workforce. We handle payroll, taxes and workers\' compensation, and can include health benefits.' },
-    { q: 'How are your fees structured?', a: 'Direct placement fees are a percentage of the first-year pay, agreed in advance. Contract staffing is billed at an hourly rate that includes our fee. Wages follow the approved hourly ranges.' },
-  ]
   return (
     <section className="section-wrapper bg-cream-50" ref={ref}>
       <div className="container-main">

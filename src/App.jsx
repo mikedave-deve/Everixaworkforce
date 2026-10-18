@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
 import PreLoader from "./components/PreLoader";
 import RootLayout from "./layout/RootLayout";
-import PortalLayout from "./layout/PortalLayout";
-import AdminLayout from "./layout/AdminLayout";
 import RequireAuth from "./components/RequireAuth";
+import RouteSeo from "./components/RouteSeo";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
 import ServicesPage from "./pages/ServicesPage";
@@ -16,34 +15,38 @@ import ContactPage from "./pages/ContactPage";
 import SubmitResumePage from "./pages/SubmitResumePage";
 import ApplyNowPage from "./pages/ApplyNowPage";
 import MeetOurStaffPage from "./pages/MeetOurStaffPage";
-import LoginPage from "./pages/auth/LoginPage";
-import SignupPage from "./pages/auth/SignupPage";
-import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
-import PortalOverview from "./pages/portal/PortalOverview";
-import PortalMissions from "./pages/portal/PortalMissions";
-import PortalActivity from "./pages/portal/PortalActivity";
-import PortalPay from "./pages/portal/PortalPay";
-import PortalTaxForms from "./pages/portal/PortalTaxForms";
-import PortalTimesheet from "./pages/portal/PortalTimesheet";
-import PortalTimeOff from "./pages/portal/PortalTimeOff";
-import PortalBenefits from "./pages/portal/PortalBenefits";
-import PortalServices from "./pages/portal/PortalServices";
-import PortalEquipment from "./pages/portal/PortalEquipment";
-import PortalSetup from "./pages/portal/PortalSetup";
-import PortalIdentity from "./pages/portal/PortalIdentity";
-import PortalDocuments from "./pages/portal/PortalDocuments";
-import PortalProfile from "./pages/portal/PortalProfile";
-import PortalHelp from "./pages/portal/PortalHelp";
-import AdminOverview from "./pages/admin/AdminOverview";
-import AdminApprovals from "./pages/admin/AdminApprovals";
-import AdminEmployees from "./pages/admin/AdminEmployees";
-import AdminMissions from "./pages/admin/AdminMissions";
-import AdminPay from "./pages/admin/AdminPay";
-import AdminTax from "./pages/admin/AdminTax";
-import AdminShipments from "./pages/admin/AdminShipments";
-import AdminDocuments from "./pages/admin/AdminDocuments";
-import AdminInbox from "./pages/admin/AdminInbox";
+
+// Private areas load on demand so the public marketing pages ship a much smaller bundle.
+const PortalLayout = lazy(() => import("./layout/PortalLayout"));
+const AdminLayout = lazy(() => import("./layout/AdminLayout"));
+const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
+const SignupPage = lazy(() => import("./pages/auth/SignupPage"));
+const ForgotPasswordPage = lazy(() => import("./pages/auth/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/auth/ResetPasswordPage"));
+const PortalOverview = lazy(() => import("./pages/portal/PortalOverview"));
+const PortalMissions = lazy(() => import("./pages/portal/PortalMissions"));
+const PortalActivity = lazy(() => import("./pages/portal/PortalActivity"));
+const PortalPay = lazy(() => import("./pages/portal/PortalPay"));
+const PortalTaxForms = lazy(() => import("./pages/portal/PortalTaxForms"));
+const PortalTimesheet = lazy(() => import("./pages/portal/PortalTimesheet"));
+const PortalTimeOff = lazy(() => import("./pages/portal/PortalTimeOff"));
+const PortalBenefits = lazy(() => import("./pages/portal/PortalBenefits"));
+const PortalServices = lazy(() => import("./pages/portal/PortalServices"));
+const PortalEquipment = lazy(() => import("./pages/portal/PortalEquipment"));
+const PortalSetup = lazy(() => import("./pages/portal/PortalSetup"));
+const PortalIdentity = lazy(() => import("./pages/portal/PortalIdentity"));
+const PortalDocuments = lazy(() => import("./pages/portal/PortalDocuments"));
+const PortalProfile = lazy(() => import("./pages/portal/PortalProfile"));
+const PortalHelp = lazy(() => import("./pages/portal/PortalHelp"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminApprovals = lazy(() => import("./pages/admin/AdminApprovals"));
+const AdminEmployees = lazy(() => import("./pages/admin/AdminEmployees"));
+const AdminMissions = lazy(() => import("./pages/admin/AdminMissions"));
+const AdminPay = lazy(() => import("./pages/admin/AdminPay"));
+const AdminTax = lazy(() => import("./pages/admin/AdminTax"));
+const AdminShipments = lazy(() => import("./pages/admin/AdminShipments"));
+const AdminDocuments = lazy(() => import("./pages/admin/AdminDocuments"));
+const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
 
 /** Sends the user to the login page whenever the API reports their session has ended. */
 function SessionWatcher() {
@@ -62,7 +65,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <SessionWatcher />
+      <RouteSeo />
       {loading && <PreLoader onFinish={() => setLoading(false)} />}
+      <Suspense fallback={null}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
@@ -144,6 +149,7 @@ export default function App() {
           />
         </Route>
       </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

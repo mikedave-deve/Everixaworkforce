@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /portal/
+Disallow: /admin/
 
-Sitemap: https://everixaworkforce.com/sitemap.xml 
+Sitemap: https://everixaworkforce.com/sitemap.xml
