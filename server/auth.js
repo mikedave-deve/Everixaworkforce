@@ -42,11 +42,15 @@ export function deviceLabel(ua = '') {
   return `${br} on ${os}`
 }
 
-export async function createSession(user, { remember, req, ip }) {
+/** Admin "view as employee" sessions are short-lived and read-only. */
+export const IMPERSONATION_HOURS = 2
+
+export async function createSession(user, { remember, req, ip, impersonatedBy }) {
   const cfg = assertConfig()
   const days = remember ? cfg.jwtDaysRemember : cfg.jwtDays
   const db = await getDb()
-  const expiresAt = new Date(Date.now() + days * 864e5)
+  const ttlMs = impersonatedBy ? IMPERSONATION_HOURS * 36e5 : days * 864e5
+  const expiresAt = new Date(Date.now() + ttlMs)
   const { insertedId } = await db.collection('sessions').insertOne({
     userId: user._id,
     device: deviceLabel(req.headers['user-agent']),
@@ -54,13 +58,16 @@ export async function createSession(user, { remember, req, ip }) {
     createdAt: new Date(),
     lastSeenAt: new Date(),
     expiresAt,
+    ...(impersonatedBy ? { impersonatedBy: oid(impersonatedBy) } : {}),
   })
-  const token = jwt.sign({ sub: String(user._id), sid: String(insertedId), role: user.role }, cfg.jwtSecret, { expiresIn: `${days}d` })
+  const token = jwt.sign({ sub: String(user._id), sid: String(insertedId), role: user.role }, cfg.jwtSecret, {
+    expiresIn: impersonatedBy ? `${IMPERSONATION_HOURS}h` : `${days}d`,
+  })
   return { token, sessionId: String(insertedId), expiresAt }
 }
 
 /** Attaches ctx.user / ctx.session from the Bearer token, or throws 401. */
-export async function authenticate(ctx) {
+export async function authenticate(ctx, { allowWriteWhileViewing = false } = {}) {
   const header = ctx.req.headers.authorization ?? ''
   const token = header.startsWith('Bearer ') ? header.slice(7) : ''
   if (!token) throw new HttpError(401, 'Please sign in.', 'unauthenticated')
@@ -76,6 +83,11 @@ export async function authenticate(ctx) {
   const user = await db.collection('users').findOne({ _id: oid(payload.sub) })
   if (!user || user.status !== 'approved') throw new HttpError(401, 'This account is not active.', 'unauthenticated')
 
+  // An administrator viewing the portal as an employee may look but never change anything.
+  if (session.impersonatedBy && !allowWriteWhileViewing && !['GET', 'HEAD'].includes(ctx.req.method)) {
+    throw new HttpError(403, 'You are viewing this portal as the employee, so it is read-only. Return to the admin portal to make changes.', 'view-only')
+  }
+
   if (Date.now() - session.lastSeenAt.getTime() > 5 * 60 * 1000) {
     db.collection('sessions').updateOne({ _id: session._id }, { $set: { lastSeenAt: new Date() } }).catch(() => {})
   }
@@ -85,6 +97,11 @@ export async function authenticate(ctx) {
 
 export async function requireAuth(ctx) {
   await authenticate(ctx)
+}
+
+/** Like requireAuth, but still allowed while an administrator is viewing as an employee (e.g. ending that view). */
+export async function requireAuthEvenWhenViewing(ctx) {
+  await authenticate(ctx, { allowWriteWhileViewing: true })
 }
 
 export async function requireAdmin(ctx) {

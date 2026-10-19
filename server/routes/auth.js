@@ -1,7 +1,7 @@
 import { getDb, oid } from '../db.js'
 import { bad, email as vEmail, forbidden, phone as vPhone, rateLimit, readBody, readJson, str, HttpError } from '../http.js'
 import {
-  authenticate, checkPassword, createSession, ensureAdmin, hashPassword, publicUser, requireAuth, validatePassword,
+  authenticate, checkPassword, createSession, ensureAdmin, hashPassword, publicUser, requireAuth, requireAuthEvenWhenViewing, validatePassword,
 } from '../auth.js'
 import { getConfig } from '../config.js'
 import { randomToken, sha256 } from '../crypto.js'
@@ -81,7 +81,7 @@ export function registerAuth(r) {
     return ctx.ok({ token, expiresAt, user: publicUser(user) })
   })
 
-  r.post('/auth/logout', requireAuth, async (ctx) => {
+  r.post('/auth/logout', requireAuthEvenWhenViewing, async (ctx) => {
     const db = await getDb()
     await db.collection('sessions').deleteOne({ _id: ctx.session._id })
     ctx.ok()

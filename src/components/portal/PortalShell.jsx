@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate, Link, useLocation } from 'react-router-dom'
-import { LogOut, Menu, ExternalLink } from 'lucide-react'
+import { LogOut, Menu, ExternalLink, Eye, ArrowLeft } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '../ui/Sheet'
 import { Avatar, ToastProvider } from './ui'
 import BrandMark from '../BrandMark'
-import { logout } from '../../lib/auth'
+import { exitViewAsEmployee, isViewingAsEmployee, logout } from '../../lib/auth'
 import { useSession } from '../../lib/useSession'
 import { cn } from '../../lib/utils'
 
@@ -13,7 +13,14 @@ function SidebarNav({ onNavigate, navGroups, label }) {
   const session = useSession()
   const navigate = useNavigate()
 
+  const viewing = isViewingAsEmployee()
+
   async function handleLogout() {
+    if (viewing) {
+      await exitViewAsEmployee()
+      navigate('/admin/employees', { replace: true })
+      return
+    }
     await logout()
     navigate('/login', { replace: true })
   }
@@ -63,7 +70,7 @@ function SidebarNav({ onNavigate, navGroups, label }) {
           <ExternalLink className="h-[17px] w-[17px]" strokeWidth={1.6} /> View public site
         </Link>
         <button onClick={handleLogout} className="flex w-full items-center gap-3 px-3 py-2 text-[14px] text-cream-100/65 transition-colors hover:text-cream-50">
-          <LogOut className="h-[17px] w-[17px]" strokeWidth={1.6} /> Sign out
+          {viewing ? <ArrowLeft className="h-[17px] w-[17px]" strokeWidth={1.6} /> : <LogOut className="h-[17px] w-[17px]" strokeWidth={1.6} />} {viewing ? 'Back to admin' : 'Sign out'}
         </button>
       </div>
 
@@ -79,6 +86,22 @@ function SidebarNav({ onNavigate, navGroups, label }) {
 }
 
 /** Shared chrome for the employee and admin portals: ink sidebar, mobile drawer, toasts. */
+function ViewingBanner() {
+  const session = useSession()
+  const navigate = useNavigate()
+  if (!isViewingAsEmployee()) return null
+  async function back() {
+    await exitViewAsEmployee()
+    navigate('/admin/employees', { replace: true })
+  }
+  return (
+    <div role="status" className="sticky top-0 z-40 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 bg-brass-400 px-4 py-2 text-[13px] font-medium text-ink-950">
+      <span className="flex items-center gap-2"><Eye size={15} /> Viewing as <strong>{session?.name}</strong> · read-only, ends automatically after 2 hours</span>
+      <button onClick={back} className="underline underline-offset-4 hover:no-underline">Back to admin portal</button>
+    </div>
+  )
+}
+
 export default function PortalShell({ navGroups, label, home }) {
   const allItems = navGroups.flatMap((g) => g.items)
   const [open, setOpen] = useState(false)
@@ -87,6 +110,7 @@ export default function PortalShell({ navGroups, label, home }) {
 
   return (
     <ToastProvider>
+      <ViewingBanner />
       <div className="flex min-h-screen bg-cream-50">
         <aside className="sticky top-0 hidden h-screen w-72 shrink-0 bg-ink-950 lg:block">
           <SidebarNav navGroups={navGroups} label={label} />

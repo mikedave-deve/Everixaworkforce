@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Copy, Eye, EyeOff, KeyRound, Search, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Copy, Eye, EyeOff, KeyRound, LogIn, Search, Trash2 } from 'lucide-react'
 import { PageHead, Panel, Pill, Field, TableWrap, th, td, EmptyState, Loading, ErrorState, Avatar, useAction, useToast } from '../../components/portal/ui'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../components/ui/Sheet'
 import { api, useApi } from '../../lib/api'
 import { fmtDate, money } from '../../lib/format'
+import { viewAsEmployee } from '../../lib/auth'
 
 const ID_TONE = { none: ['neutral', 'Not started'], submitted: ['info', 'Under review'], verified: ['success', 'Verified'], rejected: ['danger', 'Rejected'] }
 
@@ -12,6 +14,11 @@ function EmployeeDetail({ id, onClose, onSaved }) {
   const { data, loading, error } = useApi(id ? `/admin/employees/${id}` : null)
   const [form, setForm] = useState(null)
   const [reveal, setReveal] = useState(false)
+  const navigate = useNavigate()
+  const [openPortal, opening] = useAction(async () => {
+    await viewAsEmployee(id)
+    navigate('/portal')
+  })
 
   if (data && !form) {
     const e = data.employee
@@ -62,6 +69,13 @@ function EmployeeDetail({ id, onClose, onSaved }) {
                 <SheetTitle className="font-display text-[1.9rem] font-medium leading-tight text-ink-900">{data.employee.name}</SheetTitle>
                 <p className="text-[13px] text-ink-600">{data.employee.email} · {data.employee.phone}</p>
               </SheetHeader>
+
+              {data.employee.status === 'approved' && (
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border border-ink-900/10 bg-white p-4">
+                  <p className="max-w-xs text-[13px] leading-relaxed text-ink-600">See the employee portal exactly as {data.employee.firstName} sees it. View-only; nothing can be changed.</p>
+                  <button type="button" onClick={openPortal} disabled={opening} className="btn-primary"><LogIn size={15} /> {opening ? 'Opening…' : 'View portal'}</button>
+                </div>
+              )}
 
               <form onSubmit={save} className="space-y-5">
                 <div className="grid gap-5 sm:grid-cols-2">

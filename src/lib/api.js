@@ -27,6 +27,8 @@ const BASE = (() => {
 })()
 const TOKEN_KEY = 'everixa_token'
 const USER_KEY = 'everixa_user'
+// While an administrator is viewing the employee portal, their own session waits here (this tab only).
+const ADMIN_BACKUP_KEY = 'everixa_admin_backup'
 
 const stores = () => [localStorage, sessionStorage]
 
@@ -70,6 +72,33 @@ export function storedUser() {
   return null
 }
 
+/** Remembers the admin's own session before they step into an employee's portal. */
+export function stashAdminSession() {
+  const token = getToken()
+  if (!token) return
+  let remember = false
+  try { remember = Boolean(localStorage.getItem(TOKEN_KEY)) } catch { /* ignore */ }
+  sessionStorage.setItem(ADMIN_BACKUP_KEY, JSON.stringify({ token, user: storedUser(), remember }))
+}
+
+export function isViewingAsEmployee() {
+  try { return Boolean(sessionStorage.getItem(ADMIN_BACKUP_KEY)) } catch { return false }
+}
+
+/** Puts the admin's own session back. Returns false when there was nothing to restore. */
+export function restoreAdminSession() {
+  try {
+    const raw = sessionStorage.getItem(ADMIN_BACKUP_KEY)
+    if (!raw) return false
+    const { token, user, remember } = JSON.parse(raw)
+    sessionStorage.removeItem(ADMIN_BACKUP_KEY)
+    saveSession(token, user, remember)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export class ApiError extends Error {
   constructor(message, status, code) {
     super(message)
@@ -100,6 +129,12 @@ async function request(path, { method = 'GET', body, raw, headers = {}, auth = t
     let data = {}
     try { data = await res.json() } catch { /* no body */ }
     if (res.status === 401 && auth && token) {
+      // A "view as employee" session ended or expired: go back to the admin portal rather than signing out.
+      if (restoreAdminSession()) {
+        window.dispatchEvent(new CustomEvent('everixa:user-updated'))
+        window.location.assign('/admin/employees')
+        throw new ApiError('Your view of the employee portal has ended.', 401, 'view-ended')
+      }
       clearSession()
       window.dispatchEvent(new CustomEvent('everixa:signed-out'))
     }

@@ -466,3 +466,26 @@ test('admin can set a new password for an employee, and delete an employee', asy
   const after = (await call('GET', '/api/admin/employees?status=approved', { token: adminToken })).data.employees
   assert.ok(!after.some((e) => e.id === bo.id))
 })
+
+test('admin can view an employee portal read-only; the admin session is untouched', async () => {
+  const emps = (await call('GET', '/api/admin/employees?status=approved', { token: adminToken })).data.employees
+  const ava = emps.find((e) => e.email === EMAIL)
+  const freshEmp = (await call('POST', '/api/auth/login', { body: { email: EMAIL, password: 'Another1234' } })).data.token
+  assert.equal((await call('POST', `/api/admin/employees/${ava.id}/impersonate`, { token: freshEmp })).status, 403, 'employees cannot impersonate')
+
+  const view = await call('POST', `/api/admin/employees/${ava.id}/impersonate`, { token: adminToken })
+  assert.equal(view.status, 200)
+  assert.equal(view.data.user.email, EMAIL)
+  const t = view.data.token
+
+  assert.equal((await call('GET', '/api/auth/me', { token: t })).data.user.email, EMAIL, 'sees the employee portal data')
+  assert.equal((await call('GET', '/api/admin/overview', { token: t })).status, 403, 'the view gives no admin powers')
+  const write = await call('PATCH', '/api/me', { token: t, body: { firstName: 'X', lastName: 'Y', phone: '5551234567' } })
+  assert.equal(write.status, 403)
+  assert.equal(write.data.code, 'view-only')
+  assert.equal((await call('POST', '/api/me/password', { token: t, body: { current: 'x', next: 'Whatever123' } })).status, 403)
+
+  assert.equal((await call('POST', '/api/auth/logout', { token: t })).status, 200, 'ending the view is allowed')
+  assert.equal((await call('GET', '/api/auth/me', { token: t })).status, 401)
+  assert.equal((await call('GET', '/api/admin/overview', { token: adminToken })).status, 200, 'admin still signed in')
+})

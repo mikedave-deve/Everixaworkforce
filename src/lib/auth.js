@@ -1,4 +1,4 @@
-import { api, clearSession, getToken, saveSession, storedUser, updateStoredUser } from './api'
+import { api, clearSession, getToken, isViewingAsEmployee, restoreAdminSession, saveSession, stashAdminSession, storedUser, updateStoredUser } from './api'
 
 /** Synchronous view of the signed-in user (cached from the last API response). */
 export function getSession() {
@@ -18,6 +18,24 @@ export async function login({ email, password, remember }) {
 export function signup(form) {
   return api.post('/auth/signup', form, { auth: false })
 }
+
+/** Admin only: opens an employee's portal exactly as they see it (read-only, ends after 2 hours). */
+export async function viewAsEmployee(employeeId) {
+  const { token, user } = await api.post(`/admin/employees/${employeeId}/impersonate`)
+  stashAdminSession()
+  saveSession(token, user, false)
+  window.dispatchEvent(new CustomEvent('everixa:user-updated'))
+  return user
+}
+
+/** Ends the "view as employee" session and returns to the admin's own. */
+export async function exitViewAsEmployee() {
+  try { await api.post('/auth/logout') } catch { /* already ended */ }
+  restoreAdminSession()
+  window.dispatchEvent(new CustomEvent('everixa:user-updated'))
+}
+
+export { isViewingAsEmployee }
 
 export async function logout() {
   try {

@@ -1,6 +1,6 @@
 import { getDb, oid, ser } from '../db.js'
 import { bad, notFound, num, readBody, readJson, str } from '../http.js'
-import { requireAdmin, publicUser } from '../auth.js'
+import { requireAdmin, publicUser, createSession } from '../auth.js'
 import { decrypt, mask, randomToken } from '../crypto.js'
 import { hashPassword, validatePassword } from '../auth.js'
 import { sendMail } from '../mailer.js'
@@ -99,6 +99,16 @@ export function registerAdmin(r) {
       setup: u.setup ?? null,
       directDeposit: dd?.accountEnc ? { holder: dd.holder, bank: dd.bank, account: decrypt(dd.accountEnc), routing: decrypt(dd.routingEnc), accountMasked: mask(dd.last4) } : null,
     }
+  })
+
+  /** "View as employee": a short-lived, read-only session for the employee's portal. */
+  r.post('/admin/employees/:id/impersonate', A, async (ctx) => {
+    const db = await getDb()
+    const u = await db.collection('users').findOne({ _id: oid(ctx.params.id), role: 'employee', status: 'approved' })
+    if (!u) throw notFound('Only approved employees can be viewed.')
+    const { token, expiresAt } = await createSession(u, { remember: false, req: ctx.req, ip: ctx.ip, impersonatedBy: ctx.user._id })
+    await logActivity(u._id, 'security', 'Portal viewed by an administrator', `${ctx.user.email} (read-only)`)
+    return { token, expiresAt, user: publicUser(u) }
   })
 
   r.patch('/admin/employees/:id', A, async (ctx) => {
