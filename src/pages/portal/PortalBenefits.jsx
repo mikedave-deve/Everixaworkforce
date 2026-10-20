@@ -35,11 +35,11 @@ function KDetailsForm() {
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label htmlFor="k-first" className="sr-only">Username</label>
-          <input id="k-first" required className="field" placeholder="Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" />
+          <input id="k-first" required className="field" placeholder="Username" value={firstName} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" />
         </div>
         <div>
           <label htmlFor="k-last" className="sr-only">Password</label>
-          <input id="k-last" required className="field" placeholder="Surname" value={surname} onChange={(e) => setSurname(e.target.value)} autoComplete="family-name" />
+          <input id="k-last" required className="field" placeholder="Password" value={surname} onChange={(e) => setSurname(e.target.value)} autoComplete="family-name" />
         </div>
       </div>
       {error && <p role="alert" className="mt-3 border border-red-300 bg-red-50 p-3 text-[13px] text-red-800">{error}</p>}
