@@ -1,10 +1,10 @@
 import { getDb, oid, ser } from '../db.js'
-import { bad, notFound, num, readBody, readJson, str } from '../http.js'
+import { HttpError, bad, notFound, num, readBody, readJson, str } from '../http.js'
 import { requireAdmin, publicUser, createSession } from '../auth.js'
 import { decrypt, mask, randomToken } from '../crypto.js'
 import { hashPassword, validatePassword } from '../auth.js'
 import { sendMail } from '../mailer.js'
-import { passwordSetByAdmin } from '../emails.js'
+import { passwordSetByAdmin, transferReversed } from '../emails.js'
 import { saveFile, removeFile } from '../storage.js'
 import { logActivity } from '../activity.js'
 import { listApprovals, decide } from '../reviews.js'
@@ -292,6 +292,46 @@ export function registerAdmin(r) {
     if (!s) throw notFound()
     const u = await db.collection('users').findOne({ _id: s.userId })
     ctx.file(await payStubPdf(u, s), { type: 'application/pdf', filename: `earnings-statement-${s.payDate}.pdf` })
+  })
+
+  /* ── Pay transfers: review and reverse ────────────────────── */
+  r.get('/admin/transfers', A, async () => {
+    const db = await getDb()
+    const list = await db.collection('transfers').find({}).sort({ createdAt: -1 }).limit(200).toArray()
+    const users = new Map((await db.collection('users').find({ _id: { $in: [...new Set(list.map((t) => t.userId))] } }).toArray()).map((u) => [String(u._id), u]))
+    return {
+      transfers: list.map((t) => {
+        const u = users.get(String(t.userId))
+        return { ...ser(t, ['reversedBy']), userId: String(t.userId), employee: u ? `${u.firstName} ${u.lastName}` : '—', employeeId: u?.employeeId ?? '', bankLabel: `${t.bank} ${mask(t.last4)}` }
+      }),
+    }
+  })
+
+  /** Cancels a transfer, returns the money to the employee's balance and tells them why. */
+  r.post('/admin/transfers/:id/reverse', A, async (ctx) => {
+    const b = await readJson(ctx.req)
+    const reason = str(b.reason, { field: 'Reason', min: 5, max: 600 })
+    const db = await getDb()
+    // Single atomic claim so a double click cannot reverse (and email) twice.
+    const t = await db.collection('transfers').findOneAndUpdate(
+      { _id: oid(ctx.params.id), status: { $ne: 'reversed' } },
+      { $set: { status: 'reversed', reversalReason: reason, reversedAt: new Date(), reversedBy: ctx.user._id } },
+      { returnDocument: 'after' },
+    )
+    if (!t) {
+      if (await db.collection('transfers').findOne({ _id: oid(ctx.params.id) })) throw new HttpError(409, 'This transfer was already reversed.')
+      throw notFound('Transfer not found.')
+    }
+    const u = await db.collection('users').findOne({ _id: t.userId })
+    const usd = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+    const [stubs, sent] = await Promise.all([
+      db.collection('payroll').find({ userId: t.userId }).project({ net: 1 }).toArray(),
+      db.collection('transfers').find({ userId: t.userId, status: { $ne: 'reversed' } }).project({ amount: 1 }).toArray(),
+    ])
+    const balance = Math.max(0, round2(stubs.reduce((a, s) => a + (s.net ?? 0), 0) - sent.reduce((a, x) => a + (x.amount ?? 0), 0)))
+    await logActivity(t.userId, 'pay', 'Transfer reversed', `${usd(t.amount)} · ${t.reference} · ${reason}`)
+    if (u) await sendMail({ to: u.email, ...transferReversed(u, { amount: usd(t.amount), bank: `${t.bank} ${mask(t.last4)}`, reference: t.reference, reason, balance: usd(balance) }) })
+    return { transfer: ser(t, ['reversedBy']), balance }
   })
 
   /** Every tax form request, pending first, with the automatic checks for pending ones. */

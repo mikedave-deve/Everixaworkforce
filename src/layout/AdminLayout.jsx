@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { LayoutDashboard, CheckCheck, Users, ClipboardList, Wallet, Truck, FolderOpen, Inbox, FileText } from 'lucide-react'
+import { LayoutDashboard, CheckCheck, Users, ClipboardList, Wallet, Truck, FolderOpen, Inbox, FileText, ArrowLeftRight } from 'lucide-react'
 import PortalShell from '../components/portal/PortalShell'
 import { api } from '../lib/api'
 
@@ -28,6 +28,7 @@ export default function AdminLayout() {
     ] },
     { label: 'Money & Records', items: [
       { to: '/admin/pay', label: 'Pay', icon: Wallet },
+      { to: '/admin/transfers', label: 'Transfers', icon: ArrowLeftRight },
       { to: '/admin/tax', label: 'Tax Forms', icon: FileText, badge: taxPending },
       { to: '/admin/documents', label: 'Documents', icon: FolderOpen },
     ] },

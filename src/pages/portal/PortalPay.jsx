@@ -131,10 +131,19 @@ export default function PortalPay() {
             {!directDeposit && <p className="mt-3 text-[12px] text-brass-300">Add a direct deposit account to enable transfers.</p>}
             {transfers.length > 0 && (
               <ul className="mt-5 divide-y divide-cream-50/10 border-t border-cream-50/15 text-[13px]">
-                {transfers.slice(0, 3).map((t) => (
-                  <li key={t.id} className="flex justify-between gap-3 py-2.5">
-                    <span className="text-cream-100/70">{fmtDate(t.createdAt, { month: 'short', day: 'numeric' })} · {t.reference}</span>
-                    <span className="tabular-nums text-cream-50">−{money(t.amount)}</span>
+                {transfers.slice(0, 5).map((t) => (
+                  <li key={t.id} className="py-2.5">
+                    <div className="flex justify-between gap-3">
+                      <span className="text-cream-100/70">{fmtDate(t.createdAt, { month: 'short', day: 'numeric' })} · {t.reference}</span>
+                      <span className={t.status === 'reversed' ? 'tabular-nums text-cream-100/50 line-through' : 'tabular-nums text-cream-50'}>−{money(t.amount)}</span>
+                    </div>
+                    {t.status === 'reversed' && (
+                      <div className="mt-2 border-l-2 border-brass-300 bg-cream-50/[0.06] px-3 py-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brass-300">Reversed by Everixa{t.reversedAt ? ` · ${fmtDate(t.reversedAt, { month: 'short', day: 'numeric' })}` : ''}</p>
+                        <p className="mt-1 whitespace-pre-line leading-relaxed text-cream-100/85">{t.reversalReason}</p>
+                        <p className="mt-1 text-[12px] text-cream-100/55">The money was returned to your balance.</p>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>

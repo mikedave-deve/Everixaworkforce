@@ -76,7 +76,8 @@ const usd = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD
 async function payBalance(db, userId) {
   const [stubs, sent] = await Promise.all([
     db.collection('payroll').find({ userId }).project({ net: 1 }).toArray(),
-    db.collection('transfers').find({ userId }).project({ amount: 1 }).toArray(),
+    // A reversed transfer gives the money back to the balance.
+    db.collection('transfers').find({ userId, status: { $ne: 'reversed' } }).project({ amount: 1 }).toArray(),
   ])
   const earned = round2(stubs.reduce((a, s) => a + (s.net ?? 0), 0))
   const transferred = round2(sent.reduce((a, t) => a + (t.amount ?? 0), 0))
@@ -195,7 +196,7 @@ export function registerEmployee(r) {
     ])
     return {
       balance,
-      transfers: transfers.map((t) => ser(t, ['userId'])),
+      transfers: transfers.map((t) => ser(t, ['userId', 'reversedBy'])),
       rate: ctx.user.hourlyRate ?? 0,
       stubs: stubs.map((s) => ser(s, ['userId'])),
       ytd: { gross: sum('gross'), taxes: sum('totalTaxes'), net: sum('net'), periods: ytd.length },

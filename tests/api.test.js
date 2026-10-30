@@ -489,3 +489,31 @@ test('admin can view an employee portal read-only; the admin session is untouche
   assert.equal((await call('GET', '/api/auth/me', { token: t })).status, 401)
   assert.equal((await call('GET', '/api/admin/overview', { token: adminToken })).status, 200, 'admin still signed in')
 })
+
+test('admin reverses a transfer with a reason; balance is restored, employee sees the reason and is emailed', async () => {
+  const emp = (await call('POST', '/api/auth/login', { body: { email: EMAIL, password: 'Another1234' } })).data.token
+  const before = (await call('GET', '/api/pay', { token: emp })).data
+  const list = (await call('GET', '/api/admin/transfers', { token: adminToken })).data.transfers
+  const t = list.find((x) => x.employee.length && x.status === 'completed')
+  assert.ok(t, 'admin sees the employee transfer')
+
+  assert.equal((await call('GET', '/api/admin/transfers', { token: emp })).status, 403)
+  assert.equal((await call('POST', `/api/admin/transfers/${t.id}/reverse`, { token: emp, body: { reason: 'Because I said so' } })).status, 403, 'employees cannot reverse')
+  assert.equal((await call('POST', `/api/admin/transfers/${t.id}/reverse`, { token: adminToken, body: { reason: '' } })).status, 400, 'a reason is required')
+
+  const rev = await call('POST', `/api/admin/transfers/${t.id}/reverse`, { token: adminToken, body: { reason: 'Bank details could not be verified. Please re-enter them.' } })
+  assert.equal(rev.status, 200)
+  assert.equal(rev.data.balance, Math.round((before.balance + t.amount) * 100) / 100, 'money returned to balance')
+  assert.equal((await call('POST', `/api/admin/transfers/${t.id}/reverse`, { token: adminToken, body: { reason: 'Second attempt here' } })).status, 409, 'cannot reverse twice')
+
+  const after = (await call('GET', '/api/pay', { token: emp })).data
+  assert.equal(after.balance, rev.data.balance)
+  const seen = after.transfers.find((x) => x.id === t.id)
+  assert.equal(seen.status, 'reversed')
+  assert.match(seen.reversalReason, /could not be verified/)
+
+  const mail = sentTo(EMAIL).filter((m) => /was reversed/.test(m.subject)).at(-1)
+  assert.ok(mail, 'employee was emailed')
+  assert.match(mail.html, /Bank details could not be verified/)
+  assert.match(mail.html, /Reason for the reversal/)
+})

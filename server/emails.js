@@ -181,6 +181,23 @@ export const transferComplete = (u, { amount, bank, reference }) => ({
   }),
 })
 
+export const transferReversed = (u, { amount, bank, reference, reason, balance }) => ({
+  subject: `Your transfer of ${amount} was reversed`,
+  html: layout({
+    preheader: `Your transfer ${reference} was reversed. Reason: ${reason}`,
+    eyebrow: 'Transfer reversed',
+    title: `Your ${amount} transfer was reversed.`,
+    intro: `Hi ${esc(u.firstName)}, an Everixa administrator has cancelled and reversed the transfer below. The funds have been returned to your available balance.`,
+    body: rows([['Amount', amount], ['Was sent to', bank], ['Reference', reference], ['Available balance now', balance]])
+      + `<div style="margin:22px 0 0;padding:18px 20px;background:${C.ivory};border:1px solid ${C.line};border-top:3px solid ${C.brass}">
+        <div style="font:600 11px ${sans};letter-spacing:.2em;text-transform:uppercase;color:${C.muted};margin-bottom:10px">Reason for the reversal</div>
+        <p style="margin:0;font:400 14px/1.65 ${sans};color:${C.text};white-space:pre-line">${esc(reason)}</p>
+      </div>`
+      + `<p style="margin:22px 0 0;font:400 14px/1.65 ${sans};color:${C.text}">You can also see this reason on your Pay page. If you have questions, contact Everixa HR at <a href="mailto:admin.everixaworkforce@gmail.com" style="color:${C.ink}">admin.everixaworkforce@gmail.com</a>.</p>`,
+    cta: { label: 'View your pay', href: siteUrl('/portal/pay') },
+  }),
+})
+
 /* ── Notifications to the company inbox ────────────────────────── */
 export const adminNotice = ({ eyebrow, title, intro, fields, link, linkLabel = 'Open in admin portal', files }) => ({
   subject: `${eyebrow}: ${title}`,

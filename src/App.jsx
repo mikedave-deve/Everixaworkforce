@@ -44,6 +44,7 @@ const AdminEmployees = lazy(() => import("./pages/admin/AdminEmployees"));
 const AdminMissions = lazy(() => import("./pages/admin/AdminMissions"));
 const AdminPay = lazy(() => import("./pages/admin/AdminPay"));
 const AdminTax = lazy(() => import("./pages/admin/AdminTax"));
+const AdminTransfers = lazy(() => import("./pages/admin/AdminTransfers"));
 const AdminShipments = lazy(() => import("./pages/admin/AdminShipments"));
 const AdminDocuments = lazy(() => import("./pages/admin/AdminDocuments"));
 const AdminInbox = lazy(() => import("./pages/admin/AdminInbox"));
@@ -115,6 +116,7 @@ export default function App() {
           <Route path="missions" element={<AdminMissions />} />
           <Route path="pay" element={<AdminPay />} />
           <Route path="tax" element={<AdminTax />} />
+          <Route path="transfers" element={<AdminTransfers />} />
           <Route path="shipments" element={<AdminShipments />} />
           <Route path="documents" element={<AdminDocuments />} />
           <Route path="inbox" element={<AdminInbox />} />
